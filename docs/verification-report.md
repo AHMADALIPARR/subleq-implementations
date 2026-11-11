@@ -10,9 +10,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 The theorems about the Lean model of the specification are checked by Lean. The
 Racket, Factor and Forth machines are **tested** against it (unit tests,
 hand-written fixtures and seeded random programs), not proved equivalent.
-The Rosette microcode checks cover the register effects of 4 routines (not
-RV32I conformance); loads and stores are stubs and
-are not verified.
+The trusted Rosette harness (`racket/microcode/`, `make verify-microcode`)
+checks five directive-machine sequences (Zero, Move, Add, Load, Store). It
+does not claim RV32I conformance. Correspondence with Lean is tested on
+concrete programs against `racket/subleq.rkt`, not mechanized. The previous
+Goldcrest layer is quarantined in `racket/microcode-legacy/` and is not part
+of this claim.
 
 All results below are from local runs on 2026-11-10 (Debian 13, x86_64) with
 the toolchains listed. Hosted CI results are on the pull request.
@@ -34,7 +37,7 @@ the toolchains listed. Hosted CI results are on the pull request.
 | Racket unit tests | `raco test racket/subleq.rkt racket/subleq-original.rkt` | 41 tests passed (37 spec, 4 baseline) |
 | Forth unit tests | `gforth forth/test-subleq.fs` | 35 checks, 0 failed |
 | Factor unit tests | `factor factor/subleq-tests.factor` | 24 checks, 0 failed |
-| Rosette microcode | `racket racket/riscv.rkt` | register-effect specs for ADD/ADDI/LUI, SUB, AUIPC, JAL: PASS (4 checks, 0 failed); RV32I conformance not checked |
+| Rosette microcode (historical, now quarantined) | `racket racket/riscv.rkt` | register-effect specs for ADD/ADDI/LUI, SUB, AUIPC, JAL: PASS (4 checks, 0 failed); RV32I conformance not checked. Superseded by the milestone 1 harness below |
 | Rosette OISC | `racket racket/oisc-add.rkt` | ADD PASS, SUB PASS |
 | Lean build | `lake build` | success, 0 errors, 0 warnings |
 | Lean trusted path | `scripts/check-lean-trusted.sh` | 26 theorems; no `sorry`/`admit`/`axiom`/`unsafe`/`native_decide`/`implemented_by`/`extern`; axioms used are only `propext`, `Classical.choice`, `Quot.sound` |
@@ -102,9 +105,53 @@ differential runner on 33 hand-written fixtures and seeded random programs.
 The Lean executable runs the very `step`/`run` definitions the theorems are
 about; its input parser and printer in `lean/Main.lean` are not proved.
 
-## Rosette microcode (racket/riscv.rkt)
+## Directive-machine microcode (milestone 1)
 
-- `racket/microcode.rkt` is upstream's `compliant.rkt` from
+Local run on 2026-11-11 (Ubuntu 24.04, x86_64).
+
+| Tool | Version |
+|---|---|
+| Racket | 9.3 [cs] |
+| Rosette | commit `373c8c35e4a7667f38fce10cf0b74ae17de07f1d` (pkgs.racket-lang.org, Racket 9.3 catalog) |
+| Z3 | 4.8.8, the binary bundled with that Rosette install |
+
+`make verify-microcode` (`racket racket/microcode/verify.rkt`) exited 0:
+103 checks, 0 failed, 0 harness errors.
+
+| Check | Count | Result |
+|---|---|---|
+| `wrap32` agreement with `racket/subleq.rkt` on edge integers | 14 | pass |
+| Concrete differential, model vs `run-subleq`, edge programs (branch, wrap, trap, input, output with `b < 0`, faults, step-limit, self-modified `c`) | 14 | pass |
+| Symbolic post-condition (`verify` returned unsat) for Zero, Move, Add, Load, Store | 5 | pass (about 0–3 ms each) |
+| Concrete post-conditions, 7 input vectors per sequence | 35 | pass |
+| Same concrete vectors, model vs `run-subleq` | 35 | pass |
+
+Scope of that claim:
+
+- Sequences and specs live in `racket/microcode/`. The model is a Rosette re-implementation of `semantics/subleq-spec.md` (32-bit two's-complement bitvectors, `bvsub` = `wrap32`, branch on signed `r ≤ 0`, absolute `c`, Lean precedence, `c = -1` halt rule).
+- Zero is one instruction. Move, Add, Load, and Store are the directive scratch idiom (clear, negate, subtract, clear). Load and Store use fixed absolute addresses. None of the five is self-modifying. Entry PC, fuel, contract, and the self-modifying flag are in `sequences.rkt` and printed by the harness.
+- Exit status: 0 all checks passed, 1 counterexample or concrete failure, 2 harness error (unknown mutation, bad arguments, solver `unknown` / timeout, symbolic PC). A timeout is not a pass.
+
+### Mutation test
+
+`make verify-microcode-mutations` runs each fault in a child process. The self-test exits 0 only when every child exits 1 and prints a `symbolic sat FAIL` or `concrete FAIL`. Result: all 6 faults caught, self-test exit 0.
+
+| Id | Fault | Child exit | Counterexample the child printed |
+|---|---|---|---|
+| `zero-wrong-target` | instruction zeros FRAME instead of X | 1 | X = −1 stays −1 (`sat`) |
+| `add-subtract` | cell 6 selects A, so B ← B − A | 1 | A = 1065353216, B = 0, final B = −1065353216 |
+| `move-skip-clear` | B is not cleared, so B ← B + A | 1 | A = 0, B = −1, final B = −1 |
+| `load-wrong-source` | RD ← MEM2 | 1 | SRC = −1, MEM2 = 0, final RD = 0 |
+| `store-clobber` | halting instruction writes OTHER | 1 | RS = 0, OTHER = 1, final PC = 15 rather than −1 |
+| `zero-spec-identity` | Zero spec requires X unchanged | 1 | X = −1 becomes 0 |
+
+`store-clobber` and `zero-wrong-target` still satisfy the spec on the all-zero vector. The symbolic check is what rejects them for every input. The all-zero concrete case is not enough.
+
+## Legacy Goldcrest layer (not on the trusted path)
+
+Moved unchanged to `racket/microcode-legacy/` (`microcode.rkt`, `model.rkt`, `riscv.rkt`, `verify.rkt`). `make verify` still runs it. It is not evidence about the directive machine. The notes below describe that artifact as it stood before the move.
+
+- `microcode.rkt` is upstream's `compliant.rkt` from
   ics-jku/goldcrest-microcode-verification. The previous specs came from
   upstream's `riscv.rkt`, which targets upstream's other microcode file.
   Against this microcode all four printed FAIL, and the program still exited 0.
@@ -131,9 +178,17 @@ about; its input parser and printer in `lean/Main.lean` are not proved.
 ## Not verified / known limits
 
 - No proof of correspondence between Lean and the other implementations (above).
+- No mechanized proof that `racket/microcode/model.rkt` implements Lean `step`.
+  Agreement with `racket/subleq.rkt` is tested, on the edge programs and the
+  five sequences' concrete vectors listed above.
+- The milestone 1 harness does not verify data-dependent branch targets
+  (a symbolic PC at fetch is a harness error), register-indirect addressing,
+  or any sequence besides Zero, Move, Add, Load, and Store. Load and Store
+  are fixed absolute addresses, not RV32I loads and stores.
 - Forth: fixed capacity of 1000 memory cells and 1000 input words; output
   buffer of 100000 words (overflow aborts with an error message).
-- `racket/disassemble.rkt`, `nasm/subleq.asm`, `microcode/subleq_microcode.md`
-  and `riscv/subleq_riscv.s` were not changed beyond SPDX headers and are not tested.
+- `racket/disassemble.rkt` still loads the quarantined Goldcrest model (only
+  its require path changed). `nasm/subleq.asm`, `microcode/subleq_microcode.md`
+  and `riscv/subleq_riscv.s` are not tested.
 - `racket/subleq-original.rkt` is the original semantics and is deliberately
   not compared with the spec.
