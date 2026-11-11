@@ -1,7 +1,7 @@
 # Makefile for SUBLEQ Implementations
 # Supports formal verification with Racket/Rosette + Boolector
 
-.PHONY: help install-racket install-rosette install-deps build-boolector verify clean metrics
+.PHONY: help install-racket install-rosette install-deps build-boolector verify clean metrics oisc
 
 RACKET ?= racket
 RACO ?= raco
@@ -15,6 +15,7 @@ help:
 	@echo "  install-rosette   - Install Rosette via raco (rackunit already in full dist)"
 	@echo "  build-boolector   - Clone, build, and install Boolector solver"
 	@echo "  verify            - Run formal verification suite (symbolic Rosette checks)"
+	@echo "  oisc              - Run the simple OISC ADD experiment"
 	@echo "  metrics           - Run verification and print timing metrics"
 	@echo "  clean             - Remove build artifacts"
 	@echo "  all               - install-deps install-rosette build-boolector verify"
@@ -41,6 +42,10 @@ build-boolector:
 verify:
 	@echo "=== Running SUBLEQ formal verification (symbolic) ==="
 	$(RACKET) racket/riscv.rkt
+
+oisc:
+	@echo "=== Simple OISC ADD experiment ==="
+	$(RACKET) racket/oisc-add.rkt
 
 metrics:
 	@echo "=== SUBLEQ RISC-V Formal Verification ==="
