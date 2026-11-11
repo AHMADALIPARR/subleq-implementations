@@ -1,4 +1,4 @@
-# Simple OISC ADD Experiment
+# Simple OISC ADD / SUB Experiment
 
 This is a deliberately limited first experiment that defines the SUBLEQ machine semantics *before* implementing anything complex.
 
@@ -16,6 +16,7 @@ else:
 
 ## What it verifies
 
+### ADD
 Four SUBLEQ instructions that compute `output = A + B` with no data-dependent control flow.
 
 Symbolic inputs `a` and `b` are used. The check asserts:
@@ -24,10 +25,39 @@ Symbolic inputs `a` and `b` are used. The check asserts:
 - Output register equals `a + b`
 - Source registers A and B are preserved
 
+### SUB
+Five SUBLEQ instructions that compute `output = A - B`.
+
+Both temporary and output may start with arbitrary values. The check asserts:
+
+- Final PC equals the program length (completed)
+- Output register equals `a - b`
+- Source registers A and B are preserved
+- Initial scratch and output contents do not affect the result
+
 Run with:
 
 ```bash
 racket racket/oisc-add.rkt
+# or
+make oisc
 ```
 
-This serves as a clean foundation before moving to the full RISC-V microcode model (operand loading → SUBLEQ sequence → writeback, checked against an independent architectural specification).
+Expected output:
+
+```
+PASS: ADD result, exit PC, and source preservation
+PASS: SUB result, exit PC, and source preservation
+```
+
+## Checking that the verifier catches a bug
+
+Change only the last SUB instruction to:
+
+```racket
+(insn 0 3 5)   ; BUG: subtract A instead of B
+```
+
+The SUB check should then report `FAIL` and supply a counterexample with unequal `a` and `b`.
+
+This verifies two arithmetic routines; it still does not verify a RISC-V decoder, architectural register writeback, `x0`, or the architectural PC.
