@@ -1,5 +1,7 @@
 #!/bin/sh
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) Ahmad <ahmedparr93@gmail.com>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 # Fails if the Lean sources use a proof escape hatch, or if any theorem
 # depends on an axiom other than Lean's three standard ones.
 # Usage: scripts/check-lean-trusted.sh   (run from the repository root,

@@ -1,5 +1,6 @@
 #lang racket/base
-;; SPDX-License-Identifier: AGPL-3.0-or-later
+;; Copyright (C) Ahmad <ahmedparr93@gmail.com>
+;; SPDX-License-Identifier: AGPL-3.0-only
 
 ;; SHA-256 (FIPS 180-4) as a SUBLEQ program, generated with asm/sasm.rkt
 ;; for both machines:

@@ -1,5 +1,6 @@
 # Copyright (C) Ahmad <ahmedparr93@gmail.com>
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: AGPL-3.0-only
+
 # Makefile for SUBLEQ Implementations
 # Supports formal verification with Racket/Rosette, Lean 4 proofs, and
 # differential testing of the Racket, Factor, Forth and Lean machines.

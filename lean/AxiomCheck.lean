@@ -1,4 +1,6 @@
--- SPDX-License-Identifier: AGPL-3.0-or-later
+-- Copyright (C) Ahmad <ahmedparr93@gmail.com>
+-- SPDX-License-Identifier: AGPL-3.0-only
+
 -- Prints the axioms each theorem depends on (checked by scripts/check-lean-axioms.sh).
 import Subleq
 open Subleq

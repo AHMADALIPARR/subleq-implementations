@@ -1,6 +1,6 @@
 #lang rosette
 ;; Copyright (C) Ahmad <ahmedparr93@gmail.com>
-;; SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+;; SPDX-License-Identifier: AGPL-3.0-only AND MIT
 ;; SPDX-FileCopyrightText: 2022 Institute for Complex Systems (ICS), Johannes Kepler University Linz
 ;; Origin: copy of compliant.rkt from https://github.com/ics-jku/goldcrest-microcode-verification@55d3404
 ;; (MIT License, see LICENSES/MIT-goldcrest.txt).

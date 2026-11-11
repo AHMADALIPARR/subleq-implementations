@@ -1,5 +1,6 @@
 #lang racket/base
-;; SPDX-License-Identifier: AGPL-3.0-or-later
+;; Copyright (C) Ahmad <ahmedparr93@gmail.com>
+;; SPDX-License-Identifier: AGPL-3.0-only
 
 ;; Benchmarks: the directive machine (semantics/subleq-spec.md) against the original
 ;; SUBLEQ (racket/subleq-original.rkt).

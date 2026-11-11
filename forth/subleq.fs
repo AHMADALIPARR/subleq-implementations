@@ -1,5 +1,6 @@
 \ Copyright (C) Ahmad <ahmedparr93@gmail.com>
-\ SPDX-License-Identifier: AGPL-3.0-or-later
+\ SPDX-License-Identifier: AGPL-3.0-only
+
 \ SUBLEQ Virtual Machine in Forth
 \ Instruction: subleq a, b, c  (mem[b] = mem[b] - mem[a], branch to c if <= 0)
 \ Semantics: semantics/subleq-spec.md (32-bit wrap, absolute c, halt on c = -1,

@@ -1,5 +1,6 @@
 \ Copyright (C) Ahmad <ahmedparr93@gmail.com>
-\ SPDX-License-Identifier: AGPL-3.0-or-later
+\ SPDX-License-Identifier: AGPL-3.0-only
+
 \ Unit tests for forth/subleq.fs. Usage: gforth forth/test-subleq.fs
 \ Exits with status 1 if any check fails.
 

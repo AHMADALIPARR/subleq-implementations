@@ -1,4 +1,6 @@
-! SPDX-License-Identifier: AGPL-3.0-or-later
+! Copyright (C) Ahmad <ahmedparr93@gmail.com>
+! SPDX-License-Identifier: AGPL-3.0-only
+
 ! Unit tests for factor/subleq.factor.
 ! Usage: factor factor/subleq-tests.factor   (exits 1 if any check fails)
 USING: command-line namespaces io.pathnames parser kernel ;

@@ -1,5 +1,6 @@
 #lang racket/base
-;; SPDX-License-Identifier: AGPL-3.0-or-later
+;; Copyright (C) Ahmad <ahmedparr93@gmail.com>
+;; SPDX-License-Identifier: AGPL-3.0-only
 
 ;; SHA-256 in SUBLEQ against NIST test vectors: "abc" and the 448-bit
 ;; message are the examples of FIPS 180-2 Appendix B.1 and B.2; the empty

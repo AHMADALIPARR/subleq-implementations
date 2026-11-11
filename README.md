@@ -1,5 +1,8 @@
-<!-- Copyright (C) Ahmad <ahmedparr93@gmail.com> -->
-<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<!--
+Copyright (C) Ahmad <ahmedparr93@gmail.com>
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 # SUBLEQ Implementations
 
 [![CI](https://github.com/AHMADALIPARR/subleq-implementations/actions/workflows/formal-verification.yml/badge.svg)](https://github.com/AHMADALIPARR/subleq-implementations/actions/workflows/formal-verification.yml)
@@ -161,7 +164,7 @@ lean/.lake/build/bin/subleq-lean prog.txt
 
 ## License
 
-GNU Affero General Public License v3.0 or later (`AGPL-3.0-or-later`); see [LICENSE](LICENSE).
+GNU Affero General Public License v3.0 only (`AGPL-3.0-only`); see [LICENSE](LICENSE).
 
 `racket/model.rkt`, `racket/microcode.rkt`, `racket/verify.rkt`,
 `racket/riscv.rkt`, `racket/disassemble.rkt` and `riscv/subleq_riscv.s`
@@ -169,4 +172,4 @@ come from [ics-jku/goldcrest-microcode-verification](https://github.com/ics-jku/
 (Copyright (c) 2022 Institute for Complex Systems (ICS), Johannes Kepler
 University Linz), which is MIT-licensed. Their MIT notice is kept in
 [LICENSES/MIT-goldcrest.txt](LICENSES/MIT-goldcrest.txt) and their SPDX
-headers read `AGPL-3.0-or-later AND MIT`.
+headers read `AGPL-3.0-only AND MIT`.

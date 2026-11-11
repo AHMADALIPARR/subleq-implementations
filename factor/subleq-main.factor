@@ -1,4 +1,6 @@
-! SPDX-License-Identifier: AGPL-3.0-or-later
+! Copyright (C) Ahmad <ahmedparr93@gmail.com>
+! SPDX-License-Identifier: AGPL-3.0-only
+
 ! Command-line driver for factor/subleq.factor.
 ! Usage: factor factor/subleq-main.factor INPUT-FILE
 ! INPUT-FILE format and printed result: semantics/subleq-spec.md sections 5-6.

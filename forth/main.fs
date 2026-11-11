@@ -1,4 +1,6 @@
-\ SPDX-License-Identifier: AGPL-3.0-or-later
+\ Copyright (C) Ahmad <ahmedparr93@gmail.com>
+\ SPDX-License-Identifier: AGPL-3.0-only
+
 \ Command-line driver for forth/subleq.fs.
 \ Usage: gforth forth/main.fs INPUT-FILE
 \ INPUT-FILE format and the printed result: semantics/subleq-spec.md §5-6.

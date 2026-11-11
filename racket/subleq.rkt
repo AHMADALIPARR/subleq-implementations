@@ -1,6 +1,6 @@
 #lang racket/base
 ;; Copyright (C) Ahmad <ahmedparr93@gmail.com>
-;; SPDX-License-Identifier: AGPL-3.0-or-later
+;; SPDX-License-Identifier: AGPL-3.0-only
 
 ;; SUBLEQ interpreter following semantics/subleq-spec.md (directive semantics):
 ;;  * 32-bit signed cells, subtraction wraps mod 2^32

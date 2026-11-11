@@ -1,5 +1,7 @@
 #!/bin/sh
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) Ahmad <ahmedparr93@gmail.com>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 # Trusted-path check for the fault-model Lean project in lean-fault/
 # (the Lean code from PR #4, kept unchanged on its own toolchain).
 # Fails if a Lean source there uses a proof escape hatch, or if any theorem
