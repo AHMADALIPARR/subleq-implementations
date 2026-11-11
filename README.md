@@ -33,7 +33,3 @@ racket racket/oisc-add.rkt
 ```
 
 These are educational / experimental snippets for exploring one-instruction-set computing and formal verification with Rosette.
-
-## License
-
-GNU Affero General Public License v3 (AGPLv3). See the [LICENSE](LICENSE) file for the full text.
