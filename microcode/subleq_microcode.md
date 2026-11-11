@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 # SUBLEQ Microcode / Gate-Level Description
 
 ## Half Subtractor Logic (mapped to NAND gates)
