@@ -12,7 +12,7 @@ help:
 	@echo ""
 	@echo "Targets:"
 	@echo "  install-deps      - Install system packages (cmake, g++, make, git)"
-	@echo "  install-rosette   - Install Rosette and rackunit via raco"
+	@echo "  install-rosette   - Install Rosette via raco (rackunit already in full dist)"
 	@echo "  build-boolector   - Clone, build, and install Boolector solver"
 	@echo "  verify            - Run formal verification suite"
 	@echo "  metrics           - Run verification and print timing metrics"
@@ -26,7 +26,7 @@ install-deps:
 	sudo apt-get install -y cmake g++ make git
 
 install-rosette:
-	$(RACO) pkg install --auto --skip-installed rosette rackunit
+	$(RACO) pkg install --auto --skip-installed rosette
 
 build-boolector:
 	git clone --depth 1 https://github.com/boolector/boolector.git || true
