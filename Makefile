@@ -141,7 +141,14 @@ killer-app: lean
 	$(BENCH_ENV) $(RACKET) bench/killer-app.rkt
 
 bench: lean
-	mkdir -p verification-results
+
+bench-scripts:
+	@echo "Benchmark scripts live in scripts/bench/"
+	@echo "  ./scripts/bench/run-all.sh [--repeat N] [--only engines]"
+	@echo "  ./scripts/bench/verify-microcode.sh"
+	@echo "  ./scripts/bench/differential.sh [N]"
+	@echo "  ./scripts/bench/crypto.sh"
+
 	$(BENCH_ENV) $(RACKET) bench/bench.rkt > verification-results/bench.md; \
 	  status=$$?; cat verification-results/bench.md; exit $$status
 
