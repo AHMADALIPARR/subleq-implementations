@@ -14,7 +14,7 @@ help:
 	@echo "  install-deps      - Install system packages (cmake, g++, make, git)"
 	@echo "  install-rosette   - Install Rosette via raco (rackunit already in full dist)"
 	@echo "  build-boolector   - Clone, build, and install Boolector solver"
-	@echo "  verify            - Run formal verification suite"
+	@echo "  verify            - Run formal verification suite (symbolic Rosette checks)"
 	@echo "  metrics           - Run verification and print timing metrics"
 	@echo "  clean             - Remove build artifacts"
 	@echo "  all               - install-deps install-rosette build-boolector verify"
@@ -39,14 +39,14 @@ build-boolector:
 	@echo "Boolector installed."
 
 verify:
-	@echo "=== Running SUBLEQ formal verification ==="
-	$(RACKET) racket/verify.rkt
+	@echo "=== Running SUBLEQ formal verification (symbolic) ==="
+	$(RACKET) racket/riscv.rkt
 
 metrics:
 	@echo "=== SUBLEQ RISC-V Formal Verification ==="
 	@echo "Start: $$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 	@START=$$(date +%s); \
-	$(RACKET) racket/verify.rkt; \
+	$(RACKET) racket/riscv.rkt; \
 	END=$$(date +%s); \
 	DURATION=$$((END - START)); \
 	echo "=== Metrics ==="; \
