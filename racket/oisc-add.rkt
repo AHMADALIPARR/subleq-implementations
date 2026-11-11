@@ -82,3 +82,68 @@
     (evaluate (list a b scratch) result))]
   [else
    (displayln "UNKNOWN: no proof or counterexample")])
+
+;; SUB: output = A - B
+;;
+;; Registers:
+;; 0 = A, 1 = B, 2 = temporary, 3 = output
+;;
+;; Both temporary and output may start with arbitrary values.
+
+(define sub-program
+  (list
+   (insn 2 2 1)   ; temporary = 0
+   (insn 0 2 2)   ; temporary = -A
+   (insn 3 3 3)   ; output = 0
+   (insn 2 3 4)   ; output = A
+   (insn 1 3 5))) ; output = A - B
+
+(define-symbolic old-output (bitvector 32))
+
+(define sub-initial
+  (machine (list a b scratch old-output) 0))
+
+(define sub-final
+  (for/fold ([state sub-initial])
+            ([i (in-range (length sub-program))])
+    (step sub-program state)))
+
+(define sub-result
+  (verify
+   (begin
+     ;; The routine reaches its exit.
+     (assert
+      (= (machine-pc sub-final)
+         (length sub-program)))
+
+     ;; The result matches the independent specification.
+     (assert
+      (equal?
+       (list-ref (machine-regs sub-final) 3)
+       (bvsub a b)))
+
+     ;; Neither input is overwritten.
+     (assert
+      (equal?
+       (list-ref (machine-regs sub-final) 0)
+       a))
+
+     (assert
+      (equal?
+       (list-ref (machine-regs sub-final) 1)
+       b)))))
+
+(cond
+  [(unsat? sub-result)
+   (displayln
+    "PASS: SUB result, exit PC, and source preservation")]
+
+  [(sat? sub-result)
+   (displayln "FAIL: SUB counterexample")
+   (displayln
+    (evaluate
+     (list a b scratch old-output)
+     sub-result))]
+
+  [else
+   (displayln "UNKNOWN: SUB not proved")])
