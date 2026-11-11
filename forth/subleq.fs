@@ -1,191 +1,82 @@
 \ Copyright (C) Ahmad <ahmedparr93@gmail.com>
 \ SPDX-License-Identifier: AGPL-3.0-only
 
-\ SUBLEQ Virtual Machine in Forth (ANS Forth / Gforth compliant)
-\ Machine State:
-\   - Memory tape: array of cells
-\   - Instruction Pointer: IP
-\   - Input stream: array of cells + head pointer + count
-\   - Output stream: array of cells + count
-\   - Halted flag: HALTED?
-\   - Fault flag: FAULT-CODE (0=None, 1=InvalidFetch, 2=InvalidRead, 3=InvalidWrite, 4=InputExhausted, 5=FATrap)
+\ SUBLEQ Virtual Machine in Forth
+\ Instruction: subleq a, b, c  (mem[b] = mem[b] - mem[a], branch to c if <= 0)
+\ Semantics: semantics/subleq-spec.md (32-bit wrap, absolute c, halt on c = -1,
+\ a = -2 trap > a = -1 input > b < 0 output > ordinary, out-of-range reads 0,
+\ out-of-range writes discarded, PC out of range = fault).
 
-10000 constant MAX-MEM
-1000 constant MAX-IO
+variable ip  \ Instruction pointer
+\ Capacity hook (added for the SHA-256 and benchmark programs): a driver may
+\ define mem-capacity / in-capacity before including this file; the defaults
+\ keep the original 1000-cell machine. See forth/main-large.fs.
+[undefined] mem-capacity [if] 1000 constant mem-capacity [then]
+[undefined] in-capacity [if] 1000 constant in-capacity [then]
+CREATE memory mem-capacity cells allot  \ mem-capacity cells (default 1000)
+variable mem-size  \ cells actually loaded (N); 0 <= N <= mem-capacity
 
-create SUBLEQ-MEM MAX-MEM cells allot
-variable SUBLEQ-MEM-SIZE
+: mem ( n -- addr )  cells memory + ;
+: in-range? ( n -- f )  0 mem-size @ within ;
+: rd ( a -- v )  dup in-range? if mem @ else drop 0 then ;
+: wr ( v a -- )  dup in-range? if mem ! else 2drop then ;
+: wrap32 ( n -- n' )  $FFFFFFFF and dup $80000000 and if $100000000 - then ;
 
-variable SUBLEQ-IP
-
-create SUBLEQ-IN MAX-IO cells allot
-variable SUBLEQ-IN-HEAD
-variable SUBLEQ-IN-COUNT
-
-create SUBLEQ-OUT MAX-IO cells allot
-variable SUBLEQ-OUT-COUNT
-
-variable SUBLEQ-HALTED
-variable SUBLEQ-FAULT
-
-\ Variables to hold current instruction
-variable CUR-A
-variable CUR-B
-variable CUR-C
-
-\ Fault constants
-0 constant FAULT-NONE
-1 constant FAULT-INVALID-FETCH
-2 constant FAULT-INVALID-READ
-3 constant FAULT-INVALID-WRITE
-4 constant FAULT-INPUT-EXHAUSTED
-5 constant FAULT-FA-TRAP
-
-: SUBLEQ-INIT ( -- )
-  0 SUBLEQ-IP !
-  0 SUBLEQ-IN-HEAD !
-  0 SUBLEQ-IN-COUNT !
-  0 SUBLEQ-OUT-COUNT !
-  0 SUBLEQ-HALTED !
-  FAULT-NONE SUBLEQ-FAULT ! ;
-
-: SUBLEQ-LOAD-MEM ( addr u -- )
-  dup SUBLEQ-MEM-SIZE !
-  0 ?do
-    dup i cells + @
-    SUBLEQ-MEM i cells + !
-  loop
-  drop ;
-
-: SUBLEQ-LOAD-IN ( addr u -- )
-  dup SUBLEQ-IN-COUNT !
-  0 SUBLEQ-IN-HEAD !
-  0 ?do
-    dup i cells + @
-    SUBLEQ-IN i cells + !
-  loop
-  drop ;
-
-: SUBLEQ-FETCH ( -- flag )
-  SUBLEQ-IP @ dup 0 < if
-    drop 1 SUBLEQ-HALTED !
-    0
-  else
-    dup 3 + SUBLEQ-MEM-SIZE @ > if
-      drop 1 SUBLEQ-HALTED !
-      FAULT-INVALID-FETCH SUBLEQ-FAULT !
-      0
-    else
-      dup cells SUBLEQ-MEM + @ CUR-A !
-      dup 1+ cells SUBLEQ-MEM + @ CUR-B !
-      2 + cells SUBLEQ-MEM + @ CUR-C !
-      1
-    then
-  then ;
-
-: SUBLEQ-STEP ( -- )
-  SUBLEQ-HALTED @ if exit then
-  SUBLEQ-FAULT @ if 1 SUBLEQ-HALTED ! exit then
-  SUBLEQ-FETCH 0= if exit then
-
-  \ Check halt sentinel: a < 0 and b < 0
-  CUR-A @ 0 < CUR-B @ 0 < and if
-    1 SUBLEQ-HALTED !
-    exit
-  then
-
-  \ Check Flash-Attention Trap: a = -2
-  CUR-A @ -2 = if
-    CUR-C @ 0 < if
-      1 SUBLEQ-HALTED !
-    else
-      CUR-C @ SUBLEQ-IP !
-    then
-    FAULT-FA-TRAP SUBLEQ-FAULT !
-    exit
-  then
-
-  \ Check Input Extension: a = -1, b >= 0
-  CUR-A @ -1 = if
-    CUR-B @ 0 < CUR-B @ SUBLEQ-MEM-SIZE @ >= or if
-      1 SUBLEQ-HALTED !
-      FAULT-INVALID-WRITE SUBLEQ-FAULT !
-      exit
-    then
-    SUBLEQ-IN-COUNT @ 0 <= if
-      1 SUBLEQ-HALTED !
-      FAULT-INPUT-EXHAUSTED SUBLEQ-FAULT !
-      exit
-    then
-    SUBLEQ-IN SUBLEQ-IN-HEAD @ cells + @ \ in-val
-    CUR-B @ cells SUBLEQ-MEM + !
-    1 SUBLEQ-IN-HEAD +!
-    -1 SUBLEQ-IN-COUNT +!
-    CUR-B @ cells SUBLEQ-MEM + @ \ val
-    0 <= if
-      CUR-C @ SUBLEQ-IP !
-    else
-      SUBLEQ-IP @ 3 + SUBLEQ-IP !
-    then
-    SUBLEQ-IP @ 0 < if 1 SUBLEQ-HALTED ! then
-    exit
-  then
-
-  \ Check Output Extension: b = -1, a >= 0
-  CUR-B @ -1 = if
-    CUR-A @ 0 < CUR-A @ SUBLEQ-MEM-SIZE @ >= or if
-      1 SUBLEQ-HALTED !
-      FAULT-INVALID-READ SUBLEQ-FAULT !
-      exit
-    then
-    CUR-A @ cells SUBLEQ-MEM + @
-    SUBLEQ-OUT SUBLEQ-OUT-COUNT @ cells + !
-    1 SUBLEQ-OUT-COUNT +!
-    SUBLEQ-IP @ 3 + SUBLEQ-IP !
-    SUBLEQ-IP @ 0 < if 1 SUBLEQ-HALTED ! then
-    exit
-  then
-
-  \ Standard arithmetic: a >= 0, b >= 0
-  CUR-A @ 0 < CUR-A @ SUBLEQ-MEM-SIZE @ >= or if
-    1 SUBLEQ-HALTED !
-    FAULT-INVALID-READ SUBLEQ-FAULT !
-    exit
-  then
-  CUR-B @ 0 < CUR-B @ SUBLEQ-MEM-SIZE @ >= or if
-    1 SUBLEQ-HALTED !
-    FAULT-INVALID-WRITE SUBLEQ-FAULT !
-    exit
-  then
-
-  CUR-B @ cells SUBLEQ-MEM + @
-  CUR-A @ cells SUBLEQ-MEM + @
-  - \ val_b - val_a
-  dup CUR-B @ cells SUBLEQ-MEM + !
-  0 <= if
-    CUR-C @ SUBLEQ-IP !
-  else
-    SUBLEQ-IP @ 3 + SUBLEQ-IP !
-  then
-  SUBLEQ-IP @ 0 < if 1 SUBLEQ-HALTED ! then ;
-
-: SUBLEQ-RUN ( fuel -- )
-  0 ?do
-    SUBLEQ-HALTED @ if unloop exit then
-    SUBLEQ-STEP
-  loop ;
-
-: SUBLEQ-OBSERVE ( -- pc halted fault out-count )
-  SUBLEQ-IP @
-  SUBLEQ-HALTED @
-  SUBLEQ-FAULT @
-  SUBLEQ-OUT-COUNT @ ;
-
-\ Backwards-compatible subleq primitive word
 : subleq ( a b c -- )
+  \ Fetch values, subtract, store, and conditional branch
   >r
-  dup cells SUBLEQ-MEM + @
-  over cells SUBLEQ-MEM + @
-  swap -
-  rot cells SUBLEQ-MEM + !
-  dup 0 <= if r> SUBLEQ-IP ! else r> drop drop then ;
+  swap rd over rd swap - wrap32 ( b val_b-val_a )
+  dup rot wr ( store result in b )
+  0 <= if r> ip ! else r> drop 3 ip +! then ;
+
+\ ---- machine status, I/O buffers and the run loop ----
+0 constant running
+1 constant halted
+2 constant trapped
+3 constant fault-pc
+4 constant fault-input
+5 constant step-limit
+variable status
+variable trap-code
+variable steps
+
+CREATE inbuf in-capacity cells allot
+variable in-count
+variable in-pos
+100000 constant out-max
+CREATE outbuf out-max cells allot
+variable out-count
+
+: out, ( v -- )
+  out-count @ out-max >= abort" subleq: output buffer full"
+  out-count @ cells outbuf + !  1 out-count +! ;
+
+: reset ( -- )
+  0 ip !  running status !  0 trap-code !  0 steps !
+  0 in-pos !  0 out-count ! ;
+
+: fetch ( -- a b c )  ip @ mem @  ip @ 1+ mem @  ip @ 2 + mem @ ;
+
+: halt-on-c ( c -- )  -1 = if halted status ! then ;
+
+: step ( -- )
+  ip @ 0< ip @ 2 + mem-size @ >= or if fault-pc status ! exit then
+  fetch ( a b c )
+  2 pick -2 = if drop trap-code ! drop trapped status ! 1 steps +! exit then
+  2 pick -1 = if
+    in-pos @ in-count @ >= if drop 2drop fault-input status ! exit then
+    rot drop ( b c ) >r
+    in-pos @ cells inbuf + @ wrap32 swap wr  1 in-pos +!
+    3 ip +!  1 steps +!  r> halt-on-c exit
+  then
+  over 0< if
+    nip ( a c ) >r  rd out,
+    3 ip +!  1 steps +!  r> halt-on-c exit
+  then
+  dup >r subleq  1 steps +!  r> halt-on-c ;
+
+: run ( fuel -- )
+  begin
+    status @ running = while
+    steps @ over >= if step-limit status ! else step then
+  repeat drop ;

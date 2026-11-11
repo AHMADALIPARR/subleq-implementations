@@ -4,12 +4,11 @@
 import Lake
 open Lake DSL
 
-package «subleq» where
-
-lean_lib «Subleq» where
-
-lean_lib «Theorems» where
+package subleq where
 
 @[default_target]
-lean_exe «subleq» where
+lean_lib Subleq where
+
+@[default_target]
+lean_exe «subleq-lean» where
   root := `Main

@@ -3,7 +3,7 @@
 ;; SPDX-License-Identifier: AGPL-3.0-only
 
 (require rackunit
-         "subleq.rkt")
+         "subleq-fault.rkt")
 
 (printf "=== Running Racket SUBLEQ Verification Obligations ===\n")
 

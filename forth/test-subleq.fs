@@ -1,142 +1,62 @@
 \ Copyright (C) Ahmad <ahmedparr93@gmail.com>
 \ SPDX-License-Identifier: AGPL-3.0-only
 
-\ Forth SUBLEQ Test Suite
-\ Tests all verification obligations in Forth
-\ Run with: gforth forth/subleq.fs forth/test-subleq.fs
+\ Unit tests for forth/subleq.fs. Usage: gforth forth/test-subleq.fs
+\ Exits with status 1 if any check fails.
 
-cr .( === Running Forth SUBLEQ Verification Obligations === ) cr
+s" subleq.fs" included
 
-: ASSERT ( flag -- )
-  if else ." ASSERTION FAILED" cr 1 throw then ;
+variable checks  variable failures
+: check ( f -- )
+  1 checks +!  0= if 1 failures +! ." FAIL check #" checks @ 0 .r cr then ;
+: image ( x0 .. xn-1 n -- )  \ load n cells, x0 deepest
+  dup mem-size !  1- 0 swap ?do i mem ! -1 +loop ;
+: no-input ( -- ) 0 in-count ! ;
+: one-input ( v -- ) inbuf ! 1 in-count ! ;
 
-\ 1. Positive subtraction (3 4 6  3 10 0)
-create TEST1 3 , 4 , 6 , 3 , 10 , 0 ,
-SUBLEQ-INIT
-TEST1 6 SUBLEQ-LOAD-MEM
-SUBLEQ-STEP
-SUBLEQ-MEM 4 cells + @ 7 = ASSERT
-SUBLEQ-IP @ 3 = ASSERT
-SUBLEQ-HALTED @ 0= ASSERT
-.( PASS: Positive subtraction ) cr
+\ wrap32
+2147483648 wrap32 -2147483648 = check
+-2147483649 wrap32 2147483647 = check
+4294967295 wrap32 -1 = check
+5 wrap32 5 = check
 
-\ 2. Negative subtraction (3 4 6  5 2 0)
-create TEST2 3 , 4 , 6 , 5 , 2 , 0 ,
-SUBLEQ-INIT
-TEST2 6 SUBLEQ-LOAD-MEM
-SUBLEQ-STEP
-SUBLEQ-MEM 4 cells + @ -3 = ASSERT
-SUBLEQ-IP @ 6 = ASSERT
-.( PASS: Negative subtraction ) cr
+\ the subleq word alone: M[b] := M[b] - M[a], branch to c if <= 0
+3 0 7 5 4 image  reset  3 2 9 subleq  2 mem @ 2 = check  ip @ 3 = check
+3 0 7 5 4 image  reset  2 3 9 subleq  3 mem @ -2 = check  ip @ 9 = check
 
-\ 3. Zero subtraction (3 4 6  5 5 0)
-create TEST3 3 , 4 , 6 , 5 , 5 , 0 ,
-SUBLEQ-INIT
-TEST3 6 SUBLEQ-LOAD-MEM
-SUBLEQ-STEP
-SUBLEQ-MEM 4 cells + @ 0 = ASSERT
-SUBLEQ-IP @ 6 = ASSERT
-.( PASS: Zero subtraction ) cr
+\ ordinary step, branch taken to c = -1 -> halted, pc -1
+3 3 -1 7 4 image no-input reset 100 run
+status @ halted = check  ip @ -1 = check  3 mem @ 0 = check  steps @ 1 = check
+\ branch not taken, still halts on c = -1
+4 3 -1 5 1 5 image no-input reset 100 run
+status @ halted = check  ip @ 3 = check  3 mem @ 4 = check
+\ wrapped overflow: -2^31 - 1 -> 2^31 - 1, no branch
+4 3 -1 -2147483648 1 5 image no-input reset 100 run
+3 mem @ 2147483647 = check  ip @ 3 = check
+\ trap: priority over output, records b
+-2 -7 5 3 image no-input reset 100 run
+status @ trapped = check  trap-code @ -7 = check  ip @ 0 = check  steps @ 1 = check
+\ input into M[3]
+-1 3 -1 0 4 image 77 one-input reset 100 run
+status @ halted = check  3 mem @ 77 = check  ip @ 3 = check
+\ input beats output when b < 0 (value discarded)
+-1 -5 -1 3 image 1 one-input reset 100 run
+status @ halted = check  out-count @ 0 = check
+\ input exhausted
+-1 0 -1 3 image no-input reset 100 run
+status @ fault-input = check  steps @ 0 = check
+\ output, out-of-range read gives 0
+99 -1 -1 3 image no-input reset 100 run
+out-count @ 1 = check  outbuf @ 0 = check
+\ out-of-range ordinary write is discarded
+3 200 -1 -5 4 image no-input reset 100 run
+3 mem @ -5 = check  ip @ 3 = check
+\ pc out of range
+0 0 2 image no-input reset 100 run
+status @ fault-pc = check
+\ step limit
+0 0 0 3 image no-input reset 10 run
+status @ step-limit = check  steps @ 10 = check
 
-\ 4. Aliasing (3 3 6  42 0 0)
-create TEST4 3 , 3 , 6 , 42 , 0 , 0 ,
-SUBLEQ-INIT
-TEST4 6 SUBLEQ-LOAD-MEM
-SUBLEQ-STEP
-SUBLEQ-MEM 3 cells + @ 0 = ASSERT
-SUBLEQ-IP @ 6 = ASSERT
-.( PASS: Aliasing ) cr
-
-\ 5. Instruction modification (3 3 3  10 20 30)
-create TEST5 3 , 3 , 3 , 10 , 20 , 30 ,
-SUBLEQ-INIT
-TEST5 6 SUBLEQ-LOAD-MEM
-SUBLEQ-STEP
-SUBLEQ-MEM 3 cells + @ 0 = ASSERT
-SUBLEQ-IP @ 3 = ASSERT
-.( PASS: Self-modification ) cr
-
-\ 6. Invalid fetch
-create TEST6 1 , 2 ,
-SUBLEQ-INIT
-TEST6 2 SUBLEQ-LOAD-MEM
-SUBLEQ-STEP
-SUBLEQ-HALTED @ 1 = ASSERT
-SUBLEQ-FAULT @ FAULT-INVALID-FETCH = ASSERT
-.( PASS: Invalid fetch ) cr
-
-\ 7. Invalid read
-create TEST7 99 , 1 , 0 , 0 , 0 , 0 ,
-SUBLEQ-INIT
-TEST7 6 SUBLEQ-LOAD-MEM
-SUBLEQ-STEP
-SUBLEQ-HALTED @ 1 = ASSERT
-SUBLEQ-FAULT @ FAULT-INVALID-READ = ASSERT
-.( PASS: Invalid read ) cr
-
-\ 8. Invalid write
-create TEST8 0 , 99 , 0 , 0 , 0 , 0 ,
-SUBLEQ-INIT
-TEST8 6 SUBLEQ-LOAD-MEM
-SUBLEQ-STEP
-SUBLEQ-HALTED @ 1 = ASSERT
-SUBLEQ-FAULT @ FAULT-INVALID-WRITE = ASSERT
-.( PASS: Invalid write ) cr
-
-\ 9. Input extension & exhaustion
-create TEST9 -1 , 3 , 6 , 0 , 0 , 0 ,
-create IN9 42 ,
-SUBLEQ-INIT
-TEST9 6 SUBLEQ-LOAD-MEM
-IN9 1 SUBLEQ-LOAD-IN
-SUBLEQ-STEP
-SUBLEQ-MEM 3 cells + @ 42 = ASSERT
-SUBLEQ-IP @ 3 = ASSERT
-.( PASS: Input val ) cr
-
-SUBLEQ-INIT
-TEST9 6 SUBLEQ-LOAD-MEM
-SUBLEQ-STEP
-SUBLEQ-HALTED @ 1 = ASSERT
-SUBLEQ-FAULT @ FAULT-INPUT-EXHAUSTED = ASSERT
-.( PASS: Input exhausted ) cr
-
-\ 10. Output extension
-create TEST10 3 , -1 , 6 , 99 , 0 , 0 ,
-SUBLEQ-INIT
-TEST10 6 SUBLEQ-LOAD-MEM
-SUBLEQ-STEP
-SUBLEQ-OUT-COUNT @ 1 = ASSERT
-SUBLEQ-OUT @ 99 = ASSERT
-SUBLEQ-IP @ 3 = ASSERT
-.( PASS: Output extension ) cr
-
-\ 11. Halt sentinel
-create TEST11 -1 , -1 , -1 ,
-SUBLEQ-INIT
-TEST11 3 SUBLEQ-LOAD-MEM
-SUBLEQ-STEP
-SUBLEQ-HALTED @ 1 = ASSERT
-.( PASS: Halt sentinel ) cr
-
-\ 12. Countdown loop: 3 1 0  1 0 12  2 2 3  0 0 0  -1 -1 -1
-create TEST12 3 , 1 , 0 ,  1 , 0 , 12 ,  2 , 2 , 3 ,  0 , 0 , 0 ,  -1 , -1 , -1 ,
-SUBLEQ-INIT
-TEST12 15 SUBLEQ-LOAD-MEM
-3 SUBLEQ-IP !
-100 SUBLEQ-RUN
-SUBLEQ-HALTED @ 1 = ASSERT
-SUBLEQ-MEM @ 0 = ASSERT
-.( PASS: Countdown loop ) cr
-
-\ 13. Flash-Attention trap
-create TEST13 -2 , 0 , 6 , 0 , 0 , 0 ,
-SUBLEQ-INIT
-TEST13 6 SUBLEQ-LOAD-MEM
-SUBLEQ-STEP
-SUBLEQ-FAULT @ FAULT-FA-TRAP = ASSERT
-SUBLEQ-IP @ 6 = ASSERT
-.( PASS: FA trap ) cr
-
-cr .( All Forth SUBLEQ verification obligations passed successfully! ) cr
-bye
+." forth: " checks @ 0 .r ."  checks, " failures @ 0 .r ."  failed" cr
+failures @ 0<> 1 and (bye)
