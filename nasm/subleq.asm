@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: AGPL-3.0-or-later
 ; NASM 32-bit (P1-P4 architecture)
 ; Assuming ESI = memory base pointer
 ; EAX = index A, EBX = index B, ECX = branch target C
