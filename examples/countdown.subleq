@@ -1,5 +1,7 @@
-; SPDX-License-Identifier: AGPL-3.0-or-later
-; Example: Countdown loop in SUBLEQ (semantics/subleq-spec.md)
+;; Copyright (C) Ahmad <ahmedparr93@gmail.com>
+;; SPDX-License-Identifier: AGPL-3.0-only
+
+; Example: Countdown loop in SUBLEQ
 ; x = 3
 ; while true:
 ;     output x

@@ -1,3 +1,6 @@
+# Copyright (C) Ahmad <ahmedparr93@gmail.com>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 ! Compliant
 # SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 # SPDX-FileCopyrightText: 2022 Institute for Complex Systems (ICS), Johannes Kepler University Linz
