@@ -4,7 +4,8 @@
 # differential testing of the Racket, Factor, Forth and Lean machines.
 
 .PHONY: help install-rosette install-deps verify clean metrics oisc \
-        test test-racket test-forth test-factor lean lean-check differential all
+        test test-racket test-forth test-factor lean lean-check differential all \
+        macros sha256 killer-app bench
 
 RACKET ?= racket
 RACO ?= raco
@@ -30,7 +31,11 @@ help:
 	@echo "  lean              - Build the Lean 4 project (proofs + executable)"
 	@echo "  lean-check        - Reject proof escape hatches / non-standard axioms"
 	@echo "  differential      - Compare all four machines on fixtures + random programs"
-	@echo "  test              - All of the above except install-*"
+	@echo "  macros            - Measure and check every sasm macro on both machines (table)"
+	@echo "  sha256            - SHA-256 in SUBLEQ vs NIST vectors (racket, forth, factor, lean, original)"
+	@echo "  killer-app        - Keystream program: the directive machine vs the original SUBLEQ"
+	@echo "  bench             - Instruction counts and wall clock (writes verification-results/bench.md)"
+	@echo "  test              - test-*, verify, oisc, lean-check, differential, sha256, killer-app"
 	@echo "  clean             - Remove build artifacts"
 	@echo "  all               - install-deps install-rosette verify"
 
@@ -66,7 +71,8 @@ metrics:
 	exit $$STATUS
 
 test-racket:
-	$(RACO) test racket/subleq.rkt racket/subleq-original.rkt
+	$(RACO) test racket/subleq.rkt racket/subleq-original.rkt \
+	  asm/macro-table.rkt programs/sha256.rkt programs/keystream.rkt
 
 test-forth:
 	$(GFORTH) forth/test-subleq.fs
@@ -84,8 +90,25 @@ differential: lean
 	FACTOR=$(FACTOR) GFORTH=$(GFORTH) RACKET=$(RACKET) \
 	  $(RACKET) verification/differential.rkt --random $(RANDOM_PROGRAMS) --seed $(SEED)
 
-test: test-racket test-forth test-factor verify oisc lean-check differential
+BENCH_ENV = FACTOR=$(FACTOR) GFORTH=$(GFORTH) RACKET=$(RACKET)
+
+macros:
+	$(RACKET) asm/macro-table.rkt
+
+sha256: lean
+	$(BENCH_ENV) $(RACKET) bench/sha256-vectors.rkt
+
+killer-app: lean
+	$(BENCH_ENV) $(RACKET) bench/killer-app.rkt
+
+bench: lean
+	mkdir -p verification-results
+	$(BENCH_ENV) $(RACKET) bench/bench.rkt > verification-results/bench.md; \
+	  status=$$?; cat verification-results/bench.md; exit $$status
+
+test: test-racket test-forth test-factor verify oisc lean-check differential sha256 killer-app
 
 clean:
-	rm -rf verification-results lean/.lake racket/compiled verification/compiled
+	rm -rf verification-results lean/.lake racket/compiled verification/compiled \
+	  asm/compiled programs/compiled bench/compiled
 	@echo "Cleaned."

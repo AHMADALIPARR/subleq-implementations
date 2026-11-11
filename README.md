@@ -41,6 +41,10 @@ specification above.
 | `microcode/` | Gate-level notes (plus ATS2 sketch) | documentation only |
 | `riscv/` | Source form of the RISC-V-on-SUBLEQ routines (from ics-jku, MIT) | not checked against `microcode.rkt` |
 | `examples/` | Example SUBLEQ programs | `countdown.subleq` runs under the spec |
+| `asm/sasm.rkt` | Macro assembler and macro library for the directive machine and for the original machine | every macro checked on both machines by `asm/macro-table.rkt` |
+| `programs/sha256.rkt` | SHA-256 written in SUBLEQ (generated with `asm/sasm.rkt`) | NIST vectors pass on Racket, Forth, Factor, Lean and the original |
+| `programs/keystream.rkt` | "Killer app": streaming keystream filter (a toy cipher, not secure) | checked against a plain-Racket reference |
+| `bench/` | NIST vector runner, killer-app runner, benchmarks | see `make sha256`, `make killer-app`, `make bench` |
 
 Loads and stores (LB/LH/LW/LBU/LHU/SB/SH/SW) in `racket/microcode.rkt` are
 stubs that point at the ADD routine. They are not verified.
@@ -58,6 +62,18 @@ stubs that point at the ADD routine. They are not verified.
 
 Details and current results: [`docs/verification-report.md`](docs/verification-report.md).
 
+## SHA-256, benchmarks and the whitepaper
+
+[`docs/whitepaper.md`](docs/whitepaper.md) describes the parameter space of
+the machine, the macro library (`asm/sasm.rkt`) with each macro's expansion
+and measured cost, SHA-256 in SUBLEQ (`programs/sha256.rkt`), the
+instruction-count benchmarks against the original SUBLEQ
+(`racket/subleq-original.rkt`) and the keystream "killer app"
+(`programs/keystream.rkt`). In short, from the runs recorded there: SHA-256
+needs 1.45% more instructions per block on the original machine, and the
+keystream filter 1.754 times as many instructions per word, plus input and
+output arrays that grow with the stream.
+
 ## Running
 
 Toolchains used: Racket 9.3 (CS) with Rosette, Factor 0.102, gforth 0.7.3,
@@ -71,7 +87,11 @@ make verify           # Rosette microcode checks; exits 1 if any FAIL
 make oisc             # Rosette OISC experiment; exits 1 on FAIL/UNKNOWN
 make lean-check       # lake build + no escape hatches + axiom check
 make differential     # all four machines, fixtures + 200 random programs
+make sha256           # SHA-256 NIST vectors: racket, forth, factor, lean, original
+make killer-app       # keystream program on the directive machine and the original
 make test             # everything above
+make macros           # macro cost table (both machines)
+make bench            # instruction counts + wall clock -> verification-results/bench.md
 ```
 
 Run one program (input format in the spec, §6):
@@ -79,6 +99,7 @@ Run one program (input format in the spec, §6):
 ```bash
 racket racket/subleq.rkt prog.txt
 gforth forth/main.fs prog.txt
+gforth -m 64M forth/main-large.fs prog.txt   # up to 4,000,000 cells
 factor factor/subleq-main.factor prog.txt
 lean/.lake/build/bin/subleq-lean prog.txt
 ```

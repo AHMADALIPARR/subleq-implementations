@@ -118,9 +118,12 @@ N  m0 ... mN-1  K  i0 ... iK-1  FUEL
 ```
 
 The differential runner generates these files from
-`verification/fixtures/*.json`. The Forth implementation has a fixed
-capacity of 1000 memory cells and 1000 input words; larger files are
-rejected by its loader with an error (non-zero exit status).
+`verification/fixtures/*.json`. `forth/main.fs` has a capacity of 1000
+memory cells and 1000 input words (the defaults of the capacity hook in
+`forth/subleq.fs`); larger files are rejected by its loader with an error
+(non-zero exit status). `forth/main-large.fs` is the same driver with
+4,000,000 memory cells and 1,000,000 input words (run it with
+`gforth -m 64M`); it is used for the SHA-256 image (about 434,000 cells).
 
 ## 7. Baseline (original semantics)
 

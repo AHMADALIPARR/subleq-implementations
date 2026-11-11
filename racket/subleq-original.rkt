@@ -12,29 +12,38 @@
 ;;  * optional #:fuel keyword (default #f = unlimited, the original
 ;;    behaviour). With a number, execution stops after that many steps.
 ;;  * the commented-out `sample-prog` is kept as a definition and exported.
+;;  * execute-subleq/steps (added for the benchmarks in bench/): the same
+;;    loop, returning the final memory vector and the number of executed
+;;    instructions. execute-subleq returns only the memory, as before.
 
-(provide execute-subleq sample-prog)
+(provide execute-subleq execute-subleq/steps sample-prog)
 
 ;; SUBLEQ Interpreter (One-Instruction Set Computer)
 ;; Instruction layout: [A, B, C]
 ;; Operation: mem[B] = mem[B] - mem[A], then if mem[B] <= 0 jump to C (else PC + 3)
 
 (define (execute-subleq memory-list #:fuel [fuel #f])
+  (let-values ([(mem steps) (execute-subleq/steps memory-list #:fuel fuel)])
+    mem))
+
+;; execute-subleq/steps : list [#:fuel] -> (values vector steps)
+;; steps counts executed instructions (the halting checks are not counted).
+(define (execute-subleq/steps memory-list #:fuel [fuel #f])
   (let* ([mem (list->vector memory-list)]
          [len (vector-length mem)])
     (letrec ([step
               (lambda (pc n)
                 (cond
-                  [(and fuel (>= n fuel)) mem]
-                  [(< pc 0) mem]
-                  [(>= (+ pc 2) len) mem]
+                  [(and fuel (>= n fuel)) n]
+                  [(< pc 0) n]
+                  [(>= (+ pc 2) len) n]
                   [else
                    (let* ([a (vector-ref mem pc)]
                           [b (vector-ref mem (+ pc 1))]
                           [c (vector-ref mem (+ pc 2))])
                      ;; Halt if A and B are negative, or standard sentinel
                      (if (and (< a 0) (< b 0))
-                         mem
+                         n
                          (let* ([val-a (if (< a 0) 0 (vector-ref mem a))]
                                 [val-b (if (< b 0) 0 (vector-ref mem b))]
                                 [res (- val-b val-a)])
@@ -43,8 +52,8 @@
                            (if (<= res 0)
                                (step c (+ n 1))
                                (step (+ pc 3) (+ n 1))))))]))])
-      (step 0 0)
-      mem)))
+      (let ([n (step 0 0)])
+        (values mem n)))))
 
 ;; Example test: Subtract 1 from cell 0 until <= 0, then jump
 ;; Program: [0, 1, 0,  1, 1, 0] -> mem[1] = mem[1] - mem[0]
@@ -61,3 +70,15 @@
   (check-equal? (vector->list (execute-subleq sample-prog)) sample-prog)
   ;; #:fuel stops a non-terminating program: 0 0 0 loops on itself.
   (check-equal? (vector->list (execute-subleq (list 0 0 0) #:fuel 5)) (list 0 0 0)))
+
+(module+ test
+  ;; execute-subleq/steps: same memory as execute-subleq, plus the step count.
+  ;; '(3 4 -1 5 7): one instruction (7 - 5 = 2 > 0), then pc = 3, 3 + 2 >= 5 halts.
+  (let-values ([(mem n) (execute-subleq/steps '(3 4 -1 5 7))])
+    (check-equal? (vector->list mem) '(3 4 -1 5 2))
+    (check-equal? n 1))
+  ;; sample-prog: two executed instructions, then the -1 -1 sentinel halts.
+  (let-values ([(mem n) (execute-subleq/steps sample-prog)])
+    (check-equal? n 2))
+  (let-values ([(mem n) (execute-subleq/steps (list 0 0 0) #:fuel 5)])
+    (check-equal? n 5)))
