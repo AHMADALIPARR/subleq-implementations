@@ -41,40 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install gforth
-        run: |
-          # Build gforth from official source. Ubuntu apt mirrors are DNS-flaky on GHA.
-          set -euo pipefail
-          if ! command -v gcc >/dev/null || ! command -v make >/dev/null; then
-            sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null || true
-            sudo apt-get update -qq || true
-            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential || true
-          fi
-          command -v gcc >/dev/null
-          command -v make >/dev/null
-          # Official tarball first; kernel.org and GitHub tag as fallbacks
-          ok=0
-          for url in \
-            https://ftp.gnu.org/gnu/gforth/gforth-0.7.3.tar.gz \
-            https://mirrors.kernel.org/gnu/gforth/gforth-0.7.3.tar.gz \
-            https://github.com/forthy42/gforth/archive/refs/tags/v0-7-3.tar.gz; do
-            if curl -fsSL --retry 3 --retry-delay 2 -o /tmp/gforth.tar.gz "$url"; then
-              ok=1
-              break
-            fi
-          done
-          test "$ok" -eq 1
-          tar -xzf /tmp/gforth.tar.gz -C /tmp
-          if [ -d /tmp/gforth-0.7.3 ]; then
-            cd /tmp/gforth-0.7.3
-          elif [ -d /tmp/gforth-0-7-3 ]; then
-            cd /tmp/gforth-0-7-3
-          else
-            cd /tmp/gforth-*
-          fi
-          ./configure --prefix=/usr/local
-          make -j"$(nproc)"
-          sudo make install
-          gforth --version
+        run: sh scripts/install-gforth.sh
       - name: Forth unit tests
         run: make test-forth
 
@@ -120,38 +87,7 @@ jobs:
           variant: CS
           version: ${{ env.RACKET_VERSION }}
       - name: Install gforth
-        run: |
-          # Build gforth from official source. Ubuntu apt mirrors are DNS-flaky on GHA.
-          set -euo pipefail
-          if ! command -v gcc >/dev/null || ! command -v make >/dev/null; then
-            sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null || true
-            sudo apt-get update -qq || true
-            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential || true
-          fi
-          command -v gcc >/dev/null
-          command -v make >/dev/null
-          ok=0
-          for url in \
-            https://ftp.gnu.org/gnu/gforth/gforth-0.7.3.tar.gz \
-            https://mirrors.kernel.org/gnu/gforth/gforth-0.7.3.tar.gz \
-            https://github.com/forthy42/gforth/archive/refs/tags/v0-7-3.tar.gz; do
-            if curl -fsSL --retry 3 --retry-delay 2 -o /tmp/gforth.tar.gz "$url"; then
-              ok=1
-              break
-            fi
-          done
-          test "$ok" -eq 1
-          tar -xzf /tmp/gforth.tar.gz -C /tmp
-          if [ -d /tmp/gforth-0.7.3 ]; then
-            cd /tmp/gforth-0.7.3
-          elif [ -d /tmp/gforth-0-7-3 ]; then
-            cd /tmp/gforth-0-7-3
-          else
-            cd /tmp/gforth-*
-          fi
-          ./configure --prefix=/usr/local
-          make -j"$(nproc)"
-          sudo make install
+        run: sh scripts/install-gforth.sh
       - name: Install Factor
         run: |
           curl -fsSL "$FACTOR_URL" -o /tmp/factor.tar.gz
