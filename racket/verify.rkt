@@ -2,33 +2,57 @@
 
 (require "model.rkt")
 (require "microcode.rkt")
-(require rackunit)
 
-;; Simple formal verification / smoke test runner for the SUBLEQ RISC-V microcode.
-;; Uses Rosette + Boolector (when available via FFI) to check basic properties.
+;; Symbolic initial register state (matches memory layout in model.rkt)
+(define-symbolic
+  val-tmp0 val-rvpc val-src1 val-tmp1
+  val-src2 val-tmp2 val-tmp3 val-tmp4
+  val-immi val-tmp5 val-one val-word
+  val-inc val-step val-tmp6 val-tmp7
+  (bitvector XLEN))
 
-(define (run-basic-checks)
-  (printf "Running basic SUBLEQ microcode checks...\n")
-  
-  ;; Example: verify a trivial property on ADD-like sequence (first few instructions)
-  (define add-pc (bv 0 9))
-  (define sample-memory
-    (list (bv 0 XLEN) (bv 0 XLEN) (bv 5 XLEN) (bv 0 XLEN)
-          (bv 3 XLEN) (bv 0 XLEN) (bv 0 XLEN) (bv 0 XLEN)
-          (bv 2 XLEN) (bv 0 XLEN) (bv 1 XLEN) (bv (- XLEN 1) XLEN)
-          (bv -1 XLEN) (bv -4 XLEN) (bv 0 XLEN) (bv 0 XLEN)))
-  
-  (define result (execute 100 microcode sample-memory add-pc))
-  (printf "Sample execution result type: ~a\n" (if (list? result) "list" result))
-  
-  (check-true #t "placeholder check - extend with real properties")
-  (printf "Basic checks passed.\n"))
+(define test-mem
+  (list val-tmp0 val-rvpc val-src1 val-tmp1
+        val-src2 val-tmp2 val-tmp3 val-tmp4
+        val-immi val-tmp5 val-one val-word
+        val-inc val-step val-tmp6 val-tmp7))
 
-(define (main)
-  (printf "SUBLEQ RISC-V Formal Verification Runner\n")
-  (printf "XLEN = ~a\n" XLEN)
-  (run-basic-checks)
-  (printf "Verification complete.\n"))
+;; Core verification macro: runs microcode on symbolic state and checks spec
+(define-syntax-rule (rv-verify #:name name #:init-pc pc #:fuel fuel
+                               #:microcode microcode #:solver solver
+                               #:spec spec #:assumptions assumptions)
+  (begin
+    (current-solver solver)
+    (printf "~a with ~a (~a bits) for ~a steps " name (object-name solver) XLEN fuel)
+    (flush-output)
+    (when assumptions
+      (assumptions test-mem))
+    (define-values (results milli real-milli cpu-time)
+      (time-apply
+       (λ ()
+         (verify
+          (let ([res (execute fuel microcode test-mem pc)])
+            (assert (spec res)))))
+       '()))
+    (define m (first results))
+    (if (unsat? m)
+        (printf "PASS ~as\n" (/ real-milli 1000.0))
+        (begin
+          (printf "FAIL ~as\n" (/ real-milli 1000.0))
+          (printf "Counterexample model: ~a\n" m)
+          (define full-model (complete-solution m test-mem))
+          (define full-mem (for/list ([c test-mem]) (full-model c)))
+          (define concrete-res (execute fuel microcode full-mem pc))
+          (printf "Execution of ~a with counterexample:\n" name)
+          (for ([c test-mem] [v (list-ref concrete-res 0)])
+            (printf "  ~a = ~a (~a)\n" c v (bitvector->natural v)))
+          (printf "  result = ~a (~a)\n" (list-ref concrete-res 1)
+                  (bitvector->natural (list-ref concrete-res 1)))
+          (when (vector-member "--fail-fast" (current-command-line-arguments))
+            (exit 1))))))
 
-(module+ main
-  (main))
+(provide rv-verify
+         val-tmp0 val-rvpc val-src1 val-tmp1 val-src2 val-tmp2
+         val-tmp3 val-tmp4 val-immi val-tmp5 val-one val-word
+         val-inc val-step val-tmp6 val-tmp7
+         test-mem)
