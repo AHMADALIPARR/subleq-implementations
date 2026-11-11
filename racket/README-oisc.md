@@ -63,6 +63,7 @@ Change only the last SUB instruction to:
 (insn 0 3 5)   ; BUG: subtract A instead of B
 ```
 
-The SUB check should then report `FAIL` and supply a counterexample with unequal `a` and `b`.
+The SUB check should then report `FAIL` and supply a counterexample with unequal `a` and `b`,
+and `racket racket/oisc-add.rkt` exits with status 1 (it exits 0 only when every check passes).
 
 This verifies two arithmetic routines; it still does not verify a RISC-V decoder, architectural register writeback, `x0`, or the architectural PC.

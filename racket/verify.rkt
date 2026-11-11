@@ -20,6 +20,14 @@
         val-immi val-tmp5 val-one val-word
         val-inc val-step val-tmp6 val-tmp7))
 
+;; Number of failed checks so far. A FAIL used to exit non-zero only with
+;; --fail-fast, so `make verify` and CI passed even when every spec failed.
+;; Now every FAIL is counted and rv-verify-finish exits 1 if any failed.
+(define failure-count 0)
+(define check-count 0)
+(define (record-check!) (set! check-count (add1 check-count)))
+(define (record-failure!) (set! failure-count (add1 failure-count)))
+
 ;; Core verification macro: runs microcode on symbolic state and checks spec
 (define-syntax-rule (rv-verify #:name name #:init-pc pc #:fuel fuel
                                #:microcode microcode #:solver solver
@@ -38,9 +46,11 @@
             (assert (spec res)))))
        '()))
     (define m (first results))
+    (record-check!)
     (if (unsat? m)
         (printf "PASS ~as\n" (/ real-milli 1000.0))
         (begin
+          (record-failure!)
           (printf "FAIL ~as\n" (/ real-milli 1000.0))
           (printf "Counterexample model: ~a\n" m)
           (define full-model (complete-solution m test-mem))
@@ -54,7 +64,12 @@
           (when (vector-member "--fail-fast" (current-command-line-arguments))
             (exit 1))))))
 
-(provide rv-verify
+;; Print a summary and exit with status 1 if any check failed.
+(define (rv-verify-finish)
+  (printf "~a checks, ~a failed\n" check-count failure-count)
+  (exit (if (zero? failure-count) 0 1)))
+
+(provide rv-verify rv-verify-finish
          val-tmp0 val-rvpc val-src1 val-tmp1 val-src2 val-tmp2
          val-tmp3 val-tmp4 val-immi val-tmp5 val-one val-word
          val-inc val-step val-tmp6 val-tmp7

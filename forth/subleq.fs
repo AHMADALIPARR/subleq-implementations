@@ -9,6 +9,27 @@
 \   - Output stream: array of cells + count
 \   - Halted flag: HALTED?
 \   - Fault flag: FAULT-CODE (0=None, 1=InvalidFetch, 2=InvalidRead, 3=InvalidWrite, 4=InputExhausted, 5=FATrap)
+\ SPDX-License-Identifier: AGPL-3.0-or-later
+\ SUBLEQ Virtual Machine in Forth
+\ Instruction: subleq a, b, c  (mem[b] = mem[b] - mem[a], branch to c if <= 0)
+\ Semantics: semantics/subleq-spec.md (32-bit wrap, absolute c, halt on c = -1,
+\ a = -2 trap > a = -1 input > b < 0 output > ordinary, out-of-range reads 0,
+\ out-of-range writes discarded, PC out of range = fault).
+
+variable ip  \ Instruction pointer
+\ Capacity hook (added for the SHA-256 and benchmark programs): a driver may
+\ define mem-capacity / in-capacity before including this file; the defaults
+\ keep the original 1000-cell machine. See forth/main-large.fs.
+[undefined] mem-capacity [if] 1000 constant mem-capacity [then]
+[undefined] in-capacity [if] 1000 constant in-capacity [then]
+CREATE memory mem-capacity cells allot  \ mem-capacity cells (default 1000)
+variable mem-size  \ cells actually loaded (N); 0 <= N <= mem-capacity
+
+: mem ( n -- addr )  cells memory + ;
+: in-range? ( n -- f )  0 mem-size @ within ;
+: rd ( a -- v )  dup in-range? if mem @ else drop 0 then ;
+: wr ( v a -- )  dup in-range? if mem ! else 2drop then ;
+: wrap32 ( n -- n' )  $FFFFFFFF and dup $80000000 and if $100000000 - then ;
 
 10000 constant MAX-MEM
 1000 constant MAX-IO
