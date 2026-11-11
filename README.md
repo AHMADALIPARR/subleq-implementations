@@ -5,7 +5,6 @@
 [![Lean 4](https://img.shields.io/badge/Lean-4.35.0-orange)](https://leanprover.github.io/)
 [![Factor](https://img.shields.io/badge/Factor-0.102-green)](https://factorcode.org/)
 [![Forth](https://img.shields.io/badge/gforth-0.7.3-lightgrey)](https://www.gnu.org/software/gforth/)
-[![CI](https://github.com/AHMADALIPARR/subleq-implementations/actions/workflows/formal-verification.yml/badge.svg)](https://github.com/AHMADALIPARR/subleq-implementations/actions)
 
 **A multi-language, formally verified collection of SUBLEQ (Subtract and Branch if Less or Equal to Zero) One-Instruction Set Computer implementations.**
 
