@@ -1,5 +1,8 @@
 #lang rosette
-;; SPDX-License-Identifier: AGPL-3.0-or-later
+;; SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+;; SPDX-FileCopyrightText: 2022 Institute for Complex Systems (ICS), Johannes Kepler University Linz
+;; Origin: adapted from riscv.rkt (specs rewritten in this repository) from https://github.com/ics-jku/goldcrest-microcode-verification@55d3404
+;; (MIT License, see LICENSES/MIT-goldcrest.txt).
 
 (require "model.rkt")
 (require "microcode.rkt")
@@ -7,22 +10,29 @@
 
 (output-smt #f)
 
-;; Symbolic verification of core instructions of the SUBLEQ microcode in
+;; Symbolic checks of four routines of the SUBLEQ microcode in
 ;; microcode.rkt, run on the Harvard-style model in model.rkt.
 ;;
-;; Register convention (taken from microcode.rkt and model.rkt, where
-;; RSLT is defined as SRC2): operands are already in the OISC registers,
-;; the microcode leaves the architectural result in RSLT (= SRC2) and the
-;; next RISC-V PC in RVPC. The value `execute` returns as the "result" is
-;; only the last micro-instruction's subtraction result (for these routines
-;; the new RVPC), so the specs check registers, not that value.
+;; What is checked: the register effect of each routine. microcode.rkt is
+;; upstream's compliant.rkt; it leaves its result in RSLT (= SRC2, as
+;; model.rkt defines it) and the next RISC-V PC in RVPC. The value `execute`
+;; returns as the "result" is only the last micro-instruction's subtraction
+;; (for these routines, the new RVPC), so the specs check registers.
 ;;
-;; Earlier versions of these specs compared that returned value with
-;; IMMI + SRC1 etc.; they disagreed with the microcode and all four failed.
+;; Why the specs changed: the previous specs came from upstream riscv.rkt,
+;; which verifies upstream's *other* microcode file (microcode.rkt there),
+;; not compliant.rkt. Against this microcode they all failed, and the
+;; program still exited 0.
+;;
+;; What is NOT checked: conformance to RV32I. That depends on how the
+;; Goldcrest VP loads rs1/rs2/imm into SRC2/IMMI before the routine runs,
+;; which is outside this repository. SUBLEQ_AUDIT_REPORT.md (SUBLEQ-02)
+;; states that under Goldcrest's convention SUB computes rs2 - rs1; that
+;; claim was not re-checked here and the microcode was not changed.
 ;;
 ;; Verification boundary: LB/LH/LW/LBU/LHU/SB/SH/SW are stubs in
 ;; microcode.rkt (their *-PC entries point at the ADD routine) and are
-;; NOT verified. Only the four routines below are checked here.
+;; NOT verified. Only the four routines below are checked.
 ;; Uses Rosette's default solver (Z3).
 
 (define default-solver (current-solver))

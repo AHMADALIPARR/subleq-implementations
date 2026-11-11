@@ -34,12 +34,12 @@ specification above.
 | `factor/` | Factor machine (`subleq-step`), tests, CLI | tested |
 | `forth/` | Forth machine (`subleq`, `step`, `run`) for gforth, tests, CLI | tested |
 | `lean/` | Lean 4 model of the spec, theorems, executable | builds; theorems checked by Lean |
-| `racket/model.rkt`, `microcode.rkt`, `riscv.rkt`, `verify.rkt` | Rosette model of a microcoded SUBLEQ core running RISC-V instructions | 4 routines verified (ADD/ADDI/LUI, SUB, AUIPC, JAL) |
+| `racket/model.rkt`, `microcode.rkt`, `riscv.rkt`, `verify.rkt` | Rosette model of the Goldcrest microcoded SUBLEQ core running RISC-V instructions (from ics-jku, MIT) | register effects of 4 routines checked (ADD/ADDI/LUI, SUB, AUIPC, JAL); RV32I conformance not checked |
 | `racket/oisc-add.rkt` | Small OISC ADD/SUB experiment (Rosette) | verified |
-| `racket/disassemble.rkt` | Disassembler for the microcode | not tested |
+| `racket/disassemble.rkt` | Disassembler for the microcode (from ics-jku, MIT) | not tested |
 | `nasm/` | x86 fragment of the core step | fragment only, not assembled |
 | `microcode/` | Gate-level notes (plus ATS2 sketch) | documentation only |
-| `riscv/` | Source form of the RISC-V-on-SUBLEQ routines | not checked against `microcode.rkt` |
+| `riscv/` | Source form of the RISC-V-on-SUBLEQ routines (from ics-jku, MIT) | not checked against `microcode.rkt` |
 | `examples/` | Example SUBLEQ programs | `countdown.subleq` runs under the spec |
 
 Loads and stores (LB/LH/LW/LBU/LHU/SB/SH/SW) in `racket/microcode.rkt` are
@@ -86,3 +86,11 @@ lean/.lake/build/bin/subleq-lean prog.txt
 ## License
 
 GNU Affero General Public License v3.0 or later (`AGPL-3.0-or-later`); see [LICENSE](LICENSE).
+
+`racket/model.rkt`, `racket/microcode.rkt`, `racket/verify.rkt`,
+`racket/riscv.rkt`, `racket/disassemble.rkt` and `riscv/subleq_riscv.s`
+come from [ics-jku/goldcrest-microcode-verification](https://github.com/ics-jku/goldcrest-microcode-verification)
+(Copyright (c) 2022 Institute for Complex Systems (ICS), Johannes Kepler
+University Linz), which is MIT-licensed. Their MIT notice is kept in
+[LICENSES/MIT-goldcrest.txt](LICENSES/MIT-goldcrest.txt) and their SPDX
+headers read `AGPL-3.0-or-later AND MIT`.

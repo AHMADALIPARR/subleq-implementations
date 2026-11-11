@@ -3,10 +3,11 @@
 
 **Overall status: PARTIALLY VERIFIED**
 
-The Lean model of the specification is checked by Lean's kernel. The
+The theorems about the Lean model of the specification are checked by Lean. The
 Racket, Factor and Forth machines are **tested** against it (unit tests,
 hand-written fixtures and seeded random programs), not proved equivalent.
-The Rosette microcode checks cover 4 routines; loads and stores are stubs and
+The Rosette microcode checks cover the register effects of 4 routines (not
+RV32I conformance); loads and stores are stubs and
 are not verified.
 
 All results below are from local runs on 2026-11-10 (Debian 13, x86_64) with
@@ -29,7 +30,7 @@ the toolchains listed. Hosted CI results are on the pull request.
 | Racket unit tests | `raco test racket/subleq.rkt racket/subleq-original.rkt` | 41 tests passed (37 spec, 4 baseline) |
 | Forth unit tests | `gforth forth/test-subleq.fs` | 35 checks, 0 failed |
 | Factor unit tests | `factor factor/subleq-tests.factor` | 24 checks, 0 failed |
-| Rosette microcode | `racket racket/riscv.rkt` | ADD/ADDI/LUI, SUB, AUIPC, JAL: PASS (4 checks, 0 failed) |
+| Rosette microcode | `racket racket/riscv.rkt` | register-effect specs for ADD/ADDI/LUI, SUB, AUIPC, JAL: PASS (4 checks, 0 failed); RV32I conformance not checked |
 | Rosette OISC | `racket racket/oisc-add.rkt` | ADD PASS, SUB PASS |
 | Lean build | `lake build` | success, 0 errors, 0 warnings |
 | Lean trusted path | `scripts/check-lean-trusted.sh` | 26 theorems; no `sorry`/`admit`/`axiom`/`unsafe`/`native_decide`/`implemented_by`/`extern`; axioms used are only `propext`, `Classical.choice`, `Quot.sound` |
@@ -99,18 +100,29 @@ about; its input parser and printer in `lean/Main.lean` are not proved.
 
 ## Rosette microcode (racket/riscv.rkt)
 
-- The previous specs compared the value `execute` returns (the last
-  micro-instruction's result, here the new RVPC) with the architectural
-  result and used `SRC1` as an operand; they did not match `microcode.rkt`,
-  and all four printed FAIL while the program still exited 0. The specs now
-  check the registers the microcode writes: `RSLT` (= `SRC2`, as defined in
-  `model.rkt`) and `RVPC`. All four pass, and any FAIL now exits 1.
+- `racket/microcode.rkt` is upstream's `compliant.rkt` from
+  ics-jku/goldcrest-microcode-verification. The previous specs came from
+  upstream's `riscv.rkt`, which targets upstream's other microcode file.
+  Against this microcode all four printed FAIL, and the program still exited 0.
+- The specs now state the **register effect** of each routine: the result in
+  `RSLT` (= `SRC2`, as `model.rkt` defines it) and the next PC in `RVPC`:
+  ADD/ADDI/LUI `RSLT = SRC2 + IMMI`; SUB `RSLT = SRC2 - IMMI`;
+  AUIPC `RSLT = RVPC + IMMI`; JAL `RSLT = RVPC + 4`, `RVPC = RVPC + IMMI`;
+  the others `RVPC = RVPC + 4`. All four pass; any FAIL now exits 1.
+- **Not checked: RV32I conformance.** That depends on how the Goldcrest VP
+  loads `rs1`/`rs2`/`imm` into the registers, which is not in this repository.
+  `SUBLEQ_AUDIT_REPORT.md` (finding SUBLEQ-02) says SUB computes `rs2 - rs1`
+  under that convention; this PR did not re-check that claim and did not
+  change the microcode.
 - **Verification boundary:** LB/LH/LW/LBU/LHU/SB/SH/SW are stubs whose entry
   points are the ADD routine. They are not verified, and no memory-access
-  microcode was written. The remaining ~30 instructions in `microcode.rkt`
-  have no specs.
-- `riscv/subleq_riscv.s` differs from `microcode.rkt` in result register and
-  instruction order; it is not checked.
+  microcode was written. The other ~30 instructions in `microcode.rkt` have
+  no specs.
+- `model.rkt` branches on the exact (XLEN+1)-bit difference while storing the
+  wrapped value (SUBLEQ-07 in `SUBLEQ_AUDIT_REPORT.md`). This is the Rosette
+  model of the Goldcrest core, separate from the directive machine, and was
+  not changed.
+- `riscv/subleq_riscv.s` is not checked.
 
 ## Not verified / known limits
 
