@@ -42,20 +42,19 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install gforth
         run: |
-          # Bypass flaky apt mirrors by downloading the Ubuntu noble debs directly.
-          # (azure.archive.ubuntu.com and sometimes archive.ubuntu.com DNS-fail on GHA runners.)
+          # Build from official GNU tarball to avoid flaky Ubuntu archive DNS
+          # on GitHub Actions runners.
           set -euo pipefail
-          mkdir -p /tmp/gforth-debs
-          cd /tmp/gforth-debs
-          for deb in \
-            gforth-common_0.7.3+dfsg-9build4.1_all.deb \
-            gforth-lib_0.7.3+dfsg-9build4.1_amd64.deb \
-            gforth_0.7.3+dfsg-9build4.1_amd64.deb; do
-            curl -fsSL --retry 5 --retry-delay 2 \
-              -o "$deb" \
-              "https://archive.ubuntu.com/ubuntu/pool/universe/g/gforth/$deb"
-          done
-          sudo dpkg -i *.deb || sudo apt-get install -f -y
+          sudo apt-get update -qq || true
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential || true
+          curl -fsSL --retry 5 --retry-delay 2 \
+            https://ftp.gnu.org/gnu/gforth/gforth-0.7.3.tar.gz \
+            -o /tmp/gforth.tar.gz
+          tar -xzf /tmp/gforth.tar.gz -C /tmp
+          cd /tmp/gforth-0.7.3
+          ./configure --prefix=/usr/local
+          make -j"$(nproc)"
+          sudo make install
           gforth --version
       - name: Forth unit tests
         run: make test-forth
@@ -103,19 +102,19 @@ jobs:
           version: ${{ env.RACKET_VERSION }}
       - name: Install gforth
         run: |
-          # Bypass flaky apt mirrors by downloading the Ubuntu noble debs directly.
+          # Build from official GNU tarball to avoid flaky Ubuntu archive DNS
+          # on GitHub Actions runners.
           set -euo pipefail
-          mkdir -p /tmp/gforth-debs
-          cd /tmp/gforth-debs
-          for deb in \
-            gforth-common_0.7.3+dfsg-9build4.1_all.deb \
-            gforth-lib_0.7.3+dfsg-9build4.1_amd64.deb \
-            gforth_0.7.3+dfsg-9build4.1_amd64.deb; do
-            curl -fsSL --retry 5 --retry-delay 2 \
-              -o "$deb" \
-              "https://archive.ubuntu.com/ubuntu/pool/universe/g/gforth/$deb"
-          done
-          sudo dpkg -i *.deb || sudo apt-get install -f -y
+          sudo apt-get update -qq || true
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential || true
+          curl -fsSL --retry 5 --retry-delay 2 \
+            https://ftp.gnu.org/gnu/gforth/gforth-0.7.3.tar.gz \
+            -o /tmp/gforth.tar.gz
+          tar -xzf /tmp/gforth.tar.gz -C /tmp
+          cd /tmp/gforth-0.7.3
+          ./configure --prefix=/usr/local
+          make -j"$(nproc)"
+          sudo make install
       - name: Install Factor
         run: |
           curl -fsSL "$FACTOR_URL" -o /tmp/factor.tar.gz
