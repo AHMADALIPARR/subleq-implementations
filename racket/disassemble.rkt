@@ -5,7 +5,7 @@
 ;; Origin: copy of util.rkt from https://github.com/ics-jku/goldcrest-microcode-verification@55d3404
 ;; (MIT License, see LICENSES/MIT-goldcrest.txt).
 
-(require "model.rkt")
+(require "microcode-legacy/model.rkt")
 
 (define (disassemble code)
   (define (display-src src)

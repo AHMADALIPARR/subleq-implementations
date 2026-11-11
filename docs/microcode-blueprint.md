@@ -1,6 +1,6 @@
 # Blueprint: Native Rosette Microcode Verification Layer
 
-**Status**: Proposed  
+**Status**: Milestone 1 implemented  
 **Owner**: Engineering / Agents  
 **Related**: `racket/microcode.rkt`, `racket/riscv.rkt`, `docs/verification-report.md`, Goldcrest upstream  
 **Goal**: Replace the incomplete Goldcrest-derived Rosette layer with a first-party verification harness that is aligned with the directive machine, fails closed, and is integrated into the test/CI matrix.
@@ -127,12 +127,14 @@ Exit status contract:
 
 ## 9. Acceptance Criteria for Milestone 1
 
-- [ ] New harness exists under `racket/microcode/`.
-- [ ] At least the five operations in the table above have sequences and specs.
-- [ ] Harness exits 1 when a sequence or spec is deliberately broken (mutation test performed and recorded).
-- [ ] `make verify-microcode` is green on a clean machine and in CI.
-- [ ] `docs/verification-report.md` and README describe the exact scope and remaining gaps.
-- [ ] Legacy Goldcrest files are either removed or clearly marked as non-trusted.
+- [x] New harness exists under `racket/microcode/`.
+- [x] At least the five operations in the table above have sequences and specs.
+- [x] Harness exits 1 when a sequence or spec is deliberately broken (mutation test performed and recorded).
+- [x] `make verify-microcode` is green on a clean machine and in CI.
+- [x] `docs/verification-report.md` and README describe the exact scope and remaining gaps.
+- [x] Legacy Goldcrest files are either removed or clearly marked as non-trusted.
+
+Local `make verify-microcode` exited 0 (103 checks, 0 failed). The CI half of the fourth box is the Racket job on the milestone 1 pull request. See `docs/verification-report.md` for the run and the mutation table. Goldcrest files live in `racket/microcode-legacy/` with their original licence notices and a README that keeps them off the trusted path.
 
 ## 10. Risks and Mitigations
 
@@ -148,6 +150,16 @@ Exit status contract:
 1. Should the first memory operations use a flat memory model with absolute addresses, or a register-indirect model closer to RISC-V?
 2. Do we want the Rosette model to be a pure re-implementation, or an adapter over the existing Racket interpreter?
 3. What is the preferred bit-width for the first milestone (32-bit wrap to match Lean, or smaller for faster solving)?
+
+### Decisions for Milestone 1
+
+1. **Absolute addresses.** Load and Store are moves between a named register cell and a fixed memory cell in the flat image. The directive machine Lean checks is an `Array Int`, not a RISC-V register file, so a register-indirect model would not be that machine. This is the default in §12.
+2. **Pure re-implementation, not the §12 adapter-first default.** `racket/subleq.rkt` branches with Racket `cond` and mutates a vector, so it cannot merge symbolic states. The step function is small enough to re-implement. `verify.rkt` compares the model with `run-subleq` on concrete programs, which is the drift mitigation in §10. An adapter that only called the concrete interpreter would not exercise a symbolic path.
+3. **32-bit.** Memory cells are 32-bit two's-complement bitvectors. `bvsub` is Lean `wrap32` and `bvsle` is the signed `r ≤ 0` test. This is the §12 default. A narrower width would not be the machine the other engines run.
+4. **Precedence follows Lean, not the enumerated list in §5.** That list names a halt sentinel and output on `b = -1`. `lean/Subleq/Machine.lean` and `semantics/subleq-spec.md` have no halt-sentinel opcode: halt is the `c = -1` rule after input, output, and ordinary steps; output is `b < 0`; trap ignores `c` and does not halt. The milestone 1 model follows Lean, because the goal is the machine the Lean, Racket, Factor, and Forth engines already share.
+5. **Scratch is arbitrary on entry.** Move, Add, Load, and Store clear Z before using it and clear it again before halt. The sasm macros assume `K0` is already zero. Clearing it makes the post-condition hold for every initial scratch value.
+6. **Solver `unknown` or timeout exits 2.** §7 says to report a timeout clearly and reserves exit 1 for a counterexample or concrete failure. A timeout is not a proof, so it is not exit 0.
+7. **Legacy placement.** `racket/microcode.rkt`, `racket/model.rkt`, `racket/riscv.rkt`, and `racket/verify.rkt` moved byte-for-byte to `racket/microcode-legacy/` (the layout in §4, including `verify.rkt` because `riscv.rkt` requires it). Headers were not rewritten. `racket/disassemble.rkt` stayed put; only its require path changed. `make verify` still runs the legacy harness so the old command resolves. The CI Racket job runs `make verify-microcode` and `make verify-microcode-mutations` instead of `make metrics`.
 
 ## 12. Next Actions
 

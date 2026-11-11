@@ -8,7 +8,8 @@
 .PHONY: help install-rosette install-deps verify clean metrics oisc \
         test test-racket test-forth test-factor lean lean-check differential all \
         test-factor-fault lean-fault lean-fault-check \
-        macros sha256 killer-app bench
+        macros sha256 killer-app bench \
+        verify-microcode verify-microcode-mutations
 
 RACKET ?= racket
 RACO ?= raco
@@ -25,9 +26,11 @@ help:
 	@echo "Targets:"
 	@echo "  install-deps      - Install system packages (cmake, g++, make, git)"
 	@echo "  install-rosette   - Install Rosette via raco"
-	@echo "  verify            - Run formal verification suite (symbolic Rosette checks)"
+	@echo "  verify-microcode  - Directive-machine Rosette harness (trusted path)"
+	@echo "  verify-microcode-mutations - Each injected fault must exit 1"
+	@echo "  verify            - Legacy Goldcrest Rosette checks (not trusted)"
 	@echo "  oisc              - Run the simple OISC ADD/SUB experiment"
-	@echo "  metrics           - Run verification and print timing metrics"
+	@echo "  metrics           - Legacy Goldcrest timing run (not trusted)"
 	@echo "  test-racket       - rackunit tests (racket/subleq.rkt, racket/subleq-original.rkt, racket/test-subleq.rkt)"
 	@echo "  test-forth        - Forth unit tests (gforth): directive machine + fault model"
 	@echo "  test-factor       - Factor unit tests: directive machine + fault model"
@@ -40,11 +43,11 @@ help:
 	@echo "  sha256            - SHA-256 in SUBLEQ vs NIST vectors (racket, forth, factor, lean, original)"
 	@echo "  killer-app        - Keystream program: the directive machine vs the original SUBLEQ"
 	@echo "  bench             - Instruction counts and wall clock (writes verification-results/bench.md)"
-	@echo "  test              - test-*, verify, oisc, lean-check, lean-fault-check, differential, sha256, killer-app"
+	@echo "  test              - test-*, verify, verify-microcode, mutation self-test, oisc, lean-check, lean-fault-check, differential, sha256, killer-app"
 	@echo "  clean             - Remove build artifacts"
-	@echo "  all               - install-deps install-rosette verify"
+	@echo "  all               - install-deps install-rosette verify-microcode verify"
 
-all: install-deps install-rosette verify
+all: install-deps install-rosette verify-microcode verify
 
 install-deps:
 	sudo apt-get update
@@ -53,9 +56,18 @@ install-deps:
 install-rosette:
 	$(RACO) pkg install --auto --skip-installed rosette
 
+verify-microcode:
+	@echo "=== Directive-machine microcode verification ==="
+	$(RACKET) racket/microcode/verify.rkt
+
+verify-microcode-mutations:
+	@echo "=== Microcode mutation self-test (each fault must exit 1) ==="
+	$(RACKET) racket/microcode/verify.rkt --mutation-self-test
+
+# Quarantined Goldcrest harness. Not part of the directive-machine claim.
 verify:
-	@echo "=== Running SUBLEQ formal verification (symbolic) ==="
-	$(RACKET) racket/riscv.rkt
+	@echo "=== Legacy Goldcrest Rosette checks (not on the trusted path) ==="
+	$(RACKET) racket/microcode-legacy/riscv.rkt
 
 oisc:
 	@echo "=== Simple OISC ADD/SUB experiment ==="
@@ -65,7 +77,7 @@ metrics:
 	@echo "=== SUBLEQ RISC-V Formal Verification ==="
 	@echo "Start: $$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 	@START=$$(date +%s); \
-	$(RACKET) racket/riscv.rkt; STATUS=$$?; \
+	$(RACKET) racket/microcode-legacy/riscv.rkt; STATUS=$$?; \
 	END=$$(date +%s); \
 	DURATION=$$((END - START)); \
 	echo "=== Metrics ==="; \
@@ -133,10 +145,12 @@ bench: lean
 	$(BENCH_ENV) $(RACKET) bench/bench.rkt > verification-results/bench.md; \
 	  status=$$?; cat verification-results/bench.md; exit $$status
 
-test: test-racket test-forth test-factor verify oisc lean-check lean-fault-check \
+test: test-racket test-forth test-factor verify verify-microcode \
+      verify-microcode-mutations oisc lean-check lean-fault-check \
       differential sha256 killer-app
 
 clean:
 	rm -rf verification-results lean/.lake lean-fault/.lake racket/compiled verification/compiled \
-	  asm/compiled programs/compiled bench/compiled
+	  asm/compiled programs/compiled bench/compiled \
+	  racket/microcode/compiled racket/microcode-legacy/compiled
 	@echo "Cleaned."

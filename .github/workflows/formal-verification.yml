@@ -30,8 +30,10 @@ jobs:
         run: raco pkg install --auto --batch --skip-installed rosette
       - name: Racket unit tests (rackunit)
         run: make test-racket
-      - name: Rosette microcode verification (exits 1 on any FAIL)
-        run: make metrics
+      - name: Directive-machine microcode verification (exits 1 on any counterexample)
+        run: make verify-microcode
+      - name: Microcode mutation self-test (each injected fault must exit 1)
+        run: make verify-microcode-mutations
       - name: OISC ADD/SUB experiment (exits 1 on FAIL/UNKNOWN)
         run: make oisc
 

@@ -217,6 +217,14 @@ These checks confirm the result register and next PC but do **not** claim full R
 
 `racket/oisc-add.rkt` symbolically verifies a four-instruction program that computes `output = A + B`, checking the result, exit PC, and source preservation.
 
+### Directive-machine microcode scope (Milestone 1)
+
+`make verify-microcode` runs `racket/microcode/verify.rkt`. This is the Rosette harness on the trusted path. It checks five SUBLEQ sequences — Zero, Move, Add, Load, and Store — against post-conditions of the directive machine in `semantics/subleq-spec.md` (the machine Lean, Racket, Factor, and Forth implement): 32-bit two's-complement wrap, branch on the wrapped result `r ≤ 0` to an absolute `c`, and fetch / trap / input / output / ordinary precedence with the `c = −1` halt rule. Load and Store use fixed absolute addresses in flat memory. They are not register-indirect and they are not RV32I loads or stores.
+
+Each sequence is checked symbolically (`verify` must return unsat), on concrete inputs, and by comparing the Rosette model with `racket/subleq.rkt`. The process exits 1 on any counterexample and 2 on a harness error. `make verify-microcode-mutations` injects a broken sequence or spec and passes only when every injection exits 1.
+
+Not claimed: RV32I conformance, a mechanized proof that this Rosette model matches Lean, data-dependent branch targets, or any sequence beyond those five. The four RISC-V register-effect checks in the previous subsection are the quarantined Goldcrest harness under `racket/microcode-legacy/`. `make verify` still runs that harness. It is not a trusted-path result.
+
 ---
 
 ## Differential Testing
