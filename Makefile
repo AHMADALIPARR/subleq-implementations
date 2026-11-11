@@ -1,7 +1,7 @@
 # Makefile for SUBLEQ Implementations
-# Supports formal verification with Racket/Rosette + Boolector
+# Supports formal verification with Racket/Rosette
 
-.PHONY: help install-racket install-rosette install-deps build-boolector verify clean metrics oisc
+.PHONY: help install-rosette install-deps verify clean metrics oisc
 
 RACKET ?= racket
 RACO ?= raco
@@ -12,15 +12,14 @@ help:
 	@echo ""
 	@echo "Targets:"
 	@echo "  install-deps      - Install system packages (cmake, g++, make, git)"
-	@echo "  install-rosette   - Install Rosette via raco (rackunit already in full dist)"
-	@echo "  build-boolector   - Clone, build, and install Boolector solver"
+	@echo "  install-rosette   - Install Rosette via raco"
 	@echo "  verify            - Run formal verification suite (symbolic Rosette checks)"
-	@echo "  oisc              - Run the simple OISC ADD experiment"
+	@echo "  oisc              - Run the simple OISC ADD/SUB experiment"
 	@echo "  metrics           - Run verification and print timing metrics"
 	@echo "  clean             - Remove build artifacts"
-	@echo "  all               - install-deps install-rosette build-boolector verify"
+	@echo "  all               - install-deps install-rosette verify"
 
-all: install-deps install-rosette build-boolector verify
+all: install-deps install-rosette verify
 
 install-deps:
 	sudo apt-get update
@@ -29,22 +28,12 @@ install-deps:
 install-rosette:
 	$(RACO) pkg install --auto --skip-installed rosette
 
-build-boolector:
-	git clone --depth 1 https://github.com/boolector/boolector.git || true
-	cd boolector && ./contrib/setup-lingeling.sh
-	cd boolector && ./contrib/setup-btor2tools.sh
-	cd boolector && ./configure.sh
-	cd boolector/build && make -j$$(nproc)
-	cd boolector/build && sudo make install
-	rm -rf boolector
-	@echo "Boolector installed."
-
 verify:
 	@echo "=== Running SUBLEQ formal verification (symbolic) ==="
 	$(RACKET) racket/riscv.rkt
 
 oisc:
-	@echo "=== Simple OISC ADD experiment ==="
+	@echo "=== Simple OISC ADD/SUB experiment ==="
 	$(RACKET) racket/oisc-add.rkt
 
 metrics:
@@ -60,5 +49,5 @@ metrics:
 	echo "Racket version: $$($(RACKET) --version)"
 
 clean:
-	rm -rf boolector verification-results
+	rm -rf verification-results
 	@echo "Cleaned."
