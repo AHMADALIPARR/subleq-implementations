@@ -36,4 +36,4 @@ These are educational / experimental snippets for exploring one-instruction-set 
 
 ## License
 
-MIT
+GNU Affero General Public License v3 (AGPLv3). See the [LICENSE](LICENSE) file for the full text.
