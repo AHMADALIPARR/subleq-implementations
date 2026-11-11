@@ -1,6 +1,6 @@
 #lang rosette
 ;; Copyright (C) Ahmad <ahmedparr93@gmail.com>
-;; SPDX-License-Identifier: AGPL-3.0-only
+;; SPDX-License-Identifier: AGPL-3.0-or-later
 
 
 ;; Deliberately limited SUBLEQ machine for a first verification experiment.
@@ -11,6 +11,10 @@
 ;;     micro_pc = target
 ;;   else:
 ;;     micro_pc = micro_pc + 1
+
+;; Set when any check prints FAIL or UNKNOWN; the program then exits 1
+;; (it used to exit 0 in every case, so CI could not see a failure).
+(define any-failed #f)
 
 (define W 32)
 (define ZERO (bv 0 W))
@@ -80,10 +84,12 @@
   [(unsat? result)
    (displayln "PASS: ADD result, exit PC, and source preservation")]
   [(sat? result)
+   (set! any-failed #t)
    (displayln "FAIL: counterexample")
    (displayln
     (evaluate (list a b scratch) result))]
   [else
+   (set! any-failed #t)
    (displayln "UNKNOWN: no proof or counterexample")])
 
 ;; SUB: output = A - B
@@ -142,6 +148,7 @@
     "PASS: SUB result, exit PC, and source preservation")]
 
   [(sat? sub-result)
+   (set! any-failed #t)
    (displayln "FAIL: SUB counterexample")
    (displayln
     (evaluate
@@ -149,4 +156,7 @@
      sub-result))]
 
   [else
+   (set! any-failed #t)
    (displayln "UNKNOWN: SUB not proved")])
+
+(exit (if any-failed 1 0))

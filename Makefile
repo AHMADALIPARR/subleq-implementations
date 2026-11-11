@@ -1,14 +1,22 @@
 # Copyright (C) Ahmad <ahmedparr93@gmail.com>
-# SPDX-License-Identifier: AGPL-3.0-only
-
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # Makefile for SUBLEQ Implementations
-# Supports formal verification with Racket/Rosette
+# Supports formal verification with Racket/Rosette, Lean 4 proofs, and
+# differential testing of the Racket, Factor, Forth and Lean machines.
 
-.PHONY: help install-rosette install-deps verify clean metrics oisc
+.PHONY: help install-rosette install-deps verify clean metrics oisc \
+        test test-racket test-forth test-factor lean lean-check differential all \
+        test-factor-fault lean-fault lean-fault-check \
+        macros sha256 killer-app bench
 
 RACKET ?= racket
 RACO ?= raco
+FACTOR ?= factor
+GFORTH ?= gforth
+LAKE ?= lake
 XLEN ?= 32
+RANDOM_PROGRAMS ?= 200
+SEED ?= 20261110
 
 help:
 	@echo "SUBLEQ Formal Verification Makefile"
@@ -19,6 +27,19 @@ help:
 	@echo "  verify            - Run formal verification suite (symbolic Rosette checks)"
 	@echo "  oisc              - Run the simple OISC ADD/SUB experiment"
 	@echo "  metrics           - Run verification and print timing metrics"
+	@echo "  test-racket       - rackunit tests (racket/subleq.rkt, racket/subleq-original.rkt, racket/test-subleq.rkt)"
+	@echo "  test-forth        - Forth unit tests (gforth): directive machine + fault model"
+	@echo "  test-factor       - Factor unit tests: directive machine + fault model"
+	@echo "  lean              - Build the Lean 4 project (proofs + executable)"
+	@echo "  lean-check        - Reject proof escape hatches / non-standard axioms"
+	@echo "  lean-fault        - Build the fault-model Lean project (lean-fault/, its own toolchain)"
+	@echo "  lean-fault-check  - Elaborate lean-fault theorems; reject escape hatches / non-standard axioms"
+	@echo "  differential      - Compare all four machines on fixtures + random programs"
+	@echo "  macros            - Measure and check every sasm macro on both machines (table)"
+	@echo "  sha256            - SHA-256 in SUBLEQ vs NIST vectors (racket, forth, factor, lean, original)"
+	@echo "  killer-app        - Keystream program: the directive machine vs the original SUBLEQ"
+	@echo "  bench             - Instruction counts and wall clock (writes verification-results/bench.md)"
+	@echo "  test              - test-*, verify, oisc, lean-check, lean-fault-check, differential, sha256, killer-app"
 	@echo "  clean             - Remove build artifacts"
 	@echo "  all               - install-deps install-rosette verify"
 
@@ -43,14 +64,78 @@ metrics:
 	@echo "=== SUBLEQ RISC-V Formal Verification ==="
 	@echo "Start: $$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 	@START=$$(date +%s); \
-	$(RACKET) racket/riscv.rkt; \
+	$(RACKET) racket/riscv.rkt; STATUS=$$?; \
 	END=$$(date +%s); \
 	DURATION=$$((END - START)); \
 	echo "=== Metrics ==="; \
 	echo "Duration (seconds): $$DURATION"; \
 	echo "End: $$(date -u +%Y-%m-%dT%H:%M:%SZ)"; \
-	echo "Racket version: $$($(RACKET) --version)"
+	echo "Racket version: $$($(RACKET) --version)"; \
+	echo "Exit status: $$STATUS"; \
+	exit $$STATUS
+
+test-racket:
+	$(RACO) test racket/subleq.rkt racket/subleq-original.rkt \
+	  asm/macro-table.rkt programs/sha256.rkt programs/keystream.rkt \
+	  racket/test-subleq.rkt
+
+test-forth:
+	$(GFORTH) forth/test-subleq.fs
+	$(GFORTH) forth/subleq-fault.fs forth/test-subleq-fault.fs < /dev/null
+
+test-factor: test-factor-fault
+	$(FACTOR) factor/subleq-tests.factor
+
+# Fault-model tests (factor/test-subleq.factor, from PR #4). That file prints
+# PASS/FAIL lines and always exits 0, so the PASS lines are counted here.
+test-factor-fault:
+	@out=$$($(FACTOR) -e='USE: parser "factor/subleq-fault.factor" run-file "factor/test-subleq.factor" run-file' 2>&1); st=$$?; \
+	  printf '%s\n' "$$out"; \
+	  want=$$(grep -c '\[ "PASS: ' factor/test-subleq.factor); \
+	  got=$$(printf '%s\n' "$$out" | grep -c '^PASS: '); \
+	  if [ $$st -ne 0 ] || printf '%s\n' "$$out" | grep -q 'FAIL' || [ "$$got" -ne "$$want" ]; then \
+	    echo "factor fault-model tests: FAILED (exit $$st, $$got of $$want PASS)"; exit 1; fi; \
+	  echo "factor fault-model tests: $$got of $$want PASS"
+
+lean:
+	cd lean && $(LAKE) build
+
+lean-check: lean
+	scripts/check-lean-trusted.sh
+
+# Fault-model Lean project (from PR #4), built on its own toolchain
+# (lean-fault/lean-toolchain). lake build only builds Main and Subleq, so the
+# theorems are elaborated explicitly.
+lean-fault:
+	cd lean-fault && $(LAKE) build && $(LAKE) env lean Subleq/Theorems.lean
+
+lean-fault-check: lean-fault
+	scripts/check-lean-fault-trusted.sh
+
+differential: lean
+	FACTOR=$(FACTOR) GFORTH=$(GFORTH) RACKET=$(RACKET) \
+	  $(RACKET) verification/differential.rkt --random $(RANDOM_PROGRAMS) --seed $(SEED)
+
+BENCH_ENV = FACTOR=$(FACTOR) GFORTH=$(GFORTH) RACKET=$(RACKET)
+
+macros:
+	$(RACKET) asm/macro-table.rkt
+
+sha256: lean
+	$(BENCH_ENV) $(RACKET) bench/sha256-vectors.rkt
+
+killer-app: lean
+	$(BENCH_ENV) $(RACKET) bench/killer-app.rkt
+
+bench: lean
+	mkdir -p verification-results
+	$(BENCH_ENV) $(RACKET) bench/bench.rkt > verification-results/bench.md; \
+	  status=$$?; cat verification-results/bench.md; exit $$status
+
+test: test-racket test-forth test-factor verify oisc lean-check lean-fault-check \
+      differential sha256 killer-app
 
 clean:
-	rm -rf verification-results
+	rm -rf verification-results lean/.lake lean-fault/.lake racket/compiled verification/compiled \
+	  asm/compiled programs/compiled bench/compiled
 	@echo "Cleaned."
