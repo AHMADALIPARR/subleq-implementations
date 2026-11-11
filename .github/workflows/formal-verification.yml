@@ -42,14 +42,20 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install gforth
         run: |
-          # Workaround for intermittent DNS/mirror failures on azure.archive.ubuntu.com
-          # (known flaky issue on GitHub Actions Ubuntu runners).
-          if [ -f /etc/apt/apt-mirrors.txt ]; then
-            sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt || true
-          fi
-          sudo sed -i 's|http://azure\.archive\.ubuntu\.com|http://archive.ubuntu.com|g' /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null || true
-          sudo apt-get update -qq
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Acquire::Retries=3 gforth
+          # Bypass flaky apt mirrors by downloading the Ubuntu noble debs directly.
+          # (azure.archive.ubuntu.com and sometimes archive.ubuntu.com DNS-fail on GHA runners.)
+          set -euo pipefail
+          mkdir -p /tmp/gforth-debs
+          cd /tmp/gforth-debs
+          for deb in \
+            gforth-common_0.7.3+dfsg-9build4.1_all.deb \
+            gforth-lib_0.7.3+dfsg-9build4.1_amd64.deb \
+            gforth_0.7.3+dfsg-9build4.1_amd64.deb; do
+            curl -fsSL --retry 5 --retry-delay 2 \
+              -o "$deb" \
+              "https://archive.ubuntu.com/ubuntu/pool/universe/g/gforth/$deb"
+          done
+          sudo dpkg -i *.deb || sudo apt-get install -f -y
           gforth --version
       - name: Forth unit tests
         run: make test-forth
@@ -97,14 +103,19 @@ jobs:
           version: ${{ env.RACKET_VERSION }}
       - name: Install gforth
         run: |
-          # Workaround for intermittent DNS/mirror failures on azure.archive.ubuntu.com
-          # (known flaky issue on GitHub Actions Ubuntu runners).
-          if [ -f /etc/apt/apt-mirrors.txt ]; then
-            sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt || true
-          fi
-          sudo sed -i 's|http://azure\.archive\.ubuntu\.com|http://archive.ubuntu.com|g' /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null || true
-          sudo apt-get update -qq
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Acquire::Retries=3 gforth
+          # Bypass flaky apt mirrors by downloading the Ubuntu noble debs directly.
+          set -euo pipefail
+          mkdir -p /tmp/gforth-debs
+          cd /tmp/gforth-debs
+          for deb in \
+            gforth-common_0.7.3+dfsg-9build4.1_all.deb \
+            gforth-lib_0.7.3+dfsg-9build4.1_amd64.deb \
+            gforth_0.7.3+dfsg-9build4.1_amd64.deb; do
+            curl -fsSL --retry 5 --retry-delay 2 \
+              -o "$deb" \
+              "https://archive.ubuntu.com/ubuntu/pool/universe/g/gforth/$deb"
+          done
+          sudo dpkg -i *.deb || sudo apt-get install -f -y
       - name: Install Factor
         run: |
           curl -fsSL "$FACTOR_URL" -o /tmp/factor.tar.gz
