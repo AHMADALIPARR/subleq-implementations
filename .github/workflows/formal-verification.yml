@@ -28,50 +28,19 @@ jobs:
           variant: ${{ matrix.racket-variant }}
           version: ${{ matrix.racket-version }}
 
-      - name: Install Rosette and dependencies
-        run: |
-          raco pkg install --auto --skip-installed rosette
-          raco pkg install --auto --skip-installed rackunit
+      - name: Install dependencies via Makefile
+        run: make install-deps install-rosette
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake g++ make git
-
-      - name: Build and install Boolector (solver for Rosette)
-        run: |
-          git clone --depth 1 https://github.com/boolector/boolector.git
-          cd boolector
-          ./contrib/setup-lingeling.sh
-          ./contrib/setup-btor2tools.sh
-          ./configure.sh
-          cd build
-          make -j$(nproc)
-          sudo make install
-          cd ../..
-          rm -rf boolector
+      - name: Build Boolector via Makefile
+        run: make build-boolector
 
       - name: Verify Boolector is available
         run: |
           which boolector || true
           ldconfig -p | grep -i boolector || true
 
-      - name: Run formal verification (with metrics)
-        run: |
-          echo "=== SUBLEQ RISC-V Formal Verification ==="
-          echo "Start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          START=$(date +%s)
-          
-          # Run the verification suite
-          racket racket/verify.rkt || true
-          
-          END=$(date +%s)
-          DURATION=$((END - START))
-          echo "=== Metrics ==="
-          echo "Duration (seconds): $DURATION"
-          echo "End: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          echo "Racket version: $(racket --version)"
-          echo "Rosette solver: Boolector (via FFI when available)"
+      - name: Run formal verification with metrics
+        run: make metrics
 
       - name: Collect verification artifacts
         if: always()
