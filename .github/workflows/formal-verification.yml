@@ -42,13 +42,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install gforth
         run: |
-          # Build from official GNU tarball to avoid flaky Ubuntu archive DNS
-          # on GitHub Actions runners.
+          # Build from GitHub-mirrored source (reliable on GHA; Ubuntu archives DNS-flaky).
           set -euo pipefail
           sudo apt-get update -qq || true
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential || true
           curl -fsSL --retry 5 --retry-delay 2 \
-            https://ftp.gnu.org/gnu/gforth/gforth-0.7.3.tar.gz \
+            https://github.com/forthy42/gforth/archive/refs/tags/0.7.3.tar.gz \
             -o /tmp/gforth.tar.gz
           tar -xzf /tmp/gforth.tar.gz -C /tmp
           cd /tmp/gforth-0.7.3
@@ -102,13 +101,12 @@ jobs:
           version: ${{ env.RACKET_VERSION }}
       - name: Install gforth
         run: |
-          # Build from official GNU tarball to avoid flaky Ubuntu archive DNS
-          # on GitHub Actions runners.
+          # Build from GitHub-mirrored source (reliable on GHA; Ubuntu archives DNS-flaky).
           set -euo pipefail
           sudo apt-get update -qq || true
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential || true
           curl -fsSL --retry 5 --retry-delay 2 \
-            https://ftp.gnu.org/gnu/gforth/gforth-0.7.3.tar.gz \
+            https://github.com/forthy42/gforth/archive/refs/tags/0.7.3.tar.gz \
             -o /tmp/gforth.tar.gz
           tar -xzf /tmp/gforth.tar.gz -C /tmp
           cd /tmp/gforth-0.7.3
