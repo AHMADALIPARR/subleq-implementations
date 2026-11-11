@@ -97,6 +97,14 @@ jobs:
           mkdir -p verification-results
           set -o pipefail
           make differential FACTOR="$HOME/factor/factor" 2>&1 | tee verification-results/differential.txt
+      - name: SHA-256 NIST vectors on all machines
+        run: |
+          set -o pipefail
+          make sha256 FACTOR="$HOME/factor/factor" 2>&1 | tee verification-results/sha256.txt
+      - name: Killer app (keystream) on the directive machine and the original
+        run: |
+          set -o pipefail
+          make killer-app FACTOR="$HOME/factor/factor" 2>&1 | tee verification-results/killer-app.txt
       - name: Upload differential log
         if: always()
         uses: actions/upload-artifact@v4
