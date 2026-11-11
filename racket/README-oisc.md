@@ -1,3 +1,8 @@
+<!--
+Copyright (C) Ahmad <ahmedparr93@gmail.com>
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 # Simple OISC ADD / SUB Experiment
 
 This is a deliberately limited first experiment that defines the SUBLEQ machine semantics *before* implementing anything complex.
