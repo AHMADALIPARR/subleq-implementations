@@ -138,5 +138,71 @@ SUBLEQ-FAULT @ FAULT-FA-TRAP = ASSERT
 SUBLEQ-IP @ 6 = ASSERT
 .( PASS: FA trap ) cr
 
+\ 14. subleq primitive: M[b] := M[b] - M[a], branch on result <= 0
+create TEST14 3 , 4 , 9 , 2 , 10 , 0 ,
+SUBLEQ-INIT
+TEST14 6 SUBLEQ-LOAD-MEM
+3 4 9 subleq
+SUBLEQ-MEM 4 cells + @ 8 = ASSERT
+SUBLEQ-MEM 3 cells + @ 2 = ASSERT
+SUBLEQ-IP @ 3 = ASSERT
+depth 0= ASSERT
+4 3 9 subleq
+SUBLEQ-MEM 3 cells + @ -6 = ASSERT
+SUBLEQ-IP @ 9 = ASSERT
+SUBLEQ-HALTED @ 0= ASSERT
+depth 0= ASSERT
+.( PASS: subleq primitive ) cr
+
+\ 15. Output loop longer than MAX-IO faults instead of overrunning SUBLEQ-OUT
+create TEST15 6 , -1 , 0 ,  7 , 7 , 0 ,  42 , 0 ,
+SUBLEQ-INIT
+TEST15 8 SUBLEQ-LOAD-MEM
+3000 SUBLEQ-RUN
+SUBLEQ-OUT-COUNT @ MAX-IO = ASSERT
+SUBLEQ-HALTED @ 1 = ASSERT
+SUBLEQ-FAULT @ FAULT-INVALID-WRITE = ASSERT
+SUBLEQ-IP @ 0 = ASSERT
+SUBLEQ-OUT MAX-IO 1- cells + @ 42 = ASSERT
+.( PASS: Output capacity ) cr
+
+\ 16. Oversized loads fault
+SUBLEQ-INIT
+here MAX-MEM 1+ SUBLEQ-LOAD-MEM
+SUBLEQ-HALTED @ 1 = ASSERT
+SUBLEQ-FAULT @ FAULT-INVALID-WRITE = ASSERT
+SUBLEQ-MEM-SIZE @ 0 = ASSERT
+depth 0= ASSERT
+.( PASS: Oversized memory load ) cr
+
+SUBLEQ-INIT
+here MAX-IO 1+ SUBLEQ-LOAD-IN
+SUBLEQ-HALTED @ 1 = ASSERT
+SUBLEQ-FAULT @ FAULT-INVALID-WRITE = ASSERT
+SUBLEQ-IN-COUNT @ 0 = ASSERT
+depth 0= ASSERT
+.( PASS: Oversized input load ) cr
+
+\ 17. Cell overflow: (2^63 - 1) - (-1) faults; M[b] is left unchanged
+create TEST17 3 , 4 , -1 , -1 , 9223372036854775807 , 0 ,
+SUBLEQ-INIT
+TEST17 6 SUBLEQ-LOAD-MEM
+SUBLEQ-STEP
+SUBLEQ-HALTED @ 1 = ASSERT
+SUBLEQ-FAULT @ FAULT-OVERFLOW = ASSERT
+SUBLEQ-MEM 4 cells + @ 9223372036854775807 = ASSERT
+SUBLEQ-IP @ 0 = ASSERT
+.( PASS: Overflow fault ) cr
+
+\ (2^63 - 1) - 1 fits and runs normally
+create TEST17B 3 , 4 , -1 , 1 , 9223372036854775807 , 0 ,
+SUBLEQ-INIT
+TEST17B 6 SUBLEQ-LOAD-MEM
+SUBLEQ-STEP
+SUBLEQ-FAULT @ FAULT-NONE = ASSERT
+SUBLEQ-MEM 4 cells + @ 9223372036854775806 = ASSERT
+SUBLEQ-IP @ 3 = ASSERT
+.( PASS: No overflow at the edge ) cr
+
 cr .( All Forth SUBLEQ verification obligations passed successfully! ) cr
 bye
