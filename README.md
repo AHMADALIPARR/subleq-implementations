@@ -1,175 +1,35 @@
-<!--
-Copyright (C) Ahmad <ahmedparr93@gmail.com>
-SPDX-License-Identifier: AGPL-3.0-only
--->
-
 # SUBLEQ Implementations
 
-[![CI](https://github.com/AHMADALIPARR/subleq-implementations/actions/workflows/formal-verification.yml/badge.svg)](https://github.com/AHMADALIPARR/subleq-implementations/actions/workflows/formal-verification.yml)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
-
-Collection of SUBLEQ (Subtract and Branch if Less or Equal) virtual machine
-implementations and related code.
-
-## Semantics
-
-The Racket (`racket/subleq.rkt`), Factor (`factor/subleq.factor`), Forth
-(`forth/subleq.fs`) and Lean (`lean/`) machines all follow one specification
-(the fault-model machines from PR #4, below, do not): [`semantics/subleq-spec.md`](semantics/subleq-spec.md).
-In short:
-
-- cells are 32-bit signed integers and subtraction wraps modulo 2^32;
-- the branch is taken when the **wrapped** result is `<= 0`, to the absolute address `c`;
-- the machine halts after executing an instruction whose `c` is `-1`;
-- `a = -2` is a trap (records `b`), `a = -1` reads input into `M[b]`,
-  `b < 0` writes `M[a]` to the output, in that priority order;
-- out-of-range reads give 0, out-of-range writes are discarded, and a PC that
-  cannot fetch three cells is a fault.
-
-The original unbounded-integer interpreter is kept unchanged in behaviour as
-`racket/subleq-original.rkt`, as a benchmark baseline. It does not follow the
-specification above.
-
-## Fault-model machines (added in PR #4)
-
-PR #4 added a second family of machines, built around a state record
-(memory, PC, input, output, halted, fault). They are kept unchanged in
-behaviour, in their own files, next to the directive machines:
-
-| File | What |
-|---|---|
-| `racket/subleq-fault.rkt` | Racket fault model (`machine-init`, `machine-step`, `machine-run`, `machine-trace`, `machine-observe`, `execute-subleq`); tests in `racket/test-subleq.rkt` |
-| `factor/subleq-fault.factor` | Factor fault model (`subleq-state` tuple, `subleq-init`, `subleq-step ( state -- state' )`, `subleq-run`, `subleq-trace`, `subleq-observe`); tests in `factor/test-subleq.factor` |
-| `forth/subleq-fault.fs` | Forth fault model (`SUBLEQ-INIT`, `SUBLEQ-LOAD-MEM`, `SUBLEQ-LOAD-IN`, `SUBLEQ-STEP`, `SUBLEQ-RUN`, `SUBLEQ-OBSERVE`, and a `subleq ( a b c -- )` on `SUBLEQ-MEM`); tests in `forth/test-subleq-fault.fs` |
-| `lean-fault/` | Lean 4 fault model (`lean-fault/Subleq.lean`) and its theorems (`lean-fault/Subleq/Theorems.lean`), a separate Lake project pinned to Lean v4.8.0 |
-| `docs/fault-model-readme.md` | The README that came with PR #4 |
-
-Their semantics are **not** the specification above. In the fault model:
-
-- integers are unbounded in Racket, Factor and Lean (no 32-bit wrap); the
-  Forth version uses gforth's native cells;
-- a PC below 0 halts; a PC with fewer than three cells left halts with fault
-  `invalid-fetch`;
-- an instruction with `a < 0` and `b < 0` halts before doing anything
-  (so `-1 -1 -1` is a halt);
-- `a = -2` sets fault `flash-attention-trap` and jumps to `c` (halts if
-  `c < 0`); the next step then halts because a fault is set;
-- `a = -1` reads input into `M[b]` and branches to `c` when the value read is `<= 0`;
-- output happens only for `b = -1`;
-- an out-of-range `a` or `b` halts with fault `invalid-read` / `invalid-write`
-  (the specification instead reads 0 and discards the write);
-- after any step the machine halts if the next PC is below 0 (the
-  specification halts when `c = -1`).
-
-Known problem, left as it is: the Forth `subleq ( a b c -- )` in
-`forth/subleq-fault.fs` computes `M[b] - M[b]` (always 0), stores it in
-`M[a]`, and tests `b` instead of the result: when `b <= 0` it sets the IP to
-`c` and leaves `b` on the data stack, otherwise it does not advance the IP.
-Its tests do not call it; `SUBLEQ-STEP` is not affected.
-
-The two families share some word names (`subleq-step` in Factor, `subleq`
-in Forth, `Subleq.step` / `Subleq.run` in Lean), so they live in separate
-files and are never loaded together. The directive machines keep the
-original word names and are the ones used by the differential test, the
-SHA-256 runs and the benchmarks.
-
-`test_differential.py` (also from PR #4) still points at the fault-model
-API under the old paths (`racket/subleq.rkt`, `factor/subleq.factor`,
-`forth/subleq.fs`, `lean/`), so it does not run against this layout. It is
-not part of `make test` or CI.
+Collection of SUBLEQ (Subtract and Branch if Less or Equal) virtual machine implementations and related code extracted and organized from various sources.
 
 ## Languages / Targets
 
-| Directory | What | Status |
-|---|---|---|
-| `racket/subleq.rkt` | Racket reference interpreter for the spec, rackunit tests, CLI | tested |
-| `racket/subleq-original.rkt` | Original SUBLEQ baseline (unbounded integers, no I/O) | tested |
-| `factor/` | Factor machine (`subleq-step`), tests, CLI | tested |
-| `forth/` | Forth machine (`subleq`, `step`, `run`) for gforth, tests, CLI | tested |
-| `lean/` | Lean 4 model of the spec, theorems, executable | builds; theorems checked by Lean |
-| `racket/model.rkt`, `microcode.rkt`, `riscv.rkt`, `verify.rkt` | Rosette model of the Goldcrest microcoded SUBLEQ core running RISC-V instructions (from ics-jku, MIT) | register effects of 4 routines checked (ADD/ADDI/LUI, SUB, AUIPC, JAL); RV32I conformance not checked |
-| `racket/oisc-add.rkt` | Small OISC ADD/SUB experiment (Rosette) | verified |
-| `racket/disassemble.rkt` | Disassembler for the microcode (from ics-jku, MIT) | not tested |
-| `nasm/` | x86 fragment of the core step | fragment only, not assembled |
-| `microcode/` | Gate-level notes (plus ATS2 sketch) | documentation only |
-| `riscv/` | Source form of the RISC-V-on-SUBLEQ routines (from ics-jku, MIT) | not checked against `microcode.rkt` |
-| `examples/` | Example SUBLEQ programs | `countdown.subleq` runs under the spec |
-| `asm/sasm.rkt` | Macro assembler and macro library for the directive machine and for the original machine | every macro checked on both machines by `asm/macro-table.rkt` |
-| `programs/sha256.rkt` | SHA-256 written in SUBLEQ (generated with `asm/sasm.rkt`) | NIST vectors pass on Racket, Forth, Factor, Lean and the original |
-| `programs/keystream.rkt` | "Killer app": streaming keystream filter (a toy cipher, not secure) | checked against a plain-Racket reference |
-| `bench/` | NIST vector runner, killer-app runner, benchmarks | see `make sha256`, `make killer-app`, `make bench` |
+- **Forth**: Simple stack-based VM word
+- **Factor**: Sequence-based step function
+- **Racket**: Full interpreter with step limit and halt conditions
+- **Rosette / Racket**: Formal model, microcode, and disassembler for a SUBLEQ-based RISC-V implementation
+- **NASM**: x86 assembly implementation of the core step
+- **Microcode**: Gate-level description of subtractor, flags, and branch logic (plus ATS2 verified primitive)
+- **RISC-V**: SUBLEQ sequences implementing RISC-V arithmetic, jumps, branches, bit logic, and shifting operations
 
-Loads and stores (LB/LH/LW/LBU/LHU/SB/SH/SW) in `racket/microcode.rkt` are
-stubs that point at the ADD routine. They are not verified.
+## Structure
 
-## Verification
+- `forth/` - Forth implementation
+- `factor/` - Factor implementation
+- `racket/` - Racket interpreter + Rosette formal model (`model.rkt`, `microcode.rkt`, `disassemble.rkt`, `riscv.rkt`, `oisc-add.rkt`)
+- `nasm/` - NASM assembly
+- `microcode/` - Low-level gate and flag logic
+- `riscv/` - SUBLEQ-based RISC-V instruction implementations (source form)
+- `examples/` - Example SUBLEQ programs (loops, etc.)
 
-- `verification/fixtures/*.json`: edge-case programs with hand-written expected results.
-- `verification/differential.rkt`: runs the Racket, Factor, Forth and Lean
-  command-line machines on every fixture and on seeded random programs and
-  compares their canonical output.
-- `lean/Subleq/Theorems.lean`: theorems about the Lean `step`/`run`
-  (see [`docs/verification-report.md`](docs/verification-report.md)).
-  The Lean proofs are about the Lean model only; that the other three
-  implementations agree with it is **tested**, not proved.
+### Simple OISC experiment
 
-Details and current results: [`docs/verification-report.md`](docs/verification-report.md).
+`racket/oisc-add.rkt` is a deliberately limited first verification experiment. It defines the SUBLEQ semantics explicitly, then symbolically verifies a four-instruction program that computes `output = A + B` (checking the result, exit PC, and source preservation).
 
-## SHA-256, benchmarks and the whitepaper
-
-[`docs/sha256-keystream-whitepaper.md`](docs/sha256-keystream-whitepaper.md) describes the parameter space of
-the machine, the macro library (`asm/sasm.rkt`) with each macro's expansion
-and measured cost, SHA-256 in SUBLEQ (`programs/sha256.rkt`), the
-instruction-count benchmarks against the original SUBLEQ
-(`racket/subleq-original.rkt`) and the keystream "killer app"
-(`programs/keystream.rkt`). In short, from the runs recorded there: SHA-256
-needs 1.45% more instructions per block on the original machine, and the
-keystream filter 1.754 times as many instructions per word, plus input and
-output arrays that grow with the stream.
-
-The unified paper from PR #5 is [`docs/whitepaper.md`](docs/whitepaper.md).
-
-## Running
-
-Toolchains used: Racket 9.3 (CS) with Rosette, Factor 0.102, gforth 0.7.3,
-Lean 4 v4.35.0 (pinned in `lean/lean-toolchain`, installed with elan);
-the fault-model Lean project in `lean-fault/` is pinned to Lean v4.8.0
-(`lean-fault/lean-toolchain`) because its code does not build on v4.35.0.
+Run it with:
 
 ```bash
-make test-racket      # rackunit (directive machine, original, fault model)
-make test-forth       # gforth (directive machine + fault model)
-make test-factor      # Factor (FACTOR=/path/to/factor; directive machine + fault model)
-make verify           # Rosette microcode checks; exits 1 if any FAIL
-make oisc             # Rosette OISC experiment; exits 1 on FAIL/UNKNOWN
-make lean-check       # lake build + no escape hatches + axiom check
-make lean-fault-check # fault-model Lean project: build, theorems, axiom check
-make differential     # all four machines, fixtures + 200 random programs
-make sha256           # SHA-256 NIST vectors: racket, forth, factor, lean, original
-make killer-app       # keystream program on the directive machine and the original
-make test             # everything above
-make macros           # macro cost table (both machines)
-make bench            # instruction counts + wall clock -> verification-results/bench.md
+racket racket/oisc-add.rkt
 ```
 
-Run one program (input format in the spec, §6):
-
-```bash
-racket racket/subleq.rkt prog.txt
-gforth forth/main.fs prog.txt
-gforth -m 64M forth/main-large.fs prog.txt   # up to 4,000,000 cells
-factor factor/subleq-main.factor prog.txt
-lean/.lake/build/bin/subleq-lean prog.txt
-```
-
-## License
-
-GNU Affero General Public License v3.0 only (`AGPL-3.0-only`); see [LICENSE](LICENSE).
-
-`racket/model.rkt`, `racket/microcode.rkt`, `racket/verify.rkt`,
-`racket/riscv.rkt`, `racket/disassemble.rkt` and `riscv/subleq_riscv.s`
-come from [ics-jku/goldcrest-microcode-verification](https://github.com/ics-jku/goldcrest-microcode-verification)
-(Copyright (c) 2022 Institute for Complex Systems (ICS), Johannes Kepler
-University Linz), which is MIT-licensed. Their MIT notice is kept in
-[LICENSES/MIT-goldcrest.txt](LICENSES/MIT-goldcrest.txt) and their SPDX
-headers read `AGPL-3.0-only AND MIT`.
+These are educational / experimental snippets for exploring one-instruction-set computing and formal verification with Rosette.
