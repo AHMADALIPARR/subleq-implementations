@@ -28,16 +28,8 @@ jobs:
           variant: ${{ matrix.racket-variant }}
           version: ${{ matrix.racket-version }}
 
-      - name: Install dependencies via Makefile
-        run: make install-deps install-rosette
-
-      - name: Build Boolector via Makefile
-        run: make build-boolector
-
-      - name: Verify Boolector is available
-        run: |
-          which boolector || true
-          ldconfig -p | grep -i boolector || true
+      - name: Install Rosette
+        run: make install-rosette
 
       - name: Run formal verification with metrics
         run: make metrics
