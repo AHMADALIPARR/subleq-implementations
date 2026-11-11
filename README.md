@@ -67,15 +67,27 @@ Each instruction occupies three consecutive memory cells. Because there is only 
 
 SUBLEQ was first conceptualized by Karel Culik II in the early 1980s and subsequently popularized in research on minimal universal machines, formal processor verification, and fault-tolerant logic synthesis. It is Turing-complete when memory cells can hold arbitrarily large integers and the address space is unbounded.
 
-Common higher-level operations are synthesized from sequences of SUBLEQ instructions:
+Common higher-level operations are synthesized from sequences of SUBLEQ instructions. Let `Z` be a dedicated zero scratch cell:
 
 | Operation | Instruction Sequence | Cost |
 |-----------|----------------------|------|
 | Zero cell `x` | `SUBLEQ x, x, next` | 1 |
 | Unconditional jump to `t` | `SUBLEQ Z, Z, t` | 1 |
-| Move `a` → `b` (via scratch) | Clear, negate, subtract | 4–5 |
-| Add `a` to `b` | Negate into scratch, subtract | 3–4 |
-| Bitwise logic / shifts | Bit extraction + arithmetic | Variable |
+| Move `a` → `b` (via scratch `T`) | Clear `T` and `b`, negate `a` into `T`, subtract into `b`, clear `T` | 5 |
+| Add `a` to `b` (via scratch `T`) | Clear `T`, negate `a` into `T`, subtract into `b`, clear `T` | 4 |
+| Bitwise logic / shifts | Bit extraction + arithmetic truth tables + reconstruction | Variable |
+
+Example (clear cell `X`):
+```
+SUBLEQ X, X, NEXT   ; X = X - X = 0; always branches
+```
+
+Example (unconditional jump):
+```
+SUBLEQ Z, Z, TARGET ; Z - Z = 0 ≤ 0, so always branch to TARGET
+```
+
+These sequences are the foundation of the verified OISC addition routine in `racket/oisc-add.rkt` and of the native microcode sequences checked by `make verify-microcode`.
 
 ---
 
@@ -217,13 +229,17 @@ These checks confirm the result register and next PC but do **not** claim full R
 
 `racket/oisc-add.rkt` symbolically verifies a four-instruction program that computes `output = A + B`, checking the result, exit PC, and source preservation.
 
-### Directive-machine microcode scope (Milestone 1)
+### Native Directive-Machine Microcode Verification (Blueprint Milestone 1 — Complete)
 
-`make verify-microcode` runs `racket/microcode/verify.rkt`. This is the Rosette harness on the trusted path. It checks five SUBLEQ sequences — Zero, Move, Add, Load, and Store — against post-conditions of the directive machine in `semantics/subleq-spec.md` (the machine Lean, Racket, Factor, and Forth implement): 32-bit two's-complement wrap, branch on the wrapped result `r ≤ 0` to an absolute `c`, and fetch / trap / input / output / ordinary precedence with the `c = −1` halt rule. Load and Store use fixed absolute addresses in flat memory. They are not register-indirect and they are not RV32I loads or stores.
+The native Rosette harness described in `docs/microcode-blueprint.md` is implemented and on the trusted path.
+
+`make verify-microcode` runs `racket/microcode/verify.rkt`. It checks five SUBLEQ sequences — Zero, Move, Add, Load, and Store — against post-conditions of the directive machine in `semantics/subleq-spec.md` (the machine Lean, Racket, Factor, and Forth implement): 32-bit two's-complement wrap, branch on the wrapped result `r ≤ 0` to an absolute `c`, and fetch / trap / input / output / ordinary precedence with the `c = −1` halt rule. Load and Store use fixed absolute addresses in flat memory. They are not register-indirect and they are not RV32I loads or stores.
 
 Each sequence is checked symbolically (`verify` must return unsat), on concrete inputs, and by comparing the Rosette model with `racket/subleq.rkt`. The process exits 1 on any counterexample and 2 on a harness error. `make verify-microcode-mutations` injects a broken sequence or spec and passes only when every injection exits 1.
 
-Not claimed: RV32I conformance, a mechanized proof that this Rosette model matches Lean, data-dependent branch targets, or any sequence beyond those five. The four RISC-V register-effect checks in the previous subsection are the quarantined Goldcrest harness under `racket/microcode-legacy/`. `make verify` still runs that harness. It is not a trusted-path result.
+**Status**: Milestone 1 acceptance criteria met. The harness is integrated into `make test` and CI. The prior Goldcrest-derived RISC-V register-effect checks remain quarantined under `racket/microcode-legacy/` and are not part of the trusted path.
+
+Not claimed: RV32I conformance, a mechanized proof that this Rosette model matches Lean, data-dependent branch targets, or any sequence beyond those five.
 
 ---
 
