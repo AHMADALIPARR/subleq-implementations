@@ -7,6 +7,7 @@ Collection of SUBLEQ (Subtract and Branch if Less or Equal) virtual machine impl
 - **Forth**: Simple stack-based VM word
 - **Factor**: Sequence-based step function
 - **Racket**: Full interpreter with step limit and halt conditions
+- **Rosette / Racket**: Formal model, microcode, and disassembler for a SUBLEQ-based RISC-V implementation
 - **NASM**: x86 assembly implementation of the core step
 - **Microcode**: Gate-level description of subtractor, flags, and branch logic (plus ATS2 verified primitive)
 - **RISC-V**: SUBLEQ sequences implementing RISC-V arithmetic, jumps, branches, bit logic, and shifting operations
@@ -15,13 +16,13 @@ Collection of SUBLEQ (Subtract and Branch if Less or Equal) virtual machine impl
 
 - `forth/` - Forth implementation
 - `factor/` - Factor implementation
-- `racket/` - Racket implementation
+- `racket/` - Racket interpreter + Rosette formal model (`model.rkt`, `microcode.rkt`, `disassemble.rkt`)
 - `nasm/` - NASM assembly
 - `microcode/` - Low-level gate and flag logic
-- `riscv/` - SUBLEQ-based RISC-V instruction implementations
+- `riscv/` - SUBLEQ-based RISC-V instruction implementations (source form)
 - `examples/` - Example SUBLEQ programs (loops, etc.)
 
-These are educational / experimental snippets for exploring one-instruction-set computing.
+These are educational / experimental snippets for exploring one-instruction-set computing and formal verification with Rosette.
 
 ## License
 
