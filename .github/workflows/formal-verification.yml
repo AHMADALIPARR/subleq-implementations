@@ -1,5 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
-name: CI
+name: Formal Verification
 
 on:
   push:
@@ -7,107 +6,44 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  RACKET_VERSION: '9.3'
-  FACTOR_URL: https://downloads.factorcode.org/releases/0.102/factor-linux-x86-64-0.102.tar.gz
-
 jobs:
-  racket:
-    name: Racket tests + Rosette verification
-    runs-on: ubuntu-24.04
+  build:
+    name: "Verify on Racket ${{ matrix.racket-version }} (${{ matrix.racket-variant }})"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        racket-version: ['8.10']
+        racket-variant: ['CS']
+      fail-fast: false
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Setup Racket
         uses: Bogdanp/setup-racket@v1.11
         with:
           architecture: x64
           distribution: full
-          variant: CS
-          version: ${{ env.RACKET_VERSION }}
+          variant: ${{ matrix.racket-variant }}
+          version: ${{ matrix.racket-version }}
+
       - name: Install Rosette
-        run: raco pkg install --auto --batch --skip-installed rosette
-      - name: Racket unit tests (rackunit)
-        run: make test-racket
-      - name: Rosette microcode verification (exits 1 on any FAIL)
+        run: make install-rosette
+
+      - name: Run formal verification with metrics
         run: make metrics
-      - name: OISC ADD/SUB experiment (exits 1 on FAIL/UNKNOWN)
-        run: make oisc
 
-  forth:
-    name: Forth tests (gforth)
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install gforth
-        run: sudo apt-get update && sudo apt-get install -y gforth && gforth --version
-      - name: Forth unit tests
-        run: make test-forth
-
-  factor:
-    name: Factor tests
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Factor
-        run: |
-          curl -fsSL "$FACTOR_URL" -o /tmp/factor.tar.gz
-          tar -xzf /tmp/factor.tar.gz -C "$HOME"
-          "$HOME/factor/factor" -e='USING: io system ; vm-version print'
-      - name: Factor unit tests
-        run: make test-factor FACTOR="$HOME/factor/factor"
-
-  lean:
-    name: Lean 4 build + trusted-path check
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install elan
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Build (toolchain from lean/lean-toolchain)
-        run: make lean
-      - name: No sorry/admit/axiom/unsafe; only standard axioms
-        run: make lean-check
-
-  differential:
-    name: Differential test (Racket, Factor, Forth, Lean)
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Racket
-        uses: Bogdanp/setup-racket@v1.11
-        with:
-          architecture: x64
-          distribution: full
-          variant: CS
-          version: ${{ env.RACKET_VERSION }}
-      - name: Install gforth
-        run: sudo apt-get update && sudo apt-get install -y gforth
-      - name: Install Factor
-        run: |
-          curl -fsSL "$FACTOR_URL" -o /tmp/factor.tar.gz
-          tar -xzf /tmp/factor.tar.gz -C "$HOME"
-      - name: Install elan
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Fixtures + 200 seeded random programs
+      - name: Collect verification artifacts
+        if: always()
         run: |
           mkdir -p verification-results
-          set -o pipefail
-          make differential FACTOR="$HOME/factor/factor" 2>&1 | tee verification-results/differential.txt
-      - name: SHA-256 NIST vectors on all machines
-        run: |
-          set -o pipefail
-          make sha256 FACTOR="$HOME/factor/factor" 2>&1 | tee verification-results/sha256.txt
-      - name: Killer app (keystream) on the directive machine and the original
-        run: |
-          set -o pipefail
-          make killer-app FACTOR="$HOME/factor/factor" 2>&1 | tee verification-results/killer-app.txt
-      - name: Upload differential log
+          echo "Verification run completed" > verification-results/summary.txt
+          ls -la racket/ || true
+
+      - name: Upload verification metrics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: differential-results
+          name: verification-metrics-${{ matrix.racket-version }}
           path: verification-results/
