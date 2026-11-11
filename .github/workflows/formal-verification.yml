@@ -41,7 +41,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install gforth
-        run: sudo apt-get update && sudo apt-get install -y gforth && gforth --version
+        run: |
+          # Workaround for intermittent DNS/mirror failures on azure.archive.ubuntu.com
+          # (known flaky issue on GitHub Actions Ubuntu runners).
+          if [ -f /etc/apt/apt-mirrors.txt ]; then
+            sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt || true
+          fi
+          sudo sed -i 's|http://azure\.archive\.ubuntu\.com|http://archive.ubuntu.com|g' /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null || true
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Acquire::Retries=3 gforth
+          gforth --version
       - name: Forth unit tests
         run: make test-forth
 
@@ -87,7 +96,15 @@ jobs:
           variant: CS
           version: ${{ env.RACKET_VERSION }}
       - name: Install gforth
-        run: sudo apt-get update && sudo apt-get install -y gforth
+        run: |
+          # Workaround for intermittent DNS/mirror failures on azure.archive.ubuntu.com
+          # (known flaky issue on GitHub Actions Ubuntu runners).
+          if [ -f /etc/apt/apt-mirrors.txt ]; then
+            sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt || true
+          fi
+          sudo sed -i 's|http://azure\.archive\.ubuntu\.com|http://archive.ubuntu.com|g' /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null || true
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Acquire::Retries=3 gforth
       - name: Install Factor
         run: |
           curl -fsSL "$FACTOR_URL" -o /tmp/factor.tar.gz
