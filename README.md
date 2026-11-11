@@ -16,11 +16,21 @@ Collection of SUBLEQ (Subtract and Branch if Less or Equal) virtual machine impl
 
 - `forth/` - Forth implementation
 - `factor/` - Factor implementation
-- `racket/` - Racket interpreter + Rosette formal model (`model.rkt`, `microcode.rkt`, `disassemble.rkt`)
+- `racket/` - Racket interpreter + Rosette formal model (`model.rkt`, `microcode.rkt`, `disassemble.rkt`, `riscv.rkt`, `oisc-add.rkt`)
 - `nasm/` - NASM assembly
 - `microcode/` - Low-level gate and flag logic
 - `riscv/` - SUBLEQ-based RISC-V instruction implementations (source form)
 - `examples/` - Example SUBLEQ programs (loops, etc.)
+
+### Simple OISC experiment
+
+`racket/oisc-add.rkt` is a deliberately limited first verification experiment. It defines the SUBLEQ semantics explicitly, then symbolically verifies a four-instruction program that computes `output = A + B` (checking the result, exit PC, and source preservation).
+
+Run it with:
+
+```bash
+racket racket/oisc-add.rkt
+```
 
 These are educational / experimental snippets for exploring one-instruction-set computing and formal verification with Rosette.
 
