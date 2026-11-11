@@ -6,8 +6,13 @@
 \ out-of-range writes discarded, PC out of range = fault).
 
 variable ip  \ Instruction pointer
-CREATE memory 1000 cells allot  \ 1000 cell memory space
-variable mem-size  \ cells actually loaded (N); 0 <= N <= 1000
+\ Capacity hook (added for the SHA-256 and benchmark programs): a driver may
+\ define mem-capacity / in-capacity before including this file; the defaults
+\ keep the original 1000-cell machine. See forth/main-large.fs.
+[undefined] mem-capacity [if] 1000 constant mem-capacity [then]
+[undefined] in-capacity [if] 1000 constant in-capacity [then]
+CREATE memory mem-capacity cells allot  \ mem-capacity cells (default 1000)
+variable mem-size  \ cells actually loaded (N); 0 <= N <= mem-capacity
 
 : mem ( n -- addr )  cells memory + ;
 : in-range? ( n -- f )  0 mem-size @ within ;
@@ -33,7 +38,7 @@ variable status
 variable trap-code
 variable steps
 
-CREATE inbuf 1000 cells allot
+CREATE inbuf in-capacity cells allot
 variable in-count
 variable in-pos
 100000 constant out-max

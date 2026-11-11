@@ -21,9 +21,9 @@ variable src  variable src-len  variable src-pos
 
 : load-input ( addr u -- fuel )
   slurp-file src-len ! src !  0 src-pos !
-  next-int dup 0 1001 within 0= abort" subleq: N must be 0..1000"
+  next-int dup 0 mem-capacity 1+ within 0= abort" subleq: N must be 0..mem-capacity"
   dup mem-size !  0 ?do next-int wrap32 i mem ! loop
-  next-int dup 0 1001 within 0= abort" subleq: K must be 0..1000"
+  next-int dup 0 in-capacity 1+ within 0= abort" subleq: K must be 0..in-capacity"
   dup in-count !  0 ?do next-int i cells inbuf + ! loop
   next-int
   skip-ws peek -1 <> abort" subleq: trailing data after FUEL" ;
