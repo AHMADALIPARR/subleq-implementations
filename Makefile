@@ -202,3 +202,7 @@ firmware-semantic:
 firmware-prove:
 	@echo "=== Prove decompiled ops == SUBLEQ sequences ==="
 	$(RACKET) programs/firmware/prove-semantics.rkt
+
+firmware-compositional:
+	@echo "=== Compositional verification of firmware control flow ==="
+	$(RACKET) programs/firmware/compositional.rkt

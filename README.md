@@ -233,6 +233,17 @@ Dependently typed formal specification. The `lean/` project contains the canonic
 
 
 
+
+### Compositional Verification
+
+`programs/firmware/compositional.rkt` shows that the individually proved operations remain correct when composed into the full firmware control flow:
+
+init registers → install vectors → raise exception → dispatch → handler → software iret
+
+Each phase records a checkpoint. After the full composition the individual post-conditions still hold (CR0/CR4/MSR values, exception cleared, vectors installed, fault address preserved).
+
+Run: `make firmware-compositional`
+
 ### Semantic Proof of Recovered Operations
 
 `programs/firmware/prove-semantics.rkt` proves that each higher-level operation recovered by the decompiler has the same semantics as the SUBLEQ sequence it represents:
