@@ -779,5 +779,10 @@ Both implement the same transform:
 - Energy invariant: after a full N=1024 transform, \(E_{	ext{out}} = 1024 \cdot E_{	ext{in}}\)
 - Small vector check: input `{1,2,3,4}` + zero imaginary yields the known result
 
-The butterfly kernel can be replaced by a SUBLEQ sequence of approximately 24 instructions (using the existing macro table) and executed by any of the four engines. The Racket file is the integration point for that substitution.
+The butterfly kernel is also available as a SUBLEQ sequence executed by the directive machine:
+
+- `programs/ibx-subleq.rkt` — assembles the four operations with the sasm macros and runs them via `run-subleq` (`make ibx-subleq`).
+- Expected cost: ~24 executed instructions per butterfly (matches the earlier measured baseline).
+
+The pure Racket and Factor versions remain the fast native references; the SUBLEQ version is the one that runs on the verified stack.
 
