@@ -30,7 +30,7 @@ The IBX-1 radix-2 butterfly is implemented in pure Racket, Factor, and as a SUBL
 | Pure Racket | Full N=1024 transform | 0.07 ms |
 | Energy invariant | After N=1024 | \(E_{	ext{out}} = 1024 \cdot E_{	ext{in}}\) (24 654 → 25 245 696) |
 
-The earlier 24-instruction estimate was based on the macro table; the assembled sequence that actually runs is 41 steps. Goldcrest’s single-register ADD is denser (~4 instructions) but performs a different operation. The pure Racket and Factor versions remain the fast native references; the SUBLEQ version is the one that executes on the formally verified stack.
+The earlier 24-instruction estimate was based on the macro table; the assembled sequence that actually runs is 41 steps. The sequence is built on the ATS2 dependently-typed `verified_subleq` primitive (bounds proven at compile time). Goldcrest’s single-register ADD is denser (~4 instructions) but performs a different operation. The pure Racket and Factor versions remain the fast native references; the SUBLEQ version is the one that executes on the formally verified stack.
 
 Run:
 ```bash

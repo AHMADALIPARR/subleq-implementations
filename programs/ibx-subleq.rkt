@@ -11,9 +11,9 @@
 ;; then runs it via racket/subleq.rkt.
 ;; Expected ~24 executed instructions per butterfly.
 
-(require racket/vector
+ (require racket/vector
          "../asm/sasm.rkt"
-         "../racket/subleq.rkt")
+         (except-in "../racket/subleq.rkt" wrap32))
 
 (provide butterfly-steps run-butterfly-subleq)
 
