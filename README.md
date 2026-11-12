@@ -224,7 +224,33 @@ ANS Forth / Gforth implementation operating over statically allocated memory tap
 
 ### Lean 4 (`lean/` and `lean-fault/`)
 
-Dependently typed formal specification. The `lean/` project contains the canonical directive machine and ten machine-checked theorems. The `lean-fault/` project (separate toolchain) formalizes the fault model. Both reject proof escape hatches (`sorry`, `admit`, custom axioms beyond standard Lean axioms).
+Dependently typed formal specification. The `lean/` project contains the canonical directive machine and machine-checked theorems. The `lean-fault/` project (separate toolchain) formalizes the fault model. Both reject proof escape hatches (`sorry`, `admit`, custom axioms beyond standard Lean axioms).
+
+#### `lean/` files
+
+| File | Purpose |
+|------|---------|
+| `lean/lakefile.lean` | Lake package definition |
+| `lean/lean-toolchain` | Pinned Lean 4.35.0 toolchain |
+| `lean/Subleq.lean` | Root import (`Machine`, `Theorems`, `Firmware`) |
+| `lean/Subleq/Machine.lean` | Directive machine: `step`, `run`, `wrap32`, `rd`/`wr`, status |
+| `lean/Subleq/Theorems.lean` | Ten machine-checked theorems (step, run, wrap, cells) |
+| `lean/Subleq/Firmware.lean` | Semantic equivalence of recovered MOV/JUMP/IRET/vector-install |
+| `lean/Main.lean` | `subleq-lean` executable (parses and runs images) |
+| `lean/AxiomCheck.lean` | Prints axioms used by each theorem |
+
+#### `lean-fault/` files
+
+| File | Purpose |
+|------|---------|
+| `lean-fault/lakefile.lean` | Separate Lake package |
+| `lean-fault/lean-toolchain` | Pinned toolchain |
+| `lean-fault/Subleq.lean` | Fault-model root |
+| `lean-fault/Main.lean` | Fault-model entry point |
+| `lean-fault/Subleq/` | Fault-model definitions and theorems |
+
+Build: `cd lean && lake build`  
+Firmware theorems only: `cd lean && lake build Subleq.Firmware`
 
 
 
