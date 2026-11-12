@@ -169,3 +169,12 @@ ibx:
 ibx-subleq:
 	@echo "=== IBX-1 butterfly on directive SUBLEQ ==="
 	$(RACKET) programs/ibx-subleq.rkt
+
+subleq-dis:
+	@echo "=== SUBLEQ disassembler ==="
+	$(CC) -std=c11 -O2 -o tools/subleq-dis tools/subleq-dis.c
+	@echo "built tools/subleq-dis"
+
+disasm-racket:
+	@echo "=== Racket SUBLEQ disassembler ==="
+	$(RACKET) racket/subleq-dis.rkt

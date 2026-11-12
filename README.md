@@ -59,6 +59,16 @@ make ibx-subleq   # SUBLEQ-backed kernel
 
 ---
 
+
+### SUBLEQ Disassembler
+
+A raw-image disassembler is available in two forms:
+
+- `tools/subleq-dis` (C11, no dependencies) — `make subleq-dis` then `./tools/subleq-dis image.txt`
+- `racket/subleq-dis.rkt` — `racket racket/subleq-dis.rkt image.txt`
+
+Both print one `subleq a, b, c` per triple with light pattern hints (zero, jump, halt, input, output, trap).
+
 ## Introduction
 
 One-Instruction Set Computers (OISCs) represent the theoretical extreme of computer architecture minimalism. While conventional processors implement hundreds or thousands of instructions, an OISC executes exactly one instruction yet remains Turing-complete. Among OISC variants (DJN, RSSB, SBN, NOR machines), SUBLEQ is the most prominent and computationally expressive.
