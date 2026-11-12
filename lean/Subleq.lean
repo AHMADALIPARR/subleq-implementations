@@ -3,3 +3,4 @@
 
 import Subleq.Machine
 import Subleq.Theorems
+import Subleq.Firmware

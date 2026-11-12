@@ -234,6 +234,20 @@ Dependently typed formal specification. The `lean/` project contains the canonic
 
 
 
+
+### Lean 4 Semantic Equivalence
+
+`lean/Subleq/Firmware.lean` contains hand-written Lean 4 theorems (no `sorry`, no `admit`, no extra axioms) proving that the higher-level operations recovered by the decompiler have the same semantics as the SUBLEQ sequences they represent:
+
+- `firmware_layout` : `61 * 3 + 33 = 216` (proved by `decide`)
+- `mov_third_value` / `mov_after_third` / `mov_z_restored` : MOV sequence leaves dest = v and Z = 0
+- `jump_pc` / `jump_status` : `sq Z Z target` sets PC to target and keeps status running
+- `iret_zero` / `iret_halt` : ZERO clears the exception; halt instruction sets status to halted
+- `vector_install_third` : vector install inherits the MOV post-condition
+- `recovered_ops_equivalent` : packages all four results
+
+Build: `cd lean && lake build Subleq.Firmware`
+
 ### Compositional Verification
 
 `programs/firmware/compositional.rkt` shows that the individually proved operations remain correct when composed into the full firmware control flow:
