@@ -69,6 +69,13 @@ A raw-image disassembler is available in two forms:
 
 Both print one `subleq a, b, c` per triple with light pattern hints (zero, jump, halt, input, output, trap).
 
+The Racket version (`racket/subleq-dis.rkt`) also performs conservative control-flow analysis:
+- computes the set of instructions reachable from PC=0
+- partitions reachable code into basic blocks
+- reports each block's possible successors (fall-through and branch targets)
+
+Branch edges are marked possible whenever the target is in range; the sign of the subtraction result is not solved statically.
+
 ## Introduction
 
 One-Instruction Set Computers (OISCs) represent the theoretical extreme of computer architecture minimalism. While conventional processors implement hundreds or thousands of instructions, an OISC executes exactly one instruction yet remains Turing-complete. Among OISC variants (DJN, RSSB, SBN, NOR machines), SUBLEQ is the most prominent and computationally expressive.
