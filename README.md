@@ -229,6 +229,18 @@ Dependently typed formal specification. The `lean/` project contains the canonic
 
 
 
+
+### Firmware-Aware Decompiler
+
+`programs/firmware/decompiler.rkt` recovers higher-level firmware operations from the SUBLEQ instruction stream:
+
+- Virtual register writes: `(mov CR0 K1)`, `(mov CR4 K512)`, `(mov MSR_EFER K1)`
+- Vector-table installs: `(mov IDT+0 H0)`, `(mov IDT+14 H14)`
+- Exception setup: `(mov CURRENT_EXC K14)`, `(mov FAULT_ADDR K4660)`
+- Control transfers: `(jump dispatch)`, `(jump iret)`, `(jump H14)`
+
+It uses the symbol table from the assembler so cell addresses are named. Run: `make firmware-decompile`
+
 ### Firmware Round-Trip Equivalence
 
 `programs/firmware/roundtrip.rkt` performs the full cycle:

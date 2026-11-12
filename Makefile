@@ -186,3 +186,7 @@ firmware-subleq:
 firmware-roundtrip:
 	@echo "=== SUBLEQ firmware round-trip + invariants ==="
 	$(RACKET) programs/firmware/roundtrip.rkt
+
+firmware-decompile:
+	@echo "=== Firmware-aware decompiler ==="
+	$(RACKET) programs/firmware/decompiler.rkt
