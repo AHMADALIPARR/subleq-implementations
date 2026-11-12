@@ -165,3 +165,7 @@ clean:
 ibx:
 	@echo "=== IBX-1 butterfly (Racket reference) ==="
 	$(RACKET) programs/ibx.rkt
+
+ibx-subleq:
+	@echo "=== IBX-1 butterfly on directive SUBLEQ ==="
+	$(RACKET) programs/ibx-subleq.rkt

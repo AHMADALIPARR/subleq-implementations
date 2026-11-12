@@ -15,6 +15,8 @@
 
 ;; Native butterfly (4 integer operations).
 ;; re[a] = xr - yi; im[a] = xi + yr; re[b] = xr + yi; im[b] = xi - yr
+;; For the SUBLEQ-backed kernel see programs/ibx-subleq.rkt
+;; (uses the directive machine via run-subleq; ~24 instructions).
 (define (butterfly! re im a b)
   (define xr (vector-ref re a))
   (define xi (vector-ref im a))
