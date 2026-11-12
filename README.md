@@ -231,6 +231,19 @@ Dependently typed formal specification. The `lean/` project contains the canonic
 
 
 
+
+### Semantic Equivalence Tests
+
+`programs/firmware/semantic-test.rkt` verifies that the decompiled firmware preserves the observable behavior of the original SUBLEQ program:
+
+- Exception handling and software iret clear `CURRENT_EXC`
+- Virtual register updates (CR0, CR4, MSR_EFER) match executed results
+- Conditional branches (JLEZ) take the expected path
+- Memory mutation (ADD) produces the correct cell value
+- Self-modifying load patches and executes correctly
+
+Run: `make firmware-semantic`
+
 ### Original vs Reconstructed Execution
 
 `programs/firmware/compare-exec.rkt` runs the original image and the reconstructed image independently on the directive machine and compares:

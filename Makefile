@@ -194,3 +194,7 @@ firmware-decompile:
 firmware-compare:
 	@echo "=== Original vs reconstructed firmware execution ==="
 	$(RACKET) programs/firmware/compare-exec.rkt
+
+firmware-semantic:
+	@echo "=== Firmware semantic equivalence tests ==="
+	$(RACKET) programs/firmware/semantic-test.rkt
