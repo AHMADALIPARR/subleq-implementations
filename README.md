@@ -16,6 +16,13 @@ This repository provides bit-exact, observationally equivalent execution engines
 
 ---
 
+
+### C23 Native Baseline
+
+`c23/ibx.c` is the native performance baseline and reference result for the IBX-1 butterfly. Topology, input data (`(j % 17) - 8`), arithmetic width (int32), and number of butterfly operations are identical to the Racket, Factor, and SUBLEQ versions. The C23 code provides the ground-truth results; the SUBLEQ implementation measures how efficiently the directive machine executes the same computation.
+
+Run: `make ibx-c23`
+
 ## Benchmarks
 
 **IBX-1 integer butterfly (main result)**

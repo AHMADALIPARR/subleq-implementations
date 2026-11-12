@@ -206,3 +206,7 @@ firmware-prove:
 firmware-compositional:
 	@echo "=== Compositional verification of firmware control flow ==="
 	$(RACKET) programs/firmware/compositional.rkt
+
+ibx-c23:
+	@echo "=== IBX-1 butterfly (C23 native baseline) ==="
+	gcc -std=c2x -O2 -o /tmp/ibx-c23 c23/ibx.c && /tmp/ibx-c23
