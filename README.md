@@ -13,23 +13,49 @@ This repository provides bit-exact, observationally equivalent execution engines
 **Author & Principal Architect**: Ahmad <ahmedparr93@gmail.com>  
 **License**: GNU Affero General Public License v3.0 (AGPL-3.0-only)
 
+
+---
+
+## Benchmarks
+
+**IBX-1 integer butterfly (main result)**
+
+The IBX-1 radix-2 butterfly is implemented in pure Racket, Factor, and as a SUBLEQ sequence that runs on the verified directive machine.
+
+| Implementation | Metric | Result |
+|----------------|--------|--------|
+| SUBLEQ (directive machine) | Instructions per butterfly | **41** |
+| SUBLEQ (directive machine) | Correctness | PASS — `(1 2 3 4)` → `(-3 5 5 -1)` |
+| SUBLEQ (directive machine) | Throughput | ~0.021 ms / butterfly (200-run local) |
+| Pure Racket | Full N=1024 transform | 0.07 ms |
+| Energy invariant | After N=1024 | \(E_{	ext{out}} = 1024 \cdot E_{	ext{in}}\) (24 654 → 25 245 696) |
+
+The earlier 24-instruction estimate was based on the macro table; the assembled sequence that actually runs is 41 steps. Goldcrest’s single-register ADD is denser (~4 instructions) but performs a different operation. The pure Racket and Factor versions remain the fast native references; the SUBLEQ version is the one that executes on the formally verified stack.
+
+Run:
+```bash
+make ibx          # pure Racket reference + energy check
+make ibx-subleq   # SUBLEQ-backed kernel
+```
+
 ---
 
 ## Table of Contents
 
-1. [Introduction](#introduction)
-2. [What is SUBLEQ?](#what-is-subleq)
-3. [Canonical Operational Semantics](#canonical-operational-semantics)
-4. [Repository Structure](#repository-structure)
-5. [Implementations](#implementations)
-6. [Formal Verification](#formal-verification)
-7. [Differential Testing](#differential-testing)
-8. [Cryptographic Applications & Benchmarks](#cryptographic-applications--benchmarks)
-9. [Macro Synthesis](#macro-synthesis)
-10. [Build & Test](#build--test)
-11. [Audit Findings](#audit-findings)
-12. [Related Work](#related-work)
-13. [License](#license)
+1. [Benchmarks](#benchmarks)
+2. [Introduction](#introduction)
+3. [What is SUBLEQ?](#what-is-subleq)
+4. [Canonical Operational Semantics](#canonical-operational-semantics)
+5. [Repository Structure](#repository-structure)
+6. [Implementations](#implementations)
+7. [Formal Verification](#formal-verification)
+8. [Differential Testing](#differential-testing)
+9. [Cryptographic Applications & Benchmarks](#cryptographic-applications--benchmarks)
+10. [Macro Synthesis](#macro-synthesis)
+11. [Build & Test](#build--test)
+12. [Audit Findings](#audit-findings)
+13. [Related Work](#related-work)
+14. [License](#license)
 
 ---
 
