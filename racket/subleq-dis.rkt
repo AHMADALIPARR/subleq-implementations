@@ -94,10 +94,11 @@
          (set! blocks (cons (list block succs) blocks))])))
   (reverse blocks))
 
-(define (disassemble image)
+(define (disassemble image [code-end #f])
   (define n (length image))
-  (define instrs (instructions image))
-  (printf "; SUBLEQ image, ~a words, ~a instructions\n" n (hash-count instrs))
+  (define end (or code-end n))
+  (define instrs (instructions (take image end)))
+  (printf "; SUBLEQ image, ~a words total, ~a code words (~a instructions), ~a data cells\n" n end (/ end 3) (- n end))
   (for ([pc (sort (hash-keys instrs) <)])
     (define-values (a b c) (apply values (hash-ref instrs pc)))
     (printf "~a: subleq ~a, ~a, ~a~a\n"
@@ -116,4 +117,7 @@
 (module+ main
   (define args (current-command-line-arguments))
   (define path (if (zero? (vector-length args)) #f (vector-ref args 0)))
-  (disassemble (read-image path)))
+  (define code-end (if (> (vector-length args) 1)
+                       (string->number (vector-ref args 1))
+                       #f))
+  (disassemble (read-image path) code-end))
