@@ -26,11 +26,12 @@
 (define (hint pc a b c)
   (cond
     [(and (< a 0) (< b 0)) "  ; halt"]
-    [(= a -2) "  ; trap"]
-    [(= a -1) "  ; input"]
-    [(= b -1) "  ; output"]
-    [(and (= a b) (= c (+ pc 3))) "  ; zero"]
-    [(and (= a b) (>= c 0) (not (= c (+ pc 3)))) "  ; jump"]
+    [(= a -2) "  ; FlashAttention / coprocessor trap"]
+    [(= a -1) "  ; input stream"]
+    [(= b -1) "  ; output stream"]
+    [(and (= a b) (= c (+ pc 3))) "  ; zero cell"]
+    [(and (= a b) (>= c 0) (not (= c (+ pc 3)))) "  ; unconditional jump"]
+    [(and (>= a 0) (>= b 0) (< c 0)) "  ; branch-to-halt"]
     [else ""]))
 
 ;; Build instruction map: pc -> (a b c)

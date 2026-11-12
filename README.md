@@ -226,6 +226,11 @@ ANS Forth / Gforth implementation operating over statically allocated memory tap
 
 Dependently typed formal specification. The `lean/` project contains the canonical directive machine and ten machine-checked theorems. The `lean-fault/` project (separate toolchain) formalizes the fault model. Both reject proof escape hatches (`sorry`, `admit`, custom axioms beyond standard Lean axioms).
 
+
+### Host Firmware (x86)
+
+`nasm/firmware/16_firmware_phase2.asm` is a host-side x86 firmware initialization module (IDT/GDT setup, exception handlers, MSR configuration). It is **not** SUBLEQ code and does not alter the instruction counts or semantics of the directive SUBLEQ machine. It is included as a reference for an x86 bridge or boot path that could later host a SUBLEQ core.
+
 ### Additional Targets
 
 | Target | Location | Description |
