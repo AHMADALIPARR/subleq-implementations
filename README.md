@@ -763,3 +763,21 @@ Because gforth is compiled from source inside the workflow, the Forth and Differ
 All source files carry SPDX license identifiers. The project uses AGPL-3.0-only exclusively. Third-party material (notably portions of the Rosette microcode derived from Goldcrest) is acknowledged in the relevant files and in the audit documents.
 
 Readers interested in the historical development of the repository are encouraged to examine the commit history and the two audit documents. Readers interested in extending the work should begin with the differential harness and the Lean trusted-path checker; these two artifacts define the acceptance criteria for any new contribution.
+
+
+---
+
+## IBX-1 Integer Butterfly Network
+
+An alternative integer-only Gaussian butterfly (radix-2) architecture has been added.
+
+- Factor reference: `factor/ibx.factor` (uploaded unchanged via PR #10)
+- Racket reference: `programs/ibx.rkt` (`make ibx`)
+
+Both implement the same transform:
+- 4 integer add/sub per butterfly
+- Energy invariant: after a full N=1024 transform, \(E_{	ext{out}} = 1024 \cdot E_{	ext{in}}\)
+- Small vector check: input `{1,2,3,4}` + zero imaginary yields the known result
+
+The butterfly kernel can be replaced by a SUBLEQ sequence of approximately 24 instructions (using the existing macro table) and executed by any of the four engines. The Racket file is the integration point for that substitution.
+
