@@ -190,3 +190,7 @@ firmware-roundtrip:
 firmware-decompile:
 	@echo "=== Firmware-aware decompiler ==="
 	$(RACKET) programs/firmware/decompiler.rkt
+
+firmware-compare:
+	@echo "=== Original vs reconstructed firmware execution ==="
+	$(RACKET) programs/firmware/compare-exec.rkt

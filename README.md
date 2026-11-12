@@ -230,6 +230,18 @@ Dependently typed formal specification. The `lean/` project contains the canonic
 
 
 
+
+### Original vs Reconstructed Execution
+
+`programs/firmware/compare-exec.rkt` runs the original image and the reconstructed image independently on the directive machine and compares:
+
+- execution status and instruction count
+- final memory state
+- virtual CR0 / CR4 / MSR_EFER / CURRENT_EXC / FAULT_ADDR
+- I/O output and trap code
+
+Run: `make firmware-compare`
+
 ### Firmware-Aware Decompiler
 
 `programs/firmware/decompiler.rkt` recovers higher-level firmware operations from the SUBLEQ instruction stream:
