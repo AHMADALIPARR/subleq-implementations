@@ -161,3 +161,7 @@ clean:
 	  asm/compiled programs/compiled bench/compiled \
 	  racket/microcode/compiled racket/microcode-legacy/compiled
 	@echo "Cleaned."
+
+ibx:
+	@echo "=== IBX-1 butterfly (Racket reference) ==="
+	$(RACKET) programs/ibx.rkt
