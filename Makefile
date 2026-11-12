@@ -178,3 +178,7 @@ subleq-dis:
 disasm-racket:
 	@echo "=== Racket SUBLEQ disassembler ==="
 	$(RACKET) racket/subleq-dis.rkt
+
+firmware-subleq:
+	@echo "=== SUBLEQ firmware abstraction demo ==="
+	$(RACKET) programs/firmware/subleq-firmware.rkt

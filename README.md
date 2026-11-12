@@ -227,6 +227,22 @@ ANS Forth / Gforth implementation operating over statically allocated memory tap
 Dependently typed formal specification. The `lean/` project contains the canonical directive machine and ten machine-checked theorems. The `lean-fault/` project (separate toolchain) formalizes the fault model. Both reject proof escape hatches (`sorry`, `admit`, custom axioms beyond standard Lean axioms).
 
 
+
+### SUBLEQ Firmware Abstractions
+
+`programs/firmware/subleq-firmware.rkt` re-expresses the host x86 Phase 2 mechanisms as ordinary SUBLEQ code on the directive machine:
+
+| x86 mechanism | SUBLEQ realization |
+|---------------|--------------------|
+| `LIDT` | Software interrupt-vector table (array of handler addresses) |
+| `CR0` / `CR4` | Virtual processor-state and feature-control words (memory cells) |
+| `RDMSR` / `WRMSR` | Explicit memory-backed register-service operations |
+| `IRETQ` | Software exception return that restores saved state |
+| Page fault / GPF | Runtime checks that dispatch a virtual exception |
+| Exception handlers | SUBLEQ routines reached through a dispatcher |
+
+Run: `make firmware-subleq`
+
 ### Host Firmware (x86)
 
 `nasm/firmware/16_firmware_phase2.asm` is a host-side x86 firmware initialization module (IDT/GDT setup, exception handlers, MSR configuration). It is **not** SUBLEQ code and does not alter the instruction counts or semantics of the directive SUBLEQ machine. It is included as a reference for an x86 bridge or boot path that could later host a SUBLEQ core.
