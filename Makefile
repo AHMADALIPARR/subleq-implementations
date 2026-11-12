@@ -182,3 +182,7 @@ disasm-racket:
 firmware-subleq:
 	@echo "=== SUBLEQ firmware abstraction demo ==="
 	$(RACKET) programs/firmware/subleq-firmware.rkt
+
+firmware-roundtrip:
+	@echo "=== SUBLEQ firmware round-trip + invariants ==="
+	$(RACKET) programs/firmware/roundtrip.rkt

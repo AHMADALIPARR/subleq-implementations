@@ -228,6 +228,19 @@ Dependently typed formal specification. The `lean/` project contains the canonic
 
 
 
+
+### Firmware Round-Trip Equivalence
+
+`programs/firmware/roundtrip.rkt` performs the full cycle:
+
+source → assemble → 216-word image → extract code triples (stop at code/data boundary) → re-emit → bit-exact comparison
+
+It also checks the post-condition invariants of the demo run (CR0=1, CR4=0x200, FAULT_ADDR=0x1234, CURRENT_EXC cleared by the software iret).
+
+The disassembler now accepts an optional code-end argument so data cells are not decoded as instructions.
+
+Run: `make firmware-roundtrip`
+
 ### SUBLEQ Firmware Abstractions
 
 `programs/firmware/subleq-firmware.rkt` re-expresses the host x86 Phase 2 mechanisms as ordinary SUBLEQ code on the directive machine:

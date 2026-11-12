@@ -19,6 +19,8 @@
 
 (provide assemble-firmware run-firmware-demo)
 
+;; Returns (values image syms code-end)
+;; code-end is the address of the first data cell.
 (define (assemble-firmware)
   (define-values (image syms)
     (assemble
@@ -65,7 +67,15 @@
 
        (HALT))
      #:target 'directive))
-  (values image syms))
+  ;; Code ends at the lowest data address. Constants (K0, K1, ...) and
+;; variables are all data; code labels are the ones we explicitly placed.
+(define code-labels '(firmware-init H0 H1 H13 H14 iret dispatch))
+(define data-addrs
+  (for/list ([(k v) (in-hash syms)]
+             #:unless (memq k code-labels))
+    v))
+(define code-end (apply min data-addrs))
+(values image syms code-end))
 
 (define (run-firmware-demo)
   (define-values (image syms) (assemble-firmware))
