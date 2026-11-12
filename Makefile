@@ -198,3 +198,7 @@ firmware-compare:
 firmware-semantic:
 	@echo "=== Firmware semantic equivalence tests ==="
 	$(RACKET) programs/firmware/semantic-test.rkt
+
+firmware-prove:
+	@echo "=== Prove decompiled ops == SUBLEQ sequences ==="
+	$(RACKET) programs/firmware/prove-semantics.rkt

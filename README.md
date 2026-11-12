@@ -232,6 +232,20 @@ Dependently typed formal specification. The `lean/` project contains the canonic
 
 
 
+
+### Semantic Proof of Recovered Operations
+
+`programs/firmware/prove-semantics.rkt` proves that each higher-level operation recovered by the decompiler has the same semantics as the SUBLEQ sequence it represents:
+
+| Recovered operation | SUBLEQ sequence | Post-condition proved |
+|---------------------|-----------------|-----------------------|
+| `(mov dest src)` | 4-instruction expansion | dest = src, Z restored to 0 |
+| `(jump target)` | `sq Z Z target` | control transfers to target |
+| `(iret)` | `ZERO CURRENT_EXC; HALT` | exception cleared, machine halted |
+| Vector install | `MOV handler IDT[n]` | IDT slot holds the handler address |
+
+Run: `make firmware-prove`
+
 ### Semantic Equivalence Tests
 
 `programs/firmware/semantic-test.rkt` verifies that the decompiled firmware preserves the observable behavior of the original SUBLEQ program:
