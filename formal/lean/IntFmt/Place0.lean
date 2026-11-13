@@ -822,32 +822,6 @@ theorem p0_exit_zero {s : Machine}
 /- Arithmetic helpers and the remaining P0_LOOP compare-diamond arms.
 These are block lemmas, not end-to-end correctness. -/
 
-theorem word_add_one_wrap (w : Word) (h : w.toNat = 65535) :
-    w + 1 = 0 := by
-  have hone : (1 : Word).toNat = 1 := rfl
-  have hadd : (w + 1).toNat = (w.toNat + (1 : Word).toNat) % 65536 :=
-    UInt16.toNat_add w 1
-  have hton : (w + 1).toNat = 0 := by
-    rw [hadd, hone, h]
-  apply UInt16.toNat.inj
-  exact hton.trans (rfl : (0 : Nat) = (0 : Word).toNat)
-
-/-- Subtracting a strictly larger `b` wraps; the residual is
-`65536 - b.toNat + a.toNat`. -/
-theorem word_sub_lt (a b : Word) (h : a.toNat < b.toNat) :
-    (a - b).toNat = 65536 - b.toNat + a.toNat := by
-  have ha : a.toNat < 65536 := by
-    simpa [show UInt16.size = 65536 from rfl] using UInt16.toNat_lt_size a
-  have hb : b.toNat < 65536 := by
-    simpa [show UInt16.size = 65536 from rfl] using UInt16.toNat_lt_size b
-  have hpow : (2 : Nat) ^ 16 = 65536 := rfl
-  have hsum : 65536 - b.toNat + a.toNat < 65536 := by omega
-  have hkmod : (65536 - b.toNat + a.toNat) % 65536 = 65536 - b.toNat + a.toNat :=
-    Nat.mod_eq_of_lt hsum
-  rw [UInt16.toNat_sub, hpow, hkmod]
-
-
-
 /-- MOV N T at P0_LOOP (pc 189), 4 steps, exit pc 201. -/
 theorem p0_loop_mov_N_T {s : Machine}
     (hpc : s.pc = 189)
@@ -2135,16 +2109,6 @@ theorem p0_to_ge_eq {s : Machine}
     exact hpres15 a ha18 ha0
   exact ⟨hs16pc, hs16h, hs16N, hs16Q, hs16Z, hpres⟩
 
-
-/-- Word equality from a concrete `toNat` value that fits in 16 bits. -/
-theorem word_eq_of_toNat (w : Word) (n : Nat) (hn : n < 65536)
-    (h : w.toNat = n) : w = UInt16.ofNat n := by
-  apply UInt16.toNat.inj
-  have : (UInt16.ofNat n).toNat = n :=
-    UInt16.toNat_ofNat_of_lt (by
-      have hsz : UInt16.size = 65536 := rfl
-      rw [hsz]; exact hn)
-  exact h.trans this.symm
 
 /-- All `N ≥ 10000` compare arms reach `P0_GE` in `p0CmpSteps N` steps,
 leaving `N` and `Q0` unchanged. -/
