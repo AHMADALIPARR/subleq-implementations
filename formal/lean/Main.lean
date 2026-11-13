@@ -128,6 +128,11 @@ open IntFmt
 #print axioms after_pad_sign0
 #print axioms st0_store
 #print axioms store_ch_idx0
+#print axioms store_ch_idx1
+#print axioms store_ch_idx15
+#print axioms stored_ret_pad
+#print axioms stored_ret_sign
+#print axioms stored_ret_dig
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
