@@ -1,0 +1,4 @@
+check-image: PASS
+intfmt.dec SHA-256 bc8679df169f382114b779b54e97bdf21bccc94bf6341ca55374f357610f94c6
+Image.lean matches gen-image.sh output
+embedded IntFmt/intfmt.dec is byte-identical to official artifact
