@@ -53,4 +53,19 @@ theorem snprintf_index_lt_cap (payload : List Nat) (cap : Nat) (i : Nat)
   omega
 
 
+/-- Milestone 4 (general NUL lemma): if `cap > 0`, a NUL is written at
+index `min payload.length (cap-1)` — i.e. at the payload end when it
+fits, otherwise at the last byte of the buffer. -/
+theorem snprintf_nul (payload : List Nat) (cap : Nat) (hcap : 0 < cap) :
+    (snprintfSpec payload cap).1[min payload.length (cap - 1)]? = some 0 := by
+  unfold snprintfSpec
+  have hne : cap ≠ 0 := Nat.ne_of_gt hcap
+  simp [hne]
+  have hidx :
+      min payload.length (cap - 1) = (payload.take (cap - 1)).length := by
+    rw [List.length_take, Nat.min_comm]
+  rw [hidx]
+  rw [List.getElem?_append_right (Nat.le_refl _)]
+  simp
+
 end IntFmt
