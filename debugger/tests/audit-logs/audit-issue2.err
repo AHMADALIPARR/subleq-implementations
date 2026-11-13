@@ -1,0 +1,3 @@
+ISSUE2 tfp  '%10ad' -> [                                                                                                             5] ret=110 (len=110)
+ISSUE2 glibc '%10ad' -> [    0x0p+0d] ret=11 (len=11)
+ISSUE2 CONFIRMED: 'a' was consumed as a decimal width digit (width 110)

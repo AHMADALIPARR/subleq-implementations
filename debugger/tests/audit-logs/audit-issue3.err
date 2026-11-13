@@ -1,0 +1,2 @@
+ISSUE3 tfp_snprintf(size=0) = 0; glibc snprintf(NULL,0) = 8; buf[0]='Z'
+ISSUE3 CONFIRMED: tfp returns 0 instead of the would-be length 8

@@ -1,0 +1,52 @@
+ISSUE4 DIFF fmt=%+d v=0 tfp=[d] ret=1 glibc=[+0] ret=2
+ISSUE4 DIFF fmt=%+8d v=0 tfp=[8d] ret=2 glibc=[      +0] ret=8
+ISSUE4 DIFF fmt=%+08d v=0 tfp=[08d] ret=3 glibc=[+0000000] ret=8
+ISSUE4 DIFF fmt=%+.3d v=0 tfp=[.3d] ret=3 glibc=[+000] ret=4
+ISSUE4 DIFF fmt=%+8.3d v=0 tfp=[8.3d] ret=4 glibc=[    +000] ret=8
+ISSUE4 DIFF fmt=% d v=0 tfp=[d] ret=1 glibc=[ 0] ret=2
+ISSUE4 DIFF fmt=% 8d v=0 tfp=[8d] ret=2 glibc=[       0] ret=8
+ISSUE4 DIFF fmt=% 08d v=0 tfp=[08d] ret=3 glibc=[ 0000000] ret=8
+ISSUE4 DIFF fmt=%+d v=1 tfp=[d] ret=1 glibc=[+1] ret=2
+ISSUE4 DIFF fmt=%+8d v=1 tfp=[8d] ret=2 glibc=[      +1] ret=8
+ISSUE4 DIFF fmt=%+08d v=1 tfp=[08d] ret=3 glibc=[+0000001] ret=8
+ISSUE4 DIFF fmt=%+.3d v=1 tfp=[.3d] ret=3 glibc=[+001] ret=4
+ISSUE4 DIFF fmt=%+8.3d v=1 tfp=[8.3d] ret=4 glibc=[    +001] ret=8
+ISSUE4 DIFF fmt=% d v=1 tfp=[d] ret=1 glibc=[ 1] ret=2
+ISSUE4 DIFF fmt=% 8d v=1 tfp=[8d] ret=2 glibc=[       1] ret=8
+ISSUE4 DIFF fmt=% 08d v=1 tfp=[08d] ret=3 glibc=[ 0000001] ret=8
+ISSUE4 DIFF fmt=%+d v=-1 tfp=[d] ret=1 glibc=[-1] ret=2
+ISSUE4 DIFF fmt=%+8d v=-1 tfp=[8d] ret=2 glibc=[      -1] ret=8
+ISSUE4 DIFF fmt=%+08d v=-1 tfp=[08d] ret=3 glibc=[-0000001] ret=8
+ISSUE4 DIFF fmt=%+.3d v=-1 tfp=[.3d] ret=3 glibc=[-001] ret=4
+ISSUE4 DIFF fmt=%+8.3d v=-1 tfp=[8.3d] ret=4 glibc=[    -001] ret=8
+ISSUE4 DIFF fmt=% d v=-1 tfp=[d] ret=1 glibc=[-1] ret=2
+ISSUE4 DIFF fmt=% 8d v=-1 tfp=[8d] ret=2 glibc=[      -1] ret=8
+ISSUE4 DIFF fmt=% 08d v=-1 tfp=[08d] ret=3 glibc=[-0000001] ret=8
+ISSUE4 DIFF fmt=%+d v=5 tfp=[d] ret=1 glibc=[+5] ret=2
+ISSUE4 DIFF fmt=%+8d v=5 tfp=[8d] ret=2 glibc=[      +5] ret=8
+ISSUE4 DIFF fmt=%+08d v=5 tfp=[08d] ret=3 glibc=[+0000005] ret=8
+ISSUE4 DIFF fmt=%+.3d v=5 tfp=[.3d] ret=3 glibc=[+005] ret=4
+ISSUE4 DIFF fmt=%+8.3d v=5 tfp=[8.3d] ret=4 glibc=[    +005] ret=8
+ISSUE4 DIFF fmt=% d v=5 tfp=[d] ret=1 glibc=[ 5] ret=2
+ISSUE4 DIFF fmt=% 8d v=5 tfp=[8d] ret=2 glibc=[       5] ret=8
+ISSUE4 DIFF fmt=% 08d v=5 tfp=[08d] ret=3 glibc=[ 0000005] ret=8
+ISSUE4 DIFF fmt=%+d v=42 tfp=[d] ret=1 glibc=[+42] ret=3
+ISSUE4 DIFF fmt=%+8d v=42 tfp=[8d] ret=2 glibc=[     +42] ret=8
+ISSUE4 DIFF fmt=%+08d v=42 tfp=[08d] ret=3 glibc=[+0000042] ret=8
+ISSUE4 DIFF fmt=%+.3d v=42 tfp=[.3d] ret=3 glibc=[+042] ret=4
+ISSUE4 DIFF fmt=%+8.3d v=42 tfp=[8.3d] ret=4 glibc=[    +042] ret=8
+ISSUE4 DIFF fmt=% d v=42 tfp=[d] ret=1 glibc=[ 42] ret=3
+ISSUE4 DIFF fmt=% 8d v=42 tfp=[8d] ret=2 glibc=[      42] ret=8
+ISSUE4 DIFF fmt=% 08d v=42 tfp=[08d] ret=3 glibc=[ 0000042] ret=8
+../tinyprintf.c:185:13: runtime error: negation of -2147483648 cannot be represented in type 'int'; cast to an unsigned type to negate this value to itself
+    #0 0x5626fc8b93fe in i2a ../tinyprintf.c:185
+    #1 0x5626fc8bb9bf in tfp_format ../tinyprintf.c:420
+    #2 0x5626fc8bcb43 in tfp_vsnprintf ../tinyprintf.c:532
+    #3 0x5626fc8bceb8 in tfp_snprintf ../tinyprintf.c:548
+    #4 0x5626fc8b64e9 in one_fmt /workspace/subleq-implementations/debugger/tests/audit-tinyprintf.c:126
+    #5 0x5626fc8b75ea in test_issue4 /workspace/subleq-implementations/debugger/tests/audit-tinyprintf.c:202
+    #6 0x5626fc8b7f39 in main /workspace/subleq-implementations/debugger/tests/audit-tinyprintf.c:226
+    #7 0x7f9973435ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: 5e5b51f4c39af9ac589408c1dc432ba390a273cc)
+    #8 0x7f9973435d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: 5e5b51f4c39af9ac589408c1dc432ba390a273cc)
+    #9 0x5626fc8b5250 in _start (/tmp/audit-tfp+0xb250) (BuildId: 0d8769051727a476dcc0a60d33c9dcf76674f1b7)
+

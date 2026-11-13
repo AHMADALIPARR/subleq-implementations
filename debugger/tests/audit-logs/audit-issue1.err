@@ -1,0 +1,12 @@
+ISSUE1: calling tfp_snprintf("%d", INT_MIN) ; INT_MIN=-2147483648
+../tinyprintf.c:185:13: runtime error: negation of -2147483648 cannot be represented in type 'int'; cast to an unsigned type to negate this value to itself
+    #0 0x564097fb43fe in i2a ../tinyprintf.c:185
+    #1 0x564097fb69bf in tfp_format ../tinyprintf.c:420
+    #2 0x564097fb7b43 in tfp_vsnprintf ../tinyprintf.c:532
+    #3 0x564097fb7eb8 in tfp_snprintf ../tinyprintf.c:548
+    #4 0x564097fb0c07 in test_issue1 /workspace/subleq-implementations/debugger/tests/audit-tinyprintf.c:79
+    #5 0x564097fb2eca in main /workspace/subleq-implementations/debugger/tests/audit-tinyprintf.c:225
+    #6 0x7f3895035ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: 5e5b51f4c39af9ac589408c1dc432ba390a273cc)
+    #7 0x7f3895035d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: 5e5b51f4c39af9ac589408c1dc432ba390a273cc)
+    #8 0x564097fb0250 in _start (/tmp/audit-tfp+0xb250) (BuildId: 0d8769051727a476dcc0a60d33c9dcf76674f1b7)
+
