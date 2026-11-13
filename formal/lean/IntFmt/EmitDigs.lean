@@ -3773,4 +3773,508 @@ theorem dig_loop_to_body {s : Machine}
     rw [hrun, hs10eq']; exact hpres9 a ha18 ha0
   exact ⟨hs10pc, hs10h, hs10Z, hs10DI, hpres⟩
 
+/-- `DIG_BODY` with `DI < SK`: 11 steps to `DIG_NEXT`, no store. -/
+theorem dig_body_skip {s : Machine}
+    (hpc : s.pc = 1677)
+    (hh : s.halted = false)
+    (hZ : s.mem.get 0 = 0)
+    (hONE : s.mem.get 3 = 1)
+    (hDIlt : (s.mem.get 2321).toNat < (s.mem.get 2320).toNat)
+    (hSKhi : (s.mem.get 2320).toNat < 32768)
+    (hcode : ∀ k : Nat, 1677 ≤ k → k < 1716 →
+      s.mem.get (UInt16.ofNat k) = intfmtImage[k]!) :
+    let s11 := runN s 11
+    s11.pc = 1893 ∧
+    s11.halted = false ∧
+    s11.mem.get 0 = 0 ∧
+    s11.mem.get 2321 = s.mem.get 2321 ∧
+    (∀ a, a ≠ 18 → a ≠ 0 → s11.mem.get a = s.mem.get a) := by
+  intro s11
+  have hm := ed_mov_DI_T_1677 (s := s) hpc hh hZ
+    (fun k h1 h2 => hcode k h1 (by omega))
+  let s4 := runN s 4
+  have hs4pc : s4.pc = 1689 := hm.1
+  have hs4h : s4.halted = false := hm.2.1
+  have hs4T : s4.mem.get 18 = s.mem.get 2321 := hm.2.2.1
+  have hs4Z : s4.mem.get 0 = 0 := hm.2.2.2.1
+  have hpres4 := hm.2.2.2.2.2
+  have hONE4 : s4.mem.get 3 = 1 := (hpres4 3 (by decide) (by decide)).trans hONE
+  have hSK4 : s4.mem.get 2320 = s.mem.get 2320 := hpres4 2320 (by decide) (by decide)
+  have hDI4 : s4.mem.get 2321 = s.mem.get 2321 := hpres4 2321 (by decide) (by decide)
+  have g4 : ∀ k : Nat, 1689 ≤ k → k < 1695 →
+      s4.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres4 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have hsub := ed_sub_SK_T_1689 (s := s4) hs4pc hs4h
+    (fun k h1 h2 => g4 k h1 (by omega))
+  have hrun5 : runN s 5 = step s4 := by
+    have h5 : runN s 5 = runN s4 1 := runN_add_eq s 4 1 5 (by decide)
+    have hpc4 : s4.pc.toNat < 32768 := by simp [hs4pc]
+    exact h5.trans (runN_one s4 hs4h hpc4)
+  let s5 := runN s 5
+  have hs5eq' : s5 =
+      { s4 with mem := s4.mem.set 18 (s4.mem.get 18 - s4.mem.get 2320), pc := 1692 } := by
+    have : s5 = step s4 := hrun5
+    rw [this, hsub]
+  have hs5pc : s5.pc = 1692 := by rw [hs5eq']
+  have hs5h : s5.halted = false := by rw [hs5eq']; exact hs4h
+  have hs5T : s5.mem.get 18 = s.mem.get 2321 - s.mem.get 2320 := by
+    rw [hs5eq', Mem.get_set_eq, hs4T, hSK4]
+  have hs5Z : s5.mem.get 0 = 0 := by
+    rw [hs5eq']
+    exact (Mem.get_set_ne s4.mem 18 0 (s4.mem.get 18 - s4.mem.get 2320) (by decide)).trans hs4Z
+  have hpres5 : ∀ a, a ≠ 18 → a ≠ 0 → s5.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    rw [hs5eq']
+    exact (Mem.get_set_ne s4.mem 18 a (s4.mem.get 18 - s4.mem.get 2320) ha18).trans
+      (hpres4 a ha18 ha0)
+  have hONE5 : s5.mem.get 3 = 1 := (hpres5 3 (by decide) (by decide)).trans hONE
+  have hDI5 : s5.mem.get 2321 = s.mem.get 2321 := hpres5 2321 (by decide) (by decide)
+  have g5 : ∀ k : Nat, 1692 ≤ k → k < 1695 →
+      s5.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres5 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have henc1 := ed_enc_jlez_1692 (s := s5) hs5pc g5
+  have hpc5 : s5.pc.toNat < 32768 := by simp [hs5pc]
+  have hj1 :=
+    step_JLEZ (s := s5) (x := 18) (dest := 1698)
+      hs5h hpc5 hs5Z henc1.1 henc1.2.1 henc1.2.2 (by decide)
+  have hle1 : (s5.mem.get 18 = 0 || 0x8000 ≤ s5.mem.get 18) = true := by
+    have : le0 (s5.mem.get 18) = true := by
+      rw [hs5T]
+      exact idx_lt_room_le0 (s.mem.get 2321) (s.mem.get 2320) hSKhi hDIlt
+    simpa [le0] using this
+  have hs6eq' : step s5 = { s5 with pc := 1698 } := by
+    have hif :
+        (if s5.mem.get 18 = 0 || 0x8000 ≤ s5.mem.get 18
+          then (1698 : Word) else s5.pc + 3) = (1698 : Word) := by
+      simp [hle1]
+    rw [hj1, hif]
+  have hrun6 : runN s 6 = step s5 := by
+    have h6 : runN s 6 = runN s5 1 := runN_add_eq s 5 1 6 (by decide)
+    exact h6.trans (runN_one s5 hs5h hpc5)
+  let s6 := runN s 6
+  have hs6pc : s6.pc = 1698 := by have : s6 = step s5 := hrun6; rw [this, hs6eq']
+  have hs6h : s6.halted = false := by have : s6 = step s5 := hrun6; rw [this, hs6eq']; exact hs5h
+  have hs6Z : s6.mem.get 0 = 0 := by have : s6 = step s5 := hrun6; rw [this, hs6eq']; exact hs5Z
+  have hs6T : s6.mem.get 18 = s.mem.get 2321 - s.mem.get 2320 := by
+    have : s6 = step s5 := hrun6; rw [this, hs6eq']; exact hs5T
+  have hpres6 : ∀ a, a ≠ 18 → a ≠ 0 → s6.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    have : s6 = step s5 := hrun6
+    rw [this, hs6eq']; exact hpres5 a ha18 ha0
+  have hONE6 : s6.mem.get 3 = 1 := (hpres6 3 (by decide) (by decide)).trans hONE
+  have hDI6 : s6.mem.get 2321 = s.mem.get 2321 := hpres6 2321 (by decide) (by decide)
+  have g6 : ∀ k : Nat, 1698 ≤ k → k < 1707 →
+      s6.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres6 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have hinc := ed_inc_T_1698 (s := s6) hs6pc hs6h hs6Z hONE6 g6
+  have hrun9 : runN s 9 = runN s6 3 := runN_add_eq s 6 3 9 (by decide)
+  let s9 := runN s 9
+  have hs9eq : s9 = runN s6 3 := hrun9
+  have hs9pc : s9.pc = 1707 := by rw [hs9eq]; exact hinc.1
+  have hs9h : s9.halted = false := by rw [hs9eq]; exact hinc.2.1
+  have hs9T : s9.mem.get 18 = (s.mem.get 2321 - s.mem.get 2320) + 1 := by
+    rw [hs9eq, hinc.2.2.1, hs6T]
+  have hs9Z : s9.mem.get 0 = 0 := by rw [hs9eq]; exact hinc.2.2.2.1
+  have hpres9 : ∀ a, a ≠ 18 → a ≠ 0 → s9.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    rw [hs9eq]; exact (hinc.2.2.2.2 a ha18 ha0).trans (hpres6 a ha18 ha0)
+  have hDI9 : s9.mem.get 2321 = s.mem.get 2321 := hpres9 2321 (by decide) (by decide)
+  have g9 : ∀ k : Nat, 1707 ≤ k → k < 1713 →
+      s9.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres9 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have henc2 := ed_enc_jlez_1707 (s := s9) hs9pc
+    (fun k h1 h2 => g9 k h1 (by omega))
+  have hpc9 : s9.pc.toNat < 32768 := by simp [hs9pc]
+  have hj2 :=
+    step_JLEZ (s := s9) (x := 18) (dest := 1713)
+      hs9h hpc9 hs9Z henc2.1 henc2.2.1 henc2.2.2 (by decide)
+  have hle2 : (s9.mem.get 18 = 0 || 0x8000 ≤ s9.mem.get 18) = true := by
+    have : le0 (s9.mem.get 18) = true := by
+      rw [hs9T]
+      exact idx_lt_room_inc_le0 (s.mem.get 2321) (s.mem.get 2320) hSKhi hDIlt
+    simpa [le0] using this
+  have hs10eq' : step s9 = { s9 with pc := 1713 } := by
+    have hif :
+        (if s9.mem.get 18 = 0 || 0x8000 ≤ s9.mem.get 18
+          then (1713 : Word) else s9.pc + 3) = (1713 : Word) := by
+      simp [hle2]
+    rw [hj2, hif]
+  have hrun10 : runN s 10 = step s9 := by
+    have h10 : runN s 10 = runN s9 1 := runN_add_eq s 9 1 10 (by decide)
+    exact h10.trans (runN_one s9 hs9h hpc9)
+  let s10 := runN s 10
+  have hs10pc : s10.pc = 1713 := by have : s10 = step s9 := hrun10; rw [this, hs10eq']
+  have hs10h : s10.halted = false := by have : s10 = step s9 := hrun10; rw [this, hs10eq']; exact hs9h
+  have hs10Z : s10.mem.get 0 = 0 := by have : s10 = step s9 := hrun10; rw [this, hs10eq']; exact hs9Z
+  have hpres10 : ∀ a, a ≠ 18 → a ≠ 0 → s10.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    have : s10 = step s9 := hrun10
+    rw [this, hs10eq']; exact hpres9 a ha18 ha0
+  have hDI10 : s10.mem.get 2321 = s.mem.get 2321 := hpres10 2321 (by decide) (by decide)
+  have g10 : ∀ k : Nat, 1713 ≤ k → k < 1716 →
+      s10.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres10 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have henc3 := ed_enc_jmp_1713 (s := s10) hs10pc g10
+  have hpc10 : s10.pc.toNat < 32768 := by simp [hs10pc]
+  have hj3 := step_JMP (s := s10) (dest := 1893)
+    hs10h hpc10 hs10Z henc3.1 henc3.2.1 henc3.2.2
+  have hrun : s11 = step s10 := by
+    have h11 : runN s 11 = runN s10 1 := runN_add_eq s 10 1 11 (by decide)
+    exact h11.trans (runN_one s10 hs10h hpc10)
+  have hs11pc : s11.pc = 1893 := by rw [hrun, hj3]
+  have hs11h : s11.halted = false := by rw [hrun, hj3]; exact hs10h
+  have hs11Z : s11.mem.get 0 = 0 := by rw [hrun, hj3]; exact hs10Z
+  have hs11DI : s11.mem.get 2321 = s.mem.get 2321 := by rw [hrun, hj3]; exact hDI10
+  have hpres : ∀ a, a ≠ 18 → a ≠ 0 → s11.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    rw [hrun, hj3]; exact hpres10 a ha18 ha0
+  exact ⟨hs11pc, hs11h, hs11Z, hs11DI, hpres⟩
+
+/-- `DIG_BODY` with `DI = SK`: 11 steps to `TAKE_DIG`. -/
+theorem dig_body_take_eq {s : Machine}
+    (hpc : s.pc = 1677)
+    (hh : s.halted = false)
+    (hZ : s.mem.get 0 = 0)
+    (hONE : s.mem.get 3 = 1)
+    (hDI : s.mem.get 2321 = s.mem.get 2320)
+    (hcode : ∀ k : Nat, 1677 ≤ k → k < 1716 →
+      s.mem.get (UInt16.ofNat k) = intfmtImage[k]!) :
+    let s11 := runN s 11
+    s11.pc = 1716 ∧
+    s11.halted = false ∧
+    s11.mem.get 0 = 0 ∧
+    s11.mem.get 2321 = s.mem.get 2321 ∧
+    (∀ a, a ≠ 18 → a ≠ 0 → s11.mem.get a = s.mem.get a) := by
+  intro s11
+  have hm := ed_mov_DI_T_1677 (s := s) hpc hh hZ
+    (fun k h1 h2 => hcode k h1 (by omega))
+  let s4 := runN s 4
+  have hs4pc : s4.pc = 1689 := hm.1
+  have hs4h : s4.halted = false := hm.2.1
+  have hs4T : s4.mem.get 18 = s.mem.get 2321 := hm.2.2.1
+  have hs4Z : s4.mem.get 0 = 0 := hm.2.2.2.1
+  have hpres4 := hm.2.2.2.2.2
+  have hONE4 : s4.mem.get 3 = 1 := (hpres4 3 (by decide) (by decide)).trans hONE
+  have hSK4 : s4.mem.get 2320 = s.mem.get 2320 := hpres4 2320 (by decide) (by decide)
+  have g4 : ∀ k : Nat, 1689 ≤ k → k < 1695 →
+      s4.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres4 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have hsub := ed_sub_SK_T_1689 (s := s4) hs4pc hs4h
+    (fun k h1 h2 => g4 k h1 (by omega))
+  have hrun5 : runN s 5 = step s4 := by
+    have h5 : runN s 5 = runN s4 1 := runN_add_eq s 4 1 5 (by decide)
+    have hpc4 : s4.pc.toNat < 32768 := by simp [hs4pc]
+    exact h5.trans (runN_one s4 hs4h hpc4)
+  let s5 := runN s 5
+  have hs5eq' : s5 =
+      { s4 with mem := s4.mem.set 18 (s4.mem.get 18 - s4.mem.get 2320), pc := 1692 } := by
+    have : s5 = step s4 := hrun5
+    rw [this, hsub]
+  have hs5pc : s5.pc = 1692 := by rw [hs5eq']
+  have hs5h : s5.halted = false := by rw [hs5eq']; exact hs4h
+  have hs5T : s5.mem.get 18 = 0 := by
+    rw [hs5eq', Mem.get_set_eq, hs4T, hSK4, hDI]
+    simp
+  have hs5Z : s5.mem.get 0 = 0 := by
+    rw [hs5eq']
+    exact (Mem.get_set_ne s4.mem 18 0 (s4.mem.get 18 - s4.mem.get 2320) (by decide)).trans hs4Z
+  have hpres5 : ∀ a, a ≠ 18 → a ≠ 0 → s5.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    rw [hs5eq']
+    exact (Mem.get_set_ne s4.mem 18 a (s4.mem.get 18 - s4.mem.get 2320) ha18).trans
+      (hpres4 a ha18 ha0)
+  have hONE5 : s5.mem.get 3 = 1 := (hpres5 3 (by decide) (by decide)).trans hONE
+  have g5 : ∀ k : Nat, 1692 ≤ k → k < 1695 →
+      s5.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres5 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have henc1 := ed_enc_jlez_1692 (s := s5) hs5pc g5
+  have hpc5 : s5.pc.toNat < 32768 := by simp [hs5pc]
+  have hj1 :=
+    step_JLEZ (s := s5) (x := 18) (dest := 1698)
+      hs5h hpc5 hs5Z henc1.1 henc1.2.1 henc1.2.2 (by decide)
+  have hle1 : (s5.mem.get 18 = 0 || 0x8000 ≤ s5.mem.get 18) = true := by
+    have : le0 (s5.mem.get 18) = true := by rw [hs5T]; exact le0_zero
+    simpa [le0] using this
+  have hs6eq' : step s5 = { s5 with pc := 1698 } := by
+    have hif :
+        (if s5.mem.get 18 = 0 || 0x8000 ≤ s5.mem.get 18
+          then (1698 : Word) else s5.pc + 3) = (1698 : Word) := by
+      simp [hle1]
+    rw [hj1, hif]
+  have hrun6 : runN s 6 = step s5 := by
+    have h6 : runN s 6 = runN s5 1 := runN_add_eq s 5 1 6 (by decide)
+    exact h6.trans (runN_one s5 hs5h hpc5)
+  let s6 := runN s 6
+  have hs6pc : s6.pc = 1698 := by have : s6 = step s5 := hrun6; rw [this, hs6eq']
+  have hs6h : s6.halted = false := by have : s6 = step s5 := hrun6; rw [this, hs6eq']; exact hs5h
+  have hs6Z : s6.mem.get 0 = 0 := by have : s6 = step s5 := hrun6; rw [this, hs6eq']; exact hs5Z
+  have hs6T : s6.mem.get 18 = 0 := by have : s6 = step s5 := hrun6; rw [this, hs6eq']; exact hs5T
+  have hpres6 : ∀ a, a ≠ 18 → a ≠ 0 → s6.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    have : s6 = step s5 := hrun6
+    rw [this, hs6eq']; exact hpres5 a ha18 ha0
+  have hONE6 : s6.mem.get 3 = 1 := (hpres6 3 (by decide) (by decide)).trans hONE
+  have g6 : ∀ k : Nat, 1698 ≤ k → k < 1707 →
+      s6.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres6 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have hinc := ed_inc_T_1698 (s := s6) hs6pc hs6h hs6Z hONE6 g6
+  have hrun9 : runN s 9 = runN s6 3 := runN_add_eq s 6 3 9 (by decide)
+  let s9 := runN s 9
+  have hs9eq : s9 = runN s6 3 := hrun9
+  have hs9pc : s9.pc = 1707 := by rw [hs9eq]; exact hinc.1
+  have hs9h : s9.halted = false := by rw [hs9eq]; exact hinc.2.1
+  have hs9T : s9.mem.get 18 = 1 := by
+    rw [hs9eq, hinc.2.2.1, hs6T]; exact (rfl : (0 : Word) + 1 = 1)
+  have hs9Z : s9.mem.get 0 = 0 := by rw [hs9eq]; exact hinc.2.2.2.1
+  have hpres9 : ∀ a, a ≠ 18 → a ≠ 0 → s9.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    rw [hs9eq]; exact (hinc.2.2.2.2 a ha18 ha0).trans (hpres6 a ha18 ha0)
+  have g9 : ∀ k : Nat, 1707 ≤ k → k < 1716 →
+      s9.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres9 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have henc2 := ed_enc_jlez_1707 (s := s9) hs9pc
+    (fun k h1 h2 => g9 k h1 (by omega))
+  have hpc9 : s9.pc.toNat < 32768 := by simp [hs9pc]
+  have hj2 :=
+    step_JLEZ (s := s9) (x := 18) (dest := 1713)
+      hs9h hpc9 hs9Z henc2.1 henc2.2.1 henc2.2.2 (by decide)
+  have hle2 : (s9.mem.get 18 = 0 || 0x8000 ≤ s9.mem.get 18) = false := by
+    have : le0 (s9.mem.get 18) = false := by
+      rw [hs9T]; exact le0_pos (by decide) (by decide)
+    simpa [le0] using this
+  have hs10eq' : step s9 = { s9 with pc := 1710 } := by
+    have hif :
+        (if s9.mem.get 18 = 0 || 0x8000 ≤ s9.mem.get 18
+          then (1713 : Word) else s9.pc + 3) = (1710 : Word) := by
+      have hfall : s9.pc + 3 = (1710 : Word) := by simp [hs9pc]
+      simp [hle2, hfall]
+    rw [hj2, hif]
+  have hrun10 : runN s 10 = step s9 := by
+    have h10 : runN s 10 = runN s9 1 := runN_add_eq s 9 1 10 (by decide)
+    exact h10.trans (runN_one s9 hs9h hpc9)
+  let s10 := runN s 10
+  have hs10pc : s10.pc = 1710 := by have : s10 = step s9 := hrun10; rw [this, hs10eq']
+  have hs10h : s10.halted = false := by have : s10 = step s9 := hrun10; rw [this, hs10eq']; exact hs9h
+  have hs10Z : s10.mem.get 0 = 0 := by have : s10 = step s9 := hrun10; rw [this, hs10eq']; exact hs9Z
+  have hpres10 : ∀ a, a ≠ 18 → a ≠ 0 → s10.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    have : s10 = step s9 := hrun10
+    rw [this, hs10eq']; exact hpres9 a ha18 ha0
+  have g10 : ∀ k : Nat, 1710 ≤ k → k < 1716 →
+      s10.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres10 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have henc3 := ed_enc_jmp_1710 (s := s10) hs10pc
+    (fun k h1 h2 => g10 k h1 (by omega))
+  have hpc10 : s10.pc.toNat < 32768 := by simp [hs10pc]
+  have hj3 := step_JMP (s := s10) (dest := 1716)
+    hs10h hpc10 hs10Z henc3.1 henc3.2.1 henc3.2.2
+  have hrun : s11 = step s10 := by
+    have h11 : runN s 11 = runN s10 1 := runN_add_eq s 10 1 11 (by decide)
+    exact h11.trans (runN_one s10 hs10h hpc10)
+  have hs11pc : s11.pc = 1716 := by rw [hrun, hj3]
+  have hs11h : s11.halted = false := by rw [hrun, hj3]; exact hs10h
+  have hs11Z : s11.mem.get 0 = 0 := by rw [hrun, hj3]; exact hs10Z
+  have hs11DI : s11.mem.get 2321 = s.mem.get 2321 := by
+    rw [hrun, hj3]; exact hpres10 2321 (by decide) (by decide)
+  have hpres : ∀ a, a ≠ 18 → a ≠ 0 → s11.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    rw [hrun, hj3]; exact hpres10 a ha18 ha0
+  exact ⟨hs11pc, hs11h, hs11Z, hs11DI, hpres⟩
+
+/-- `DIG_BODY` with `DI > SK` (both below the sign bit): 7 steps to `TAKE_DIG`. -/
+theorem dig_body_take_gt {s : Machine}
+    (hpc : s.pc = 1677)
+    (hh : s.halted = false)
+    (hZ : s.mem.get 0 = 0)
+    (hSKlo : (s.mem.get 2320).toNat < (s.mem.get 2321).toNat)
+    (hDIhi : (s.mem.get 2321).toNat < 32768)
+    (hcode : ∀ k : Nat, 1677 ≤ k → k < 1698 →
+      s.mem.get (UInt16.ofNat k) = intfmtImage[k]!) :
+    let s7 := runN s 7
+    s7.pc = 1716 ∧
+    s7.halted = false ∧
+    s7.mem.get 0 = 0 ∧
+    s7.mem.get 2321 = s.mem.get 2321 ∧
+    (∀ a, a ≠ 18 → a ≠ 0 → s7.mem.get a = s.mem.get a) := by
+  intro s7
+  have hm := ed_mov_DI_T_1677 (s := s) hpc hh hZ
+    (fun k h1 h2 => hcode k h1 (by omega))
+  let s4 := runN s 4
+  have hs4pc : s4.pc = 1689 := hm.1
+  have hs4h : s4.halted = false := hm.2.1
+  have hs4T : s4.mem.get 18 = s.mem.get 2321 := hm.2.2.1
+  have hs4Z : s4.mem.get 0 = 0 := hm.2.2.2.1
+  have hpres4 := hm.2.2.2.2.2
+  have hSK4 : s4.mem.get 2320 = s.mem.get 2320 := hpres4 2320 (by decide) (by decide)
+  have g4 : ∀ k : Nat, 1689 ≤ k → k < 1698 →
+      s4.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres4 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have hsub := ed_sub_SK_T_1689 (s := s4) hs4pc hs4h
+    (fun k h1 h2 => g4 k h1 (by omega))
+  have hrun5 : runN s 5 = step s4 := by
+    have h5 : runN s 5 = runN s4 1 := runN_add_eq s 4 1 5 (by decide)
+    have hpc4 : s4.pc.toNat < 32768 := by simp [hs4pc]
+    exact h5.trans (runN_one s4 hs4h hpc4)
+  let s5 := runN s 5
+  have hs5eq' : s5 =
+      { s4 with mem := s4.mem.set 18 (s4.mem.get 18 - s4.mem.get 2320), pc := 1692 } := by
+    have : s5 = step s4 := hrun5
+    rw [this, hsub]
+  have hs5pc : s5.pc = 1692 := by rw [hs5eq']
+  have hs5h : s5.halted = false := by rw [hs5eq']; exact hs4h
+  have hs5T : s5.mem.get 18 = s.mem.get 2321 - s.mem.get 2320 := by
+    rw [hs5eq', Mem.get_set_eq, hs4T, hSK4]
+  have hs5Z : s5.mem.get 0 = 0 := by
+    rw [hs5eq']
+    exact (Mem.get_set_ne s4.mem 18 0 (s4.mem.get 18 - s4.mem.get 2320) (by decide)).trans hs4Z
+  have hpres5 : ∀ a, a ≠ 18 → a ≠ 0 → s5.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    rw [hs5eq']
+    exact (Mem.get_set_ne s4.mem 18 a (s4.mem.get 18 - s4.mem.get 2320) ha18).trans
+      (hpres4 a ha18 ha0)
+  have g5 : ∀ k : Nat, 1692 ≤ k → k < 1698 →
+      s5.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres5 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have henc1 := ed_enc_jlez_1692 (s := s5) hs5pc
+    (fun k h1 h2 => g5 k h1 (by omega))
+  have hpc5 : s5.pc.toNat < 32768 := by simp [hs5pc]
+  have hj1 :=
+    step_JLEZ (s := s5) (x := 18) (dest := 1698)
+      hs5h hpc5 hs5Z henc1.1 henc1.2.1 henc1.2.2 (by decide)
+  have hle1 : (s5.mem.get 18 = 0 || 0x8000 ≤ s5.mem.get 18) = false := by
+    have htn := word_sub_ge (s.mem.get 2321) (s.mem.get 2320) (by omega)
+    have hpos : 0 < (s.mem.get 2321 - s.mem.get 2320).toNat := by omega
+    have hhi : (s.mem.get 2321 - s.mem.get 2320).toNat < 32768 := by omega
+    have : le0 (s5.mem.get 18) = false := by
+      rw [hs5T]; exact le0_pos hpos hhi
+    simpa [le0] using this
+  have hs6eq' : step s5 = { s5 with pc := 1695 } := by
+    have hif :
+        (if s5.mem.get 18 = 0 || 0x8000 ≤ s5.mem.get 18
+          then (1698 : Word) else s5.pc + 3) = (1695 : Word) := by
+      have hfall : s5.pc + 3 = (1695 : Word) := by simp [hs5pc]
+      simp [hle1, hfall]
+    rw [hj1, hif]
+  have hrun6 : runN s 6 = step s5 := by
+    have h6 : runN s 6 = runN s5 1 := runN_add_eq s 5 1 6 (by decide)
+    exact h6.trans (runN_one s5 hs5h hpc5)
+  let s6 := runN s 6
+  have hs6pc : s6.pc = 1695 := by have : s6 = step s5 := hrun6; rw [this, hs6eq']
+  have hs6h : s6.halted = false := by have : s6 = step s5 := hrun6; rw [this, hs6eq']; exact hs5h
+  have hs6Z : s6.mem.get 0 = 0 := by have : s6 = step s5 := hrun6; rw [this, hs6eq']; exact hs5Z
+  have hpres6 : ∀ a, a ≠ 18 → a ≠ 0 → s6.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    have : s6 = step s5 := hrun6
+    rw [this, hs6eq']; exact hpres5 a ha18 ha0
+  have g6 : ∀ k : Nat, 1695 ≤ k → k < 1698 →
+      s6.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    intro k h1 h2
+    have n18 : UInt16.ofNat k ≠ (18 : Word) := by
+      have : (18 : Word) = UInt16.ofNat 18 := rfl
+      rw [this]; exact ofNat_ne k 18 (by omega) (by decide) (by omega)
+    have n0 : UInt16.ofNat k ≠ (0 : Word) := by
+      have : (0 : Word) = UInt16.ofNat 0 := rfl
+      rw [this]; exact ofNat_ne k 0 (by omega) (by decide) (by omega)
+    exact (hpres6 (UInt16.ofNat k) n18 n0).trans (hcode k (by omega) (by omega))
+  have henc2 := ed_enc_jmp_1695 (s := s6) hs6pc g6
+  have hpc6 : s6.pc.toNat < 32768 := by simp [hs6pc]
+  have hj2 := step_JMP (s := s6) (dest := 1716)
+    hs6h hpc6 hs6Z henc2.1 henc2.2.1 henc2.2.2
+  have hrun : s7 = step s6 := by
+    have h7 : runN s 7 = runN s6 1 := runN_add_eq s 6 1 7 (by decide)
+    exact h7.trans (runN_one s6 hs6h hpc6)
+  have hs7pc : s7.pc = 1716 := by rw [hrun, hj2]
+  have hs7h : s7.halted = false := by rw [hrun, hj2]; exact hs6h
+  have hs7Z : s7.mem.get 0 = 0 := by rw [hrun, hj2]; exact hs6Z
+  have hs7DI : s7.mem.get 2321 = s.mem.get 2321 := by
+    rw [hrun, hj2]; exact hpres6 2321 (by decide) (by decide)
+  have hpres : ∀ a, a ≠ 18 → a ≠ 0 → s7.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    rw [hrun, hj2]; exact hpres6 a ha18 ha0
+  exact ⟨hs7pc, hs7h, hs7Z, hs7DI, hpres⟩
+
 end IntFmt

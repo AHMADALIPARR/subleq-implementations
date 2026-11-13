@@ -146,6 +146,9 @@ open IntFmt
 #print axioms dig_next
 #print axioms dig_loop_exit
 #print axioms dig_loop_to_body
+#print axioms dig_body_skip
+#print axioms dig_body_take_eq
+#print axioms dig_body_take_gt
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
