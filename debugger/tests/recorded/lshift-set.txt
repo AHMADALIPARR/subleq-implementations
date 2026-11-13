@@ -1,0 +1,3 @@
+loaded 43 cells from /workspace/subleq-implementations/examples/lshift_checked.dec mode=eforth
+mem[10]=99
+   10:     99
