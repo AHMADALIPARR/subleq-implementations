@@ -105,6 +105,10 @@ open IntFmt
 #print axioms p3_image
 #print axioms place_loop_mov_N_T
 #print axioms place_pos_mov_N_T
+#print axioms place_loop
+#print axioms p1_loop
+#print axioms p2_loop
+#print axioms p3_loop
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
