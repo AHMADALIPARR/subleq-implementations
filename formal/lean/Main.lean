@@ -180,6 +180,8 @@ open IntFmt
 #print axioms pad_7_spaces_idx0
 #print axioms pad_1_to_after_pad
 #print axioms pad_7_to_after_pad
+#print axioms p3_done_unsigned_ndig1_done
+#print axioms p3_done_unsigned_ndig4_done
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
