@@ -1,4 +1,4 @@
-lean-axioms (lake env lean Main.lean), formal MOV/StartMov milestone
+lean-axioms (lake env lean Main.lean), parseDecText_intfmtDecText milestone
 'IntFmt.divmodSub_eq' depends on axioms: [propext, Quot.sound]
 'IntFmt.value_uToDigits' depends on axioms: [propext, Quot.sound]
 'IntFmt.unsignedMag_eq_natAbs' depends on axioms: [propext, Quot.sound]
@@ -59,6 +59,8 @@ lean-axioms (lake env lean Main.lean), formal MOV/StartMov milestone
 'IntFmt.start_zero_regs_get' depends on axioms: [propext, Classical.choice, Quot.sound]
 'IntFmt.start_zero_regs_get_INPUT' depends on axioms: [propext, Classical.choice, Quot.sound]
 'IntFmt.start_mov_INPUT_N' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.parseDecText_intfmtDecText' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.program_identity_parsed' depends on axioms: [propext, Classical.choice, Quot.sound]
 'IntFmt.Subleq.runN_add' depends on axioms: [propext]
 'IntFmt.Subleq.runCounted_programHalt_le' depends on axioms: [propext, Quot.sound]
 'IntFmt.Subleq.runCounted_zero_go' depends on axioms: [propext]
