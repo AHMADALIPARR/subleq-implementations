@@ -18,8 +18,8 @@ standard Lean axioms (`propext`, `Quot.sound`, and in a few theorems
 | (3) Buffer safety | `snprintf_buf_length`, `snprintf_index_lt_cap`, `snprintf_cap0`, `snprintf_cap1` | Kernel proof |
 | (4) Output length | `snprintf_length` (untruncated); `snprintf_cap0` / `snprintf_cap1`; general `snprintf_nul` (`cap>0` writes a NUL at `min(len, cap-1)`) | Kernel proof |
 | (5) SUBLEQ refinement (structured) | `subleqI16toa_refines_spec`, `putAll_i16toa` | Kernel proof of the *structured* PUT sequence, unchanged. |
-| (5b) Concrete `.dec` program identity | `program_identity`, `loadImage_eq_aux`, `intfmtImage_size`, `intfmtImage_prefix16_eq_parse`, `parseDec_line0`, `parse_min_cell`, `image_cell_*` | Kernel proof: the Lean memory image is the 2323-cell assembled artifact (direct lookup, equal to the historical fold). Parser identity on the first 16-cell line, including `-32768`. Full `parseDecText intfmtDecText = intfmtImage` is not kernel-reduced (7239-character `include_str`); it is the deterministic `gen-image.sh` / `check-image.sh` procedure plus interpreter evidence in `formal/results/intfmt-parse-eq.log`. SHA-256 is `intfmtDecSha256` / `formal/results/intfmt.dec.sha256`. |
-| (5c) Concrete `.dec` execution | `boot_jmp`, `step_JMP`, `step_ZERO`, `step_JLEZ`, `step_SUB`, `step_DEC`, `step_HALT`, `run_intfmtFuel_of_done` | Kernel proof that a prepared machine executes the boot `JMP START` (cells `0,0,48`) in one `Subleq.step` and lands at cell 48 with Z unchanged. Macro characterisations are in `IntFmt/Macros.lean`. The universal theorem `∀ n : Int16, output (run 2000 (loadIntfmtDec n)) = formatSpec n` is **not yet proved** and is not assumed. C-oracle evidence remains: `test-oracle`, 131128 runs, 0 failures. |
+| (5b) Concrete `.dec` program identity | `program_identity`, `loadImage_eq_aux`, `intfmtImage_size`, `parse_lineXXX`, `image_chunkXXX`, `parse_atA/B/C`, `image_atA/B/C`, `parseDecText_append`, `extract_split` | Kernel proof of per-line identity: each of the 146 `.dec` lines parses (`rfl`) to the corresponding image extract, plus a kernel `parseDecText_append` lemma for newline-terminated fragments. The single composite theorem `parseDecText intfmtDecText = intfmtImage` is **not** in the built library: composing all 146 chunks in one module exceeded the kernel memory budget (~13 GiB). Draft composition lives in `formal/lean/wip/` and is not part of `lake build`. SHA-256 `intfmtDecSha256` is checked by `check-image.sh`, hooked into `lake build` as the `checkArtifact` extraDep target: a change to the official or embedded `.dec`, the expected digest, `Image.lean`, or the generated chunks/bind data fails the build. |
+| (5c) Concrete `.dec` execution (block lemmas, **not** end-to-end) | `boot_jmp`, `start_zero_regs` / `start_zero_SIGN` in `StartBlock.lean` (real pc 48: four `ZERO`s clear SIGN/LEN/PAD/NDIG, exit pc 60), `step_JMP`, `step_ZERO`, `step_JLEZ`, `step_SUB`, `step_DEC`, `step_HALT`, `run_intfmtFuel_of_done`, `k48_is_ascii_zero`, `k45_is_ascii_minus`, `formatSpec_neg_uses_minus`, `runN_add`, `runCounted` / `HaltKind` | Independently proved block and macro lemmas on the assembled image, at real listing addresses. They are **not** composed into the universal theorem `∀ n : Int16, (runCounted (loadIntfmtDec n) 2000).kind = programHalt ∧ output = formatSpec n`. Gaps: `MOV`/`ADD` multi-step encodings; loop invariants for unsigned compare / repeated-subtraction divmod (`P0_LOOP`..`P3_DONE`), digit emit (`EMIT_DIGS`/`DIG_LOOP`), `I_PATH` sign handling, NUL/LEN writes; in-kernel halt-within-2000 for every `Int16` (C-oracle max 1266 is still evidence, not a kernel proof). |
 | (6) Execution safety | `Subleq.sub_defined`, `run_fuel0_halted`, `runImage_terminates`, `image_mem_in_range`, `intfmtFuel_gt_maxMeasured` (`2000 > 1266`), `safety_applies` | Defined `UInt16` arithmetic and addressing on this exact image; `run` always terminates. That every input *halts by program HALT* within 2000 steps is still C-oracle evidence (measured max 1266). `run_intfmtFuel_of_done` connects an already-halted state to `run` at fuel 2000. |
 
 Supporting evidence (not a kernel axiom): `intfmt` executable enumerates
@@ -33,20 +33,30 @@ as `checkAll: PASS`.
    `formal/lean/IntFmt/Image.lean` from that `.dec`.
 3. `formal/lean/IntFmt/intfmt.dec` is a byte-identical copy, also embedded
    in Lean via `include_str` and parsed by `parseDecText`.
-4. `formal/lean/check-image.sh` checks the SHA-256, the copy, and that
-   regenerating `Image.lean` is byte-identical.
-5. SHA-256 of the official artifact:
+4. `formal/lean/gen-chunks.sh` and `gen-bind.sh` generate per-line parse
+   and image-chunk lemmas (`DecChunksA/B/C.lean`, `DecBindData.lean`).
+5. `formal/lean/check-image.sh` checks the SHA-256, the embedded copy,
+   that `DecLoad.lean` quotes the same digest, and that regenerating
+   `Image.lean`, the chunk modules, and `DecBindData.lean` is
+   byte-identical. It is a `lake build` extraDep target (`checkArtifact`)
+   — `#eval`-free, `native_decide`-free.
+6. SHA-256 of the official artifact:
    `bc8679df169f382114b779b54e97bdf21bccc94bf6341ca55374f357610f94c6`.
 
 ### Mutation tests
 
-`formal/lean/mutation-test.sh` flips a boot branch target, the `'-'`
-constant (`K45 = 45`), and the HALT target in a temporary copy of
-`Image.lean` and records that `lake build` fails each time
-(`formal/results/mutation-test.log`). Because the universal
-output-correctness theorem is not yet in the kernel, these tests break
-the image-identity / boot / constant-cell theorems that mention those
-cells — not a `formatSpec` theorem.
+`formal/lean/mutation-test.sh` records results in
+`formal/results/mutation-test.log`.
+
+* Artifact binding: flipping the boot target (`48→49`), ASCII `'0'`
+  (`K48`, cell 8, `48→47`), ASCII `'-'` (`K45`, cell 9, `45→44`), or
+  the HALT target (`32768→32767`) in `Image.lean` fails `lake build`
+  (the extraDep hash/regen check or a cell theorem).
+* Semantics: a deliberately altered program (K45 `45→44`) with a
+  *matching updated hash* and consistently regenerated `Image.lean`,
+  chunks, and bind data still fails, because hand-written theorems
+  `image_cell_K45` / `k45_is_ascii_minus` / `formatSpec_neg_uses_minus`
+  require the minus constant to be `45`.
 
 Build (from `formal/lean/`):
 
