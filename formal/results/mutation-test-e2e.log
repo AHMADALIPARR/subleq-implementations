@@ -1,0 +1,27 @@
+# mutation-test.sh re-run after end-to-end theorems
+# date: 2026-11-13 04:51:51 PST (America/Los_Angeles)
+# duration: 108.225 sec
+# result: all cases broke the kernel build as required
+# local formal commit: a77c6d96ebcc1b1482ebf411fcb0d5faeb59315a
+# origin/main after e2e push: a5d4063320cda91f0e20d0aac684013d34906e0f
+
+mutation-test: start
+MUTATION boot-jmp-target-48-to-49: PASS (lake build failed as required)
+error: check-image.sh failed: artifact hash, Image.lean, DecChunks, or DecBindData mismatch
+error: build failed
+MUTATION K48-ascii-0-48-to-47: PASS (lake build failed as required)
+error: check-image.sh failed: artifact hash, Image.lean, DecChunks, or DecBindData mismatch
+error: build failed
+MUTATION K45-minus-45-to-44: PASS (lake build failed as required)
+error: check-image.sh failed: artifact hash, Image.lean, DecChunks, or DecBindData mismatch
+error: build failed
+MUTATION halt-target-32768-to-32767: PASS (lake build failed as required)
+error: check-image.sh failed: artifact hash, Image.lean, DecChunks, or DecBindData mismatch
+error: build failed
+mutation-test: semantic case (MOV cell 62 63→64 with matching hash)
+check-image vs official .dec failed as expected (official unchanged)
+identity modules still compiled after cell-62 mutation
+MUTATION semantic-MOV-cell62-with-matching-hash: PASS (execution theorem start_mov_INPUT_N failed as required)
+error: IntFmt/StartMov.lean:151:41: Type mismatch
+error: build failed
+mutation-test: all cases broke the kernel build as required
