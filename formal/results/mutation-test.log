@@ -1,18 +1,20 @@
 mutation-test: start
 MUTATION boot-jmp-target-48-to-49: PASS (lake build failed as required)
-error: IntFmt/DecLoad.lean:129:0: Not a definitional equality: the left-hand side
-error: IntFmt/DecLoad.lean:133:2: Type mismatch
-error: IntFmt/DecLoad.lean:141:0: Not a definitional equality: the left-hand side
-error: IntFmt/DecLoad.lean:141:57: Type mismatch
+error: check-image.sh failed: artifact hash, Image.lean, DecChunks, or DecBindData mismatch
+error: build failed
+MUTATION K48-ascii-0-48-to-47: PASS (lake build failed as required)
+error: check-image.sh failed: artifact hash, Image.lean, DecChunks, or DecBindData mismatch
 error: build failed
 MUTATION K45-minus-45-to-44: PASS (lake build failed as required)
-error: IntFmt/DecLoad.lean:129:0: Not a definitional equality: the left-hand side
-error: IntFmt/DecLoad.lean:133:2: Type mismatch
-error: IntFmt/DecLoad.lean:148:0: Not a definitional equality: the left-hand side
-error: IntFmt/DecLoad.lean:148:49: Type mismatch
+error: check-image.sh failed: artifact hash, Image.lean, DecChunks, or DecBindData mismatch
 error: build failed
 MUTATION halt-target-32768-to-32767: PASS (lake build failed as required)
-error: IntFmt/DecLoad.lean:153:0: Not a definitional equality: the left-hand side
-error: IntFmt/DecLoad.lean:153:62: Type mismatch
+error: check-image.sh failed: artifact hash, Image.lean, DecChunks, or DecBindData mismatch
+error: build failed
+mutation-test: semantic case (MOV cell 62 63→64 with matching hash)
+check-image vs official .dec failed as expected (official unchanged)
+identity modules still compiled after cell-62 mutation
+MUTATION semantic-MOV-cell62-with-matching-hash: PASS (execution theorem start_mov_INPUT_N failed as required)
+error: IntFmt/StartMov.lean:150:41: Type mismatch
 error: build failed
 mutation-test: all cases broke the kernel build as required

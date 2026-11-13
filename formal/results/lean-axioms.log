@@ -1,20 +1,64 @@
-51:info: Main.lean:13:0: 'IntFmt.divmodSub_eq' depends on axioms: [propext, Quot.sound]
-52:info: Main.lean:14:0: 'IntFmt.value_uToDigits' depends on axioms: [propext, Quot.sound]
-53:info: Main.lean:15:0: 'IntFmt.unsignedMag_eq_natAbs' depends on axioms: [propext, Quot.sound]
-54:info: Main.lean:16:0: 'IntFmt.i16toa_eq_intToDec' depends on axioms: [propext, Quot.sound]
-55:info: Main.lean:17:0: 'IntFmt.i16toa_minInt' depends on axioms: [propext, Quot.sound]
-56:info: Main.lean:18:0: 'IntFmt.snprintf_length' does not depend on any axioms
-57:info: Main.lean:19:0: 'IntFmt.snprintf_buf_length' depends on axioms: [propext, Quot.sound]
-58:info: Main.lean:20:0: 'IntFmt.snprintf_cap0' does not depend on any axioms
-59:info: Main.lean:21:0: 'IntFmt.snprintf_cap1' depends on axioms: [propext]
-60:info: Main.lean:22:0: 'IntFmt.snprintf_index_lt_cap' depends on axioms: [propext, Quot.sound]
-61:info: Main.lean:23:0: 'IntFmt.snprintf_nul' depends on axioms: [propext]
-62:info: Main.lean:24:0: 'IntFmt.subleqI16toa_refines_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
-63:info: Main.lean:25:0: 'IntFmt.putAll_i16toa' depends on axioms: [propext, Classical.choice, Quot.sound]
-64:info: Main.lean:26:0: 'IntFmt.run_fuel0_halted' does not depend on any axioms
-65:info: Main.lean:27:0: 'IntFmt.check_min' depends on axioms: [propext, Classical.choice, Quot.sound]
-66:info: Main.lean:28:0: 'IntFmt.Subleq.sub_defined' does not depend on any axioms
-67:info: Main.lean:29:0: 'IntFmt.intfmtFuel_gt_maxMeasured' does not depend on any axioms
-68:info: Main.lean:30:0: 'IntFmt.image_sub_defined' does not depend on any axioms
-69:info: Main.lean:31:0: 'IntFmt.runImage_terminates' does not depend on any axioms
-70:info: Main.lean:32:0: 'IntFmt.image_mem_in_range' does not depend on any axioms
+lean-axioms (lake env lean Main.lean), formal MOV/StartMov milestone
+'IntFmt.divmodSub_eq' depends on axioms: [propext, Quot.sound]
+'IntFmt.value_uToDigits' depends on axioms: [propext, Quot.sound]
+'IntFmt.unsignedMag_eq_natAbs' depends on axioms: [propext, Quot.sound]
+'IntFmt.i16toa_eq_intToDec' depends on axioms: [propext, Quot.sound]
+'IntFmt.i16toa_minInt' depends on axioms: [propext, Quot.sound]
+'IntFmt.snprintf_length' does not depend on any axioms
+'IntFmt.snprintf_buf_length' depends on axioms: [propext, Quot.sound]
+'IntFmt.snprintf_cap0' does not depend on any axioms
+'IntFmt.snprintf_cap1' depends on axioms: [propext]
+'IntFmt.snprintf_index_lt_cap' depends on axioms: [propext, Quot.sound]
+'IntFmt.snprintf_nul' depends on axioms: [propext]
+'IntFmt.subleqI16toa_refines_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.putAll_i16toa' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.run_fuel0_halted' does not depend on any axioms
+'IntFmt.check_min' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.Subleq.sub_defined' does not depend on any axioms
+'IntFmt.intfmtFuel_gt_maxMeasured' does not depend on any axioms
+'IntFmt.image_sub_defined' does not depend on any axioms
+'IntFmt.runImage_terminates' does not depend on any axioms
+'IntFmt.image_mem_in_range' does not depend on any axioms
+'IntFmt.intfmtImage_size' does not depend on any axioms
+'IntFmt.intfmtImage_prefix16_eq_parse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.parseDec_line0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.parse_min_cell' does not depend on any axioms
+'IntFmt.image_cell_startTarget' does not depend on any axioms
+'IntFmt.image_cell_K45' does not depend on any axioms
+'IntFmt.image_cell_haltTarget' does not depend on any axioms
+'IntFmt.loadImage_eq_aux' depends on axioms: [propext, Quot.sound]
+'IntFmt.boot_jmp' depends on axioms: [propext, Quot.sound]
+'IntFmt.program_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.safety_applies' does not depend on any axioms
+'IntFmt.run_intfmtFuel_of_done' depends on axioms: [propext]
+'IntFmt.Subleq.step_JMP' depends on axioms: [propext, Quot.sound]
+'IntFmt.Subleq.step_ZERO' depends on axioms: [propext]
+'IntFmt.Subleq.step_JLEZ' depends on axioms: [propext, Quot.sound]
+'IntFmt.Subleq.step_SUB' depends on axioms: [propext]
+'IntFmt.Subleq.step_HALT' depends on axioms: [propext, Quot.sound]
+'IntFmt.Subleq.runN_MOV' depends on axioms: [propext, Quot.sound]
+'IntFmt.Subleq.runN_ADD' depends on axioms: [propext, Quot.sound]
+'IntFmt.Subleq.runN_INC' depends on axioms: [propext, Quot.sound]
+'IntFmt.Subleq.sub_sub_zero' depends on axioms: [propext]
+'IntFmt.Subleq.add_sub_neg' depends on axioms: [propext, Quot.sound]
+'IntFmt.extract_split' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.parseDecText_append' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.parse_atA' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.image_atA' depends on axioms: [propext, Quot.sound]
+'IntFmt.parse_line000' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.image_chunk000' does not depend on any axioms
+'IntFmt.k48_is_ascii_zero' does not depend on any axioms
+'IntFmt.k45_is_ascii_minus' does not depend on any axioms
+'IntFmt.formatSpec_neg_uses_minus' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.image_start_ZERO_SIGN' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.imageCell_eq_bang' depends on axioms: [propext]
+'IntFmt.afterBoot_get' depends on axioms: [propext, Quot.sound]
+'IntFmt.start_zero_SIGN' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.start_zero_regs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.prepMachine_get_input' depends on axioms: [propext]
+'IntFmt.start_zero_regs_get' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.start_zero_regs_get_INPUT' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.start_mov_INPUT_N' depends on axioms: [propext, Classical.choice, Quot.sound]
+'IntFmt.Subleq.runN_add' depends on axioms: [propext]
+'IntFmt.Subleq.runCounted_programHalt_le' depends on axioms: [propext, Quot.sound]
+'IntFmt.Subleq.runCounted_zero_go' depends on axioms: [propext]
