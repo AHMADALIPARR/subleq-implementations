@@ -1,0 +1,4 @@
+loaded 43 cells from /workspace/subleq-implementations/examples/lshift_checked.dec mode=eforth
+ran 2 steps; PC=13 A=3 B=0 C=13 R=65530 steps=2 halted=0 trap=0
+break hit PC=13
+PC=13 A=3 B=0 C=13 R=65530 steps=2 halted=0 trap=0

@@ -1,0 +1,6 @@
+loaded 43 cells from /workspace/subleq-implementations/examples/lshift_checked.dec mode=eforth
+T 0: SUBLEQ 0 0 10 -> R=0 PC'=10
+watch hit addr=0 after 1 step(s)
+ran 1 steps; PC=10 A=0 B=0 C=10 R=0 steps=1 halted=0 trap=0
+profile total_steps=1 unique_pcs counted in top 1:
+  PC     0  1
