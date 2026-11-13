@@ -1,0 +1,24 @@
+loaded 43 cells from /workspace/subleq-implementations/examples/lshift_checked.dec mode=eforth
+0ran 12 steps; PC=32768 A=0 B=0 C=32768 R=0 steps=12 halted=1 trap=0
+profile total_steps=12 unique_pcs counted in top 8:
+  PC     0  1
+  PC    10  1
+  PC    13  1
+  PC    16  1
+  PC    19  1
+  PC    22  1
+  PC    25  1
+  PC    28  1
+profile total_steps=12 unique_pcs counted in top 12:
+  PC     0  1
+  PC    10  1
+  PC    13  1
+  PC    16  1
+  PC    19  1
+  PC    22  1
+  PC    25  1
+  PC    28  1
+  PC    31  1
+  PC    34  1
+  PC    37  1
+  PC    40  1
