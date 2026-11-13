@@ -218,4 +218,76 @@ theorem p0PlaceSteps_le (n : Nat) :
   rw [p0PlaceSteps]
   omega
 
+
+/-- `List.range (n+1)` starts with `0` and then the successors of `range n`. -/
+private theorem range_succ_cons (n : Nat) :
+    List.range (n + 1) = 0 :: (List.range n).map (fun i => i + 1) := by
+  induction n with
+  | zero =>
+    rfl
+  | succ n ih =>
+    have hdim : n.succ + 1 = (n + 1).succ := rfl
+    have hn : n + 1 = n.succ := rfl
+    calc
+      List.range (n.succ + 1)
+          = List.range (n + 1) ++ [n + 1] := by
+            rw [hdim, List.range_succ]
+      _ = (0 :: (List.range n).map (fun i => i + 1)) ++ [n + 1] := by
+            rw [ih]
+      _ = 0 :: ((List.range n).map (fun i => i + 1) ++ [n + 1]) := rfl
+      _ = 0 :: ((List.range n).map (fun i => i + 1) ++
+            List.map (fun i => i + 1) [n]) := rfl
+      _ = 0 :: List.map (fun i => i + 1) (List.range n ++ [n]) := by
+            rw [List.map_append]
+      _ = 0 :: List.map (fun i => i + 1) (List.range n.succ) := by
+            rw [← List.range_succ]
+      _ = 0 :: List.map (fun i => i + 1) (List.range (n.succ)) := rfl
+
+private theorem foldl_p0_add_left (f : Nat → Nat) (xs : List Nat) (c : Nat) :
+    xs.foldl (fun acc i => acc + p0CmpSteps (f i) + 5) c =
+      c + xs.foldl (fun acc i => acc + p0CmpSteps (f i) + 5) 0 := by
+  induction xs generalizing c with
+  | nil =>
+    simp [List.foldl_nil]
+  | cons i rest ih =>
+    rw [List.foldl_cons, List.foldl_cons]
+    rw [ih (c + p0CmpSteps (f i) + 5)]
+    rw [ih (0 + p0CmpSteps (f i) + 5)]
+    omega
+
+private theorem sub_succ_mul_10000 (n i : Nat) :
+    n - (i + 1) * 10000 = n - 10000 - i * 10000 := by
+  have hmul : (i + 1) * 10000 = i * 10000 + 10000 := Nat.succ_mul i 10000
+  rw [hmul, Nat.sub_add_eq]
+  exact Nat.sub_right_comm n (i * 10000) 10000
+
+/-- One GE-iteration unfolding of the exact P0 step count. -/
+theorem p0PlaceSteps_ge {n : Nat} (h : 10000 ≤ n) :
+    p0PlaceSteps n = p0CmpSteps n + 5 + p0PlaceSteps (n - 10000) := by
+  have hdiv : n / 10000 = (n - 10000) / 10000 + 1 :=
+    Nat.div_eq_sub_div (by decide : 0 < 10000) h
+  have hmod : n % 10000 = (n - 10000) % 10000 :=
+    Nat.mod_eq_sub_mod h
+  unfold p0PlaceSteps
+  rw [hdiv, hmod, range_succ_cons]
+  simp [List.foldl_cons, List.foldl_map, Nat.mul_zero, Nat.sub_zero, Nat.zero_add]
+  have hf :
+      (fun acc i => acc + p0CmpSteps (n - (i + 1) * 10000) + 5) =
+        (fun acc i => acc + p0CmpSteps (n - 10000 - i * 10000) + 5) := by
+    funext acc i
+    rw [sub_succ_mul_10000]
+  rw [hf, foldl_p0_add_left (fun i => n - 10000 - i * 10000)]
+  exact Nat.add_assoc _ _ _
+
+/-- When `N` is already a remainder (`N < 10000`), the loop is just the
+compare diamond. -/
+theorem p0PlaceSteps_lt {n : Nat} (h : n < 10000) :
+    p0PlaceSteps n = p0CmpSteps n := by
+  by_cases h0 : n = 0
+  · subst h0
+    exact p0PlaceSteps_zero.trans p0CmpSteps_zero.symm
+  · have hpos : 0 < n := Nat.pos_of_ne_zero h0
+    rw [p0PlaceSteps_small hpos h, p0CmpSteps_small hpos h]
+
+
 end IntFmt

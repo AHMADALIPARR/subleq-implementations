@@ -94,6 +94,10 @@ open IntFmt
 #print axioms p0_to_ge_hi
 #print axioms p0_to_ge_mid
 #print axioms p0_to_ge_eq
+#print axioms p0PlaceSteps_ge
+#print axioms p0_to_ge
+#print axioms p0_one_iter
+#print axioms p0_loop
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText

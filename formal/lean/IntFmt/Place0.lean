@@ -2135,4 +2135,323 @@ theorem p0_to_ge_eq {s : Machine}
     exact hpres15 a ha18 ha0
   exact ⟨hs16pc, hs16h, hs16N, hs16Q, hs16Z, hpres⟩
 
+
+/-- Word equality from a concrete `toNat` value that fits in 16 bits. -/
+theorem word_eq_of_toNat (w : Word) (n : Nat) (hn : n < 65536)
+    (h : w.toNat = n) : w = UInt16.ofNat n := by
+  apply UInt16.toNat.inj
+  have : (UInt16.ofNat n).toNat = n :=
+    UInt16.toNat_ofNat_of_lt (by
+      have hsz : UInt16.size = 65536 := rfl
+      rw [hsz]; exact hn)
+  exact h.trans this.symm
+
+/-- All `N ≥ 10000` compare arms reach `P0_GE` in `p0CmpSteps N` steps,
+leaving `N` and `Q0` unchanged. -/
+theorem p0_to_ge {s : Machine}
+    (hpc : s.pc = 189)
+    (hh : s.halted = false)
+    (hZ : s.mem.get 0 = 0)
+    (hONE : s.mem.get 3 = 1)
+    (hC : s.mem.get 7 = 10000)
+    (hN : 10000 ≤ (s.mem.get 17).toNat)
+    (hcode : ∀ k : Nat, 189 ≤ k → k < 270 →
+      s.mem.get (UInt16.ofNat k) = intfmtImage[k]!) :
+    let n := (s.mem.get 17).toNat
+    let sk := runN s (p0CmpSteps n)
+    sk.pc = 255 ∧
+    sk.halted = false ∧
+    sk.mem.get 17 = s.mem.get 17 ∧
+    sk.mem.get 20 = s.mem.get 20 ∧
+    sk.mem.get 0 = 0 ∧
+    (∀ a, a ≠ 18 → a ≠ 0 → sk.mem.get a = s.mem.get a) := by
+  intro n sk
+  by_cases hhi : 32768 ≤ n
+  · have hst : p0CmpSteps n = 9 := p0CmpSteps_hi hhi
+    have hge :=
+      p0_to_ge_hi (s := s) hpc hh hZ hONE (by exact hhi) hcode
+    have hsk : sk = runN s 9 := by simp [sk, hst]
+    rw [hsk]
+    exact hge
+  · by_cases heq : n = 10000
+    · have hst : p0CmpSteps n = 16 := by rw [heq, p0CmpSteps_eq]
+      have hW : s.mem.get 17 = 10000 := by
+        have := word_eq_of_toNat (s.mem.get 17) 10000 (by decide) (heq ▸ (rfl : n = (s.mem.get 17).toNat).symm)
+        exact this
+      have hge :=
+        p0_to_ge_eq (s := s) hpc hh hZ hONE hC hW hcode
+      have hsk : sk = runN s 16 := by simp [sk, hst]
+      rw [hsk]
+      refine ⟨hge.1, hge.2.1, hge.2.2.1.trans hW.symm, hge.2.2.2.1,
+        hge.2.2.2.2.1, hge.2.2.2.2.2⟩
+    · have h2 : n < 32768 := Nat.lt_of_not_ge hhi
+      have h1 : 10000 < n := Nat.lt_of_le_of_ne hN (Ne.symm heq)
+      have hst : p0CmpSteps n = 13 := p0CmpSteps_mid h1 h2
+      have hge :=
+        p0_to_ge_mid (s := s) hpc hh hZ hC h1 h2 hcode
+      have hsk : sk = runN s 13 := by simp [sk, hst]
+      rw [hsk]
+      exact hge
+
+/-- One full `P0` iteration: compare diamond plus the `P0_GE` body,
+returning to `P0_LOOP` with `N` decreased by 10000 and `Q0` increased
+by 1. Reconstructs the same magnitude. -/
+theorem p0_one_iter {s : Machine}
+    (hpc : s.pc = 189)
+    (hh : s.halted = false)
+    (hZ : s.mem.get 0 = 0)
+    (hONE : s.mem.get 3 = 1)
+    (hC : s.mem.get 7 = 10000)
+    (hN : 10000 ≤ (s.mem.get 17).toNat)
+    (hQ : (s.mem.get 20).toNat + 1 < 65536)
+    (hcode : ∀ k : Nat, 189 ≤ k → k < 270 →
+      s.mem.get (UInt16.ofNat k) = intfmtImage[k]!) :
+    let n := (s.mem.get 17).toNat
+    let q := (s.mem.get 20).toNat
+    let s1 := runN s (p0CmpSteps n + 5)
+    s1.pc = 189 ∧
+    s1.halted = false ∧
+    s1.mem.get 0 = 0 ∧
+    s1.mem.get 3 = 1 ∧
+    s1.mem.get 7 = 10000 ∧
+    (s1.mem.get 17).toNat = n - 10000 ∧
+    (s1.mem.get 20).toNat = q + 1 ∧
+    q * 10000 + n = (s1.mem.get 20).toNat * 10000 + (s1.mem.get 17).toNat ∧
+    (∀ k : Nat, 189 ≤ k → k < 270 →
+      s1.mem.get (UInt16.ofNat k) = intfmtImage[k]!) ∧
+    (∀ a, a ≠ 17 → a ≠ 20 → a ≠ 18 → a ≠ 0 → s1.mem.get a = s.mem.get a) := by
+  intro n q s1
+  have hto := p0_to_ge (s := s) hpc hh hZ hONE hC hN hcode
+  let sk := runN s (p0CmpSteps n)
+  have hskpc : sk.pc = 255 := hto.1
+  have hskh : sk.halted = false := hto.2.1
+  have hskN : sk.mem.get 17 = s.mem.get 17 := hto.2.2.1
+  have hskQ : sk.mem.get 20 = s.mem.get 20 := hto.2.2.2.1
+  have hskZ : sk.mem.get 0 = 0 := hto.2.2.2.2.1
+  have hpresk := hto.2.2.2.2.2
+  have hskONE : sk.mem.get 3 = 1 :=
+    (hpresk 3 (by decide) (by decide)).trans hONE
+  have hskC : sk.mem.get 7 = 10000 :=
+    (hpresk 7 (by decide) (by decide)).trans hC
+  have hcodek (k : Nat) (h1 : 255 ≤ k) (h2 : k < 270) :
+      sk.mem.get (UInt16.ofNat k) = intfmtImage[k]! :=
+    (hpresk (UInt16.ofNat k) (ofNat_ne k 18 (by omega) (by omega) (by omega))
+      (ofNat_ne k 0 (by omega) (by omega) (by omega))).trans
+      (hcode k (by omega) h2)
+  have hNge : 10000 ≤ (sk.mem.get 17).toNat := by
+    rw [hskN]; exact hN
+  have hQsk : (sk.mem.get 20).toNat + 1 < 65536 := by
+    rw [hskQ]; exact hQ
+  have hbody :=
+    p0_ge_body (s := sk) hskpc hskh hskZ hskONE hskC hNge hQsk hcodek
+  have hrun : s1 = runN sk 5 :=
+    runN_add s (p0CmpSteps n) 5
+  have hs1pc : s1.pc = 189 := by rw [hrun]; exact hbody.1
+  have hs1h : s1.halted = false := by rw [hrun]; exact hbody.2.1
+  have hs1Z : s1.mem.get 0 = 0 := by rw [hrun]; exact hbody.2.2.1
+  have hs1Nton : (s1.mem.get 17).toNat = n - 10000 := by
+    rw [hrun]
+    have : (sk.mem.get 17).toNat = n := by rw [hskN]
+    exact hbody.2.2.2.2.2.1.trans (by rw [this])
+  have hs1Qton : (s1.mem.get 20).toNat = q + 1 := by
+    rw [hrun]
+    have : (sk.mem.get 20).toNat = q := by rw [hskQ]
+    exact hbody.2.2.2.2.2.2.1.trans (by rw [this])
+  have hs1ONE : s1.mem.get 3 = 1 := by
+    rw [hrun]
+    have hpresB := hbody.2.2.2.2.2.2.2
+    exact (hpresB 3 (by decide) (by decide) (by decide)).trans hskONE
+  have hs1C : s1.mem.get 7 = 10000 := by
+    rw [hrun]
+    have hpresB := hbody.2.2.2.2.2.2.2
+    exact (hpresB 7 (by decide) (by decide) (by decide)).trans hskC
+  have hinv : q * 10000 + n = (s1.mem.get 20).toNat * 10000 + (s1.mem.get 17).toNat := by
+    rw [hs1Qton, hs1Nton]
+    omega
+  have hcode1 (k : Nat) (h1 : 189 ≤ k) (h2 : k < 270) :
+      s1.mem.get (UInt16.ofNat k) = intfmtImage[k]! := by
+    rw [hrun]
+    have hpresB := hbody.2.2.2.2.2.2.2
+    have hne17 : UInt16.ofNat k ≠ 17 :=
+      ofNat_ne k 17 (by omega) (by omega) (by omega)
+    have hne20 : UInt16.ofNat k ≠ 20 :=
+      ofNat_ne k 20 (by omega) (by omega) (by omega)
+    have hne0 : UInt16.ofNat k ≠ 0 :=
+      ofNat_ne k 0 (by omega) (by omega) (by omega)
+    exact (hpresB (UInt16.ofNat k) hne17 hne20 hne0).trans
+      ((hpresk (UInt16.ofNat k)
+          (ofNat_ne k 18 (by omega) (by omega) (by omega)) hne0).trans
+        (hcode k h1 h2))
+  have hpres : ∀ a, a ≠ 17 → a ≠ 20 → a ≠ 18 → a ≠ 0 →
+      s1.mem.get a = s.mem.get a := by
+    intro a ha17 ha20 ha18 ha0
+    rw [hrun]
+    have hpresB := hbody.2.2.2.2.2.2.2
+    exact (hpresB a ha17 ha20 ha0).trans (hpresk a ha18 ha0)
+  exact ⟨hs1pc, hs1h, hs1Z, hs1ONE, hs1C, hs1Nton, hs1Qton, hinv, hcode1, hpres⟩
+
+
+/-- The `P0_LOOP` reconstruction invariant: after `p0PlaceSteps N` steps
+the machine is at `P0_DONE` with remainder `N < 10000` and
+`Q0 * 10000 + N` equal to the entry magnitude. -/
+theorem p0_loop_gen (n : Nat) :
+    ∀ (s : Machine),
+      s.pc = 189 →
+      s.halted = false →
+      s.mem.get 0 = 0 →
+      s.mem.get 3 = 1 →
+      s.mem.get 7 = 10000 →
+      (s.mem.get 17).toNat = n →
+      (s.mem.get 20).toNat + n / 10000 < 65536 →
+      (∀ k : Nat, 189 ≤ k → k < 270 →
+        s.mem.get (UInt16.ofNat k) = intfmtImage[k]!) →
+      let q := (s.mem.get 20).toNat
+      let s' := runN s (p0PlaceSteps n)
+      s'.pc = 270 ∧
+      s'.halted = false ∧
+      s'.mem.get 0 = 0 ∧
+      (s'.mem.get 17).toNat < 10000 ∧
+      q * 10000 + n = (s'.mem.get 20).toNat * 10000 + (s'.mem.get 17).toNat ∧
+      (∀ a, a ≠ 17 → a ≠ 20 → a ≠ 18 → a ≠ 0 → s'.mem.get a = s.mem.get a) := by
+  induction n using Nat.strongRecOn with
+  | ind n ih =>
+    intro s hpc hh hZ hONE hC hn hQ hcode
+    intro q s'
+    by_cases hlt : n < 10000
+    · by_cases h0 : n = 0
+      · subst h0
+        have hW : s.mem.get 17 = 0 :=
+          word_eq_of_toNat (s.mem.get 17) 0 (by decide) hn
+        have hex := p0_exit_zero (s := s) hpc hh hZ hONE hW hcode
+        have hs' : s' = runN s 10 := by
+          simp [s', p0PlaceSteps_zero]
+        rw [hs']
+        have hltN : ((runN s 10).mem.get 17).toNat < 10000 := by
+          have : (runN s 10).mem.get 17 = 0 := hex.2.2.1
+          simp [this]
+        have hinv0 :
+            q * 10000 + 0 =
+              ((runN s 10).mem.get 20).toNat * 10000 + ((runN s 10).mem.get 17).toNat := by
+          have hQ0 : (runN s 10).mem.get 20 = s.mem.get 20 := hex.2.2.2.1
+          have hN0 : (runN s 10).mem.get 17 = 0 := hex.2.2.1
+          rw [hQ0, hN0]
+          have : (s.mem.get 20).toNat = q := rfl
+          simp [this]
+        have hpres0 : ∀ a, a ≠ 17 → a ≠ 20 → a ≠ 18 → a ≠ 0 →
+            (runN s 10).mem.get a = s.mem.get a := by
+          intro a ha17 ha20 ha18 ha0
+          exact hex.2.2.2.2.2 a ha18 ha0
+        exact ⟨hex.1, hex.2.1, hex.2.2.2.2.1, hltN, hinv0, hpres0⟩
+      · have hpos : 0 < n := Nat.pos_of_ne_zero h0
+        have hNpos : 0 < (s.mem.get 17).toNat := by rw [hn]; exact hpos
+        have hNlt : (s.mem.get 17).toNat < 10000 := by rw [hn]; exact hlt
+        have hex :=
+          p0_exit_small (s := s) hpc hh hZ hONE hC hNpos hNlt hcode
+        have hs' : s' = runN s 16 := by
+          simp [s', p0PlaceSteps_small hpos hlt]
+        rw [hs']
+        have hltN : ((runN s 16).mem.get 17).toNat < 10000 := by
+          have : (runN s 16).mem.get 17 = s.mem.get 17 := hex.2.2.1
+          rw [this, hn]; exact hlt
+        have hinv0 :
+            q * 10000 + n =
+              ((runN s 16).mem.get 20).toNat * 10000 + ((runN s 16).mem.get 17).toNat := by
+          have hQ0 : (runN s 16).mem.get 20 = s.mem.get 20 := hex.2.2.2.1
+          have hNs : (runN s 16).mem.get 17 = s.mem.get 17 := hex.2.2.1
+          rw [hQ0, hNs, hn]
+        have hpres0 : ∀ a, a ≠ 17 → a ≠ 20 → a ≠ 18 → a ≠ 0 →
+            (runN s 16).mem.get a = s.mem.get a := by
+          intro a ha17 ha20 ha18 ha0
+          exact hex.2.2.2.2.2 a ha18 ha0
+        exact ⟨hex.1, hex.2.1, hex.2.2.2.2.1, hltN, hinv0, hpres0⟩
+    · have hge : 10000 ≤ n := Nat.le_of_not_lt hlt
+      have hNge : 10000 ≤ (s.mem.get 17).toNat := by rw [hn]; exact hge
+      have hQ1 : (s.mem.get 20).toNat + 1 < 65536 := by
+        have : 1 ≤ n / 10000 := Nat.div_pos hge (by decide)
+        omega
+      have hone :=
+        p0_one_iter (s := s) hpc hh hZ hONE hC hNge hQ1 hcode
+      rw [hn] at hone
+      have hsteps := p0PlaceSteps_ge hge
+      have hrun : s' = runN (runN s (p0CmpSteps n + 5)) (p0PlaceSteps (n - 10000)) := by
+        have hadd :=
+          runN_add s (p0CmpSteps n + 5) (p0PlaceSteps (n - 10000))
+        have : p0PlaceSteps n = p0CmpSteps n + 5 + p0PlaceSteps (n - 10000) := hsteps
+        simp [s', this, hadd]
+      -- Work directly with `runN s (p0CmpSteps n + 5)` (no `set`/`let`).
+      have hs1pc : (runN s (p0CmpSteps n + 5)).pc = 189 := hone.1
+      have hs1h : (runN s (p0CmpSteps n + 5)).halted = false := hone.2.1
+      have hs1Z : (runN s (p0CmpSteps n + 5)).mem.get 0 = 0 := hone.2.2.1
+      have hs1ONE : (runN s (p0CmpSteps n + 5)).mem.get 3 = 1 := hone.2.2.2.1
+      have hs1C : (runN s (p0CmpSteps n + 5)).mem.get 7 = 10000 := hone.2.2.2.2.1
+      have hs1N : ((runN s (p0CmpSteps n + 5)).mem.get 17).toNat = n - 10000 :=
+        hone.2.2.2.2.2.1
+      have hs1Q : ((runN s (p0CmpSteps n + 5)).mem.get 20).toNat = q + 1 :=
+        hone.2.2.2.2.2.2.1
+      have hinv1 := hone.2.2.2.2.2.2.2.1
+      have hcode1 := hone.2.2.2.2.2.2.2.2.1
+      have hpres1 := hone.2.2.2.2.2.2.2.2.2
+      have hQ1n :
+          ((runN s (p0CmpSteps n + 5)).mem.get 20).toNat + (n - 10000) / 10000 < 65536 := by
+        have hdiv : (n - 10000) / 10000 + 1 = n / 10000 :=
+          (Nat.div_eq_sub_div (by decide : 0 < 10000) hge).symm
+        rw [hs1Q]
+        omega
+      have ihn :=
+        ih (n - 10000) (by omega) (runN s (p0CmpSteps n + 5))
+          hs1pc hs1h hs1Z hs1ONE hs1C hs1N hQ1n hcode1
+      rw [hrun]
+      have hpc' : (runN (runN s (p0CmpSteps n + 5)) (p0PlaceSteps (n - 10000))).pc = 270 := ihn.1
+      have hh' : (runN (runN s (p0CmpSteps n + 5)) (p0PlaceSteps (n - 10000))).halted = false := ihn.2.1
+      have hZ' : (runN (runN s (p0CmpSteps n + 5)) (p0PlaceSteps (n - 10000))).mem.get 0 = 0 := ihn.2.2.1
+      have hlt' :
+          ((runN (runN s (p0CmpSteps n + 5)) (p0PlaceSteps (n - 10000))).mem.get 17).toNat < 10000 :=
+        ihn.2.2.2.1
+      have hinv' :
+          ((runN s (p0CmpSteps n + 5)).mem.get 20).toNat * 10000 + (n - 10000) =
+            ((runN (runN s (p0CmpSteps n + 5)) (p0PlaceSteps (n - 10000))).mem.get 20).toNat * 10000 +
+              ((runN (runN s (p0CmpSteps n + 5)) (p0PlaceSteps (n - 10000))).mem.get 17).toNat :=
+        ihn.2.2.2.2.1
+      have hpres' :
+          ∀ a, a ≠ 17 → a ≠ 20 → a ≠ 18 → a ≠ 0 →
+            (runN (runN s (p0CmpSteps n + 5)) (p0PlaceSteps (n - 10000))).mem.get a =
+              (runN s (p0CmpSteps n + 5)).mem.get a :=
+        ihn.2.2.2.2.2
+      have hinvF :
+          q * 10000 + n =
+            ((runN (runN s (p0CmpSteps n + 5)) (p0PlaceSteps (n - 10000))).mem.get 20).toNat * 10000 +
+              ((runN (runN s (p0CmpSteps n + 5)) (p0PlaceSteps (n - 10000))).mem.get 17).toNat := by
+        have hL : q * 10000 + n =
+            ((runN s (p0CmpSteps n + 5)).mem.get 20).toNat * 10000 +
+              ((runN s (p0CmpSteps n + 5)).mem.get 17).toNat := hinv1
+        rw [hs1N] at hL
+        exact hL.trans hinv'
+      have hpresF : ∀ a, a ≠ 17 → a ≠ 20 → a ≠ 18 → a ≠ 0 →
+          (runN (runN s (p0CmpSteps n + 5)) (p0PlaceSteps (n - 10000))).mem.get a =
+            s.mem.get a := by
+        intro a ha17 ha20 ha18 ha0
+        exact (hpres' a ha17 ha20 ha18 ha0).trans (hpres1 a ha17 ha20 ha18 ha0)
+      exact ⟨hpc', hh', hZ', hlt', hinvF, hpresF⟩
+
+/-- Package of `p0_loop_gen` at the current machine's `N`. -/
+theorem p0_loop {s : Machine}
+    (hpc : s.pc = 189)
+    (hh : s.halted = false)
+    (hZ : s.mem.get 0 = 0)
+    (hONE : s.mem.get 3 = 1)
+    (hC : s.mem.get 7 = 10000)
+    (hQ : (s.mem.get 20).toNat + (s.mem.get 17).toNat / 10000 < 65536)
+    (hcode : ∀ k : Nat, 189 ≤ k → k < 270 →
+      s.mem.get (UInt16.ofNat k) = intfmtImage[k]!) :
+    let n := (s.mem.get 17).toNat
+    let q := (s.mem.get 20).toNat
+    let s' := runN s (p0PlaceSteps n)
+    s'.pc = 270 ∧
+    s'.halted = false ∧
+    s'.mem.get 0 = 0 ∧
+    (s'.mem.get 17).toNat < 10000 ∧
+    q * 10000 + n = (s'.mem.get 20).toNat * 10000 + (s'.mem.get 17).toNat ∧
+    (∀ a, a ≠ 17 → a ≠ 20 → a ≠ 18 → a ≠ 0 → s'.mem.get a = s.mem.get a) :=
+  p0_loop_gen (s.mem.get 17).toNat s hpc hh hZ hONE hC rfl hQ hcode
+
 end IntFmt
