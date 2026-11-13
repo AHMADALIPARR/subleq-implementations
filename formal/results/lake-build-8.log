@@ -1,0 +1,96 @@
+⚠ [2/16] Replayed IntFmt.Decimal
+warning: IntFmt/Decimal.lean:64:4: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [valueFrom, List.foldl]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/Decimal.lean:67:5: Variable name `h` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _h
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [4/16] Replayed IntFmt.Subleq
+warning: IntFmt/Subleq.lean:86:24: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:86:38: Variable name `fuel` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _fuel
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:90:27: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:135:59: Variable name `hn` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hn
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+✖ [10/16] Building IntFmt.Refinement (250ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Refinement.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Refinement.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Refinement.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Refinement.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Refinement.setup.json --json
+warning: IntFmt/Refinement.lean:29:32: Variable name `h` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _h
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: IntFmt/Refinement.lean:55:4: Type mismatch: After simplification, term
+  ih'
+ has type
+  @Eq (List Word)
+    (putAll
+        { mem := s.mem.set 0 c, pc := s.pc + 3, output := s.output ++ [(s.mem.set 0 c).get 0], input := s.input,
+          halted := s.halted }
+        cs).output
+    (s.output ++ (s.mem.set 0 c).get 0 :: cs)
+but is expected to have type
+  @Eq (List Word)
+    (putAll
+        { mem := s.mem.set 0 c, pc := s.pc + 3, output := s.output ++ [(s.mem.set 0 c).get 0], input := s.input,
+          halted := s.halted }
+        cs).output
+    (s.output ++ c :: cs)
+error: IntFmt/Refinement.lean:71:6: Tactic `split` failed: Could not split an `if` or `match` expression in the goal
+
+Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
+
+case h_1
+s : Machine
+h✝ : ¬(s.halted || decide (32768 ≤ UInt16.toNat s.pc)) = true
+x✝ : Word × List Word
+v✝ : Word
+rest✝ : List Word
+heq✝ :
+  (match s.input with
+    | [] => (65535, [])
+    | x :: xs => (x, xs)) =
+    (v✝, rest✝)
+⊢ (have a := s.mem.get s.pc;
+        have b := s.mem.get (s.pc + 1);
+        have c := s.mem.get (s.pc + 2);
+        have pc' := s.pc + 3;
+        if a = 65535 then { mem := s.mem.set b v✝, pc := pc', output := s.output, input := rest✝, halted := s.halted }
+        else
+          if b = 65535 then
+            { mem := s.mem, pc := pc', output := s.output ++ [s.mem.get a], input := s.input, halted := s.halted }
+          else
+            have r := s.mem.get b - s.mem.get a;
+            have mem' := s.mem.set b r;
+            have le0 := decide (r = 0) || decide (32768 ≤ r);
+            have pc'' := if le0 = true then c else pc';
+            { mem := mem', pc := pc'', output := s.output, input := s.input, halted := s.halted }).output.length ≤
+    s.output.length + 1
+error: IntFmt/Refinement.lean:72:4: No goals to be solved
+Some required targets logged failures:
+- IntFmt.Refinement
+error: build failed

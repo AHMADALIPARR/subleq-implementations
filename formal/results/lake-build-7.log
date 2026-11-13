@@ -1,0 +1,182 @@
+⚠ [2/16] Replayed IntFmt.Decimal
+warning: IntFmt/Decimal.lean:64:4: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [valueFrom, List.foldl]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/Decimal.lean:67:5: Variable name `h` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _h
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [3/16] Replayed IntFmt.Subleq
+warning: IntFmt/Subleq.lean:86:24: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:86:38: Variable name `fuel` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _fuel
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:90:27: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:135:59: Variable name `hn` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hn
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+✔ [8/16] Built IntFmt.Buffer (234ms)
+✔ [9/16] Built IntFmt.Buffer:c.o (50ms)
+✖ [10/16] Building IntFmt.Refinement (246ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Refinement.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Refinement.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Refinement.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Refinement.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Refinement.setup.json --json
+error: IntFmt/Refinement.lean:34:36: Type mismatch
+  UInt16.ofNat ?m.5
+has type
+  UInt16
+but is expected to have type
+  Word
+error: IntFmt/Refinement.lean:38:36: Type mismatch
+  UInt16.ofNat ?m.5
+has type
+  UInt16
+but is expected to have type
+  Word
+error: IntFmt/Refinement.lean:43:4: don't know how to synthesize implicit argument `α`
+  @Eq (List (?m.4 n h)) (subleqI16toaOutput n h) (specI16toaOutput n h)
+context:
+n : Int
+h : inInt16 n
+⊢ Type ?u.5
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: IntFmt/Refinement.lean:43:29: don't know how to synthesize implicit argument `Word`
+  @specI16toaOutput (?m.4 n h) n ⋯
+context:
+n : Int
+h : inInt16 n
+⊢ Type ?u.5
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: IntFmt/Refinement.lean:43:4: don't know how to synthesize implicit argument `Word`
+  @subleqI16toaOutput (?m.4 n h) n ⋯
+context:
+n : Int
+h : inInt16 n
+⊢ Type ?u.5
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: IntFmt/Refinement.lean:52:44: Application type mismatch: The argument
+  c
+has type
+  Word
+but is expected to have type
+  Subleq.Word
+in the application
+  st.mem.set 0 c
+error: IntFmt/Refinement.lean:56:27: failed to synthesize instance of type class
+  HAppend (List Subleq.Word) (List Word) ?m.5
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: IntFmt/Refinement.lean:58:8: unsolved goals
+case nil
+Word : Type u_1
+s : Subleq.Machine
+⊢ sorry ()
+error: IntFmt/Refinement.lean:63:48: Application type mismatch: The argument
+  c
+has type
+  Word
+of sort `Type u_1` but is expected to have type
+  Subleq.Word
+of sort `Type` in the application
+  s.mem.set 0 c
+warning: IntFmt/Refinement.lean:58:17: declaration uses `sorry`
+warning: IntFmt/Refinement.lean:58:17: This simp argument is unused:
+  putAll
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: IntFmt/Refinement.lean:60:10: This simp argument is unused:
+  putAll
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [Subleq.doPUT]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: IntFmt/Refinement.lean:60:18: This simp argument is unused:
+  Subleq.doPUT
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [putAll]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: IntFmt/Refinement.lean:69:5: don't know how to synthesize implicit argument `Word`
+  @putAll (?m.11 s n h) s (subleqI16toaOutput n h)
+context:
+s : Subleq.Machine
+n : Int
+h : inInt16 n
+⊢ Type ?u.7
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: IntFmt/Refinement.lean:69:15: don't know how to synthesize implicit argument `Word`
+  @subleqI16toaOutput (?m.11 s n h) n ⋯
+context:
+s : Subleq.Machine
+n : Int
+h : inInt16 n
+⊢ Type ?u.7
+
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+error: IntFmt/Refinement.lean:82:4: No goals to be solved
+error: IntFmt/Refinement.lean:87:6: No goals to be solved
+error: IntFmt/Refinement.lean:91:16: No goals to be solved
+error: IntFmt/Refinement.lean:93:12: Tactic `split` failed: Could not split an `if` or `match` expression in the goal
+
+Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
+
+case h_1
+k : Nat
+ih : ∀ (s : Subleq.Machine), (Subleq.run s k).output.length ≤ s.output.length + k
+s : Subleq.Machine
+h✝¹ h✝ : ¬(s.halted || decide (32768 ≤ UInt16.toNat s.pc)) = true
+x✝ : Subleq.Word × List Subleq.Word
+v✝ : Subleq.Word
+rest✝ : List Subleq.Word
+heq✝ :
+  (match s.input with
+    | [] => (65535, [])
+    | x :: xs => (x, xs)) =
+    (v✝, rest✝)
+⊢ (have a := s.mem.get s.pc;
+        have b := s.mem.get (s.pc + 1);
+        have c := s.mem.get (s.pc + 2);
+        have pc' := s.pc + 3;
+        if a = 65535 then { mem := s.mem.set b v✝, pc := pc', output := s.output, input := rest✝, halted := s.halted }
+        else
+          if b = 65535 then
+            { mem := s.mem, pc := pc', output := s.output ++ [s.mem.get a], input := s.input, halted := s.halted }
+          else
+            have r := s.mem.get b - s.mem.get a;
+            have mem' := s.mem.set b r;
+            have le0 := decide (r = 0) || decide (32768 ≤ r);
+            have pc'' := if le0 = true then c else pc';
+            { mem := mem', pc := pc'', output := s.output, input := s.input, halted := s.halted }).output.length ≤
+    s.output.length + 1
+error: IntFmt/Refinement.lean:94:10: No goals to be solved
+Some required targets logged failures:
+- IntFmt.Refinement
+error: build failed
