@@ -1,0 +1,47 @@
+(*
+  Optional Why3/WhyML development for checked 16-bit integer formatting.
+  This is NOT the authoritative proof layer (see formal/lean/).
+
+  Copyright (C) Ahmad <ahmedparr93@gmail.com>
+  SPDX-License-Identifier: AGPL-3.0-only
+*)
+
+module IntFmt
+  use int.Int
+  use int.ComputerDivision
+  use ref.Ref
+  use array.Array
+  use list.List
+
+  function in_int16 (n: int) : bool = -32768 <= n <= 32767
+
+  (* Unsigned 16-bit magnitude of a signed 16-bit value.
+     For n = -32768, mag = 32768, never by signed negation. *)
+  function umag (n: int) : int =
+    if n >= 0 then n else 65536 + n
+
+  let lemma umag_natabs (n: int)
+    requires { in_int16 n }
+    ensures  { umag n = (if n >= 0 then n else -n) }
+  = ()
+
+  (* Repeated-subtraction divmod by a base >= 2. *)
+  let rec function divmod_sub (n base: int) : (int, int)
+    requires { n >= 0 /\ base >= 2 }
+    variant  { n }
+    ensures  { let q, r = result in q = n / base /\ r = n % base }
+  = if n < base then (0, n)
+    else
+      let q, r = divmod_sub (n - base) base in
+      (q + 1, r)
+
+  type buf = { mutable a: array int; cap: int; mutable len: int }
+
+  (* snprintf-style write of a payload. Returns the untruncated length.
+     If cap = 0, write nothing. If cap > 0, write at most cap-1 chars
+     and NUL-terminate at min(needed, cap-1). *)
+  predicate nul_ok (a: array int) (cap needed: int) =
+    cap > 0 ->
+      (if needed < cap then a[needed] = 0 else a[cap-1] = 0)
+
+end

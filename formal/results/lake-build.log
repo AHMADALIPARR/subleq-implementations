@@ -1,4 +1,4 @@
-⚠ [2/16] Replayed IntFmt.Decimal
+⚠ [2/20] Replayed IntFmt.Decimal
 warning: IntFmt/Decimal.lean:64:4: `simp` already closes the goal
 
 Hint: Use `simp` instead of `simpa`:
@@ -11,7 +11,7 @@ Hint: The binding can be removed (if unused) or named `_` (if used implicitly). 
   [apply] _h
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-⚠ [4/16] Replayed IntFmt.Subleq
+⚠ [4/20] Replayed IntFmt.Subleq
 warning: IntFmt/Subleq.lean:86:24: Variable name `s` is not explicitly referenced.
 
 Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
@@ -36,17 +36,18 @@ Hint: The binding can be removed (if unused) or named `_` (if used implicitly). 
   [apply] _hn
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-⚠ [10/16] Built IntFmt.Refinement (278ms)
+⚠ [5/20] Replayed IntFmt.Refinement
 warning: IntFmt/Refinement.lean:29:32: Variable name `h` is not explicitly referenced.
 
 Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
   [apply] _h
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-✔ [11/16] Built IntFmt.Refinement:c.o (85ms)
-✔ [12/16] Built IntFmt (170ms)
-✔ [13/16] Built IntFmt:c.o (41ms)
-ℹ [14/16] Built Main (151ms)
+✔ [14/20] Built IntFmt.ImageRun (258ms)
+✔ [15/20] Built IntFmt.ImageRun:c.o (67ms)
+✔ [16/20] Built IntFmt (166ms)
+✔ [17/20] Built IntFmt:c.o (47ms)
+ℹ [18/20] Built Main (215ms)
 info: Main.lean:13:0: 'IntFmt.divmodSub_eq' depends on axioms: [propext, Quot.sound]
 info: Main.lean:14:0: 'IntFmt.value_uToDigits' depends on axioms: [propext, Quot.sound]
 info: Main.lean:15:0: 'IntFmt.unsignedMag_eq_natAbs' depends on axioms: [propext, Quot.sound]
@@ -57,11 +58,15 @@ info: Main.lean:19:0: 'IntFmt.snprintf_buf_length' depends on axioms: [propext, 
 info: Main.lean:20:0: 'IntFmt.snprintf_cap0' does not depend on any axioms
 info: Main.lean:21:0: 'IntFmt.snprintf_cap1' depends on axioms: [propext]
 info: Main.lean:22:0: 'IntFmt.snprintf_index_lt_cap' depends on axioms: [propext, Quot.sound]
-info: Main.lean:23:0: 'IntFmt.subleqI16toa_refines_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
-info: Main.lean:24:0: 'IntFmt.putAll_i16toa' depends on axioms: [propext, Classical.choice, Quot.sound]
-info: Main.lean:25:0: 'IntFmt.run_fuel0_halted' does not depend on any axioms
-info: Main.lean:26:0: 'IntFmt.check_min' depends on axioms: [propext, Classical.choice, Quot.sound]
-info: Main.lean:27:0: 'IntFmt.Subleq.sub_defined' does not depend on any axioms
-✔ [15/16] Built Main:c.o (54ms)
-✔ [16/16] Built intfmt:exe (1.8s)
-Build completed successfully (16 jobs).
+info: Main.lean:23:0: 'IntFmt.snprintf_nul' depends on axioms: [propext]
+info: Main.lean:24:0: 'IntFmt.subleqI16toa_refines_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:25:0: 'IntFmt.putAll_i16toa' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:26:0: 'IntFmt.run_fuel0_halted' does not depend on any axioms
+info: Main.lean:27:0: 'IntFmt.check_min' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:28:0: 'IntFmt.Subleq.sub_defined' does not depend on any axioms
+info: Main.lean:29:0: 'IntFmt.intfmtFuel_gt_maxMeasured' does not depend on any axioms
+info: Main.lean:30:0: 'IntFmt.image_sub_defined' does not depend on any axioms
+info: Main.lean:31:0: 'IntFmt.runImage_terminates' does not depend on any axioms
+info: Main.lean:32:0: 'IntFmt.image_mem_in_range' does not depend on any axioms
+✔ [20/20] Built intfmt:exe (604ms)
+Build completed successfully (20 jobs).
