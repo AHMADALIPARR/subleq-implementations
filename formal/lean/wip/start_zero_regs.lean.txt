@@ -1,0 +1,328 @@
+private theorem prep_image_get (input mode cap : Word) (k : Nat)
+    (hk : k < 2323) (hIn : k ≠ 12) (hMo : k ≠ 15) (hCa : k ≠ 13) :
+    (prepMachine input mode cap).mem.get (UInt16.ofNat k) = imageCell k :=
+  prep_get_cell input mode cap k hk hIn hMo hCa
+
+/-- After the boot JMP, the four `ZERO`s at `START` clear `SIGN`, `LEN`,
+`PAD`, and `NDIG`, and leave the machine at pc 60. -/
+theorem start_zero_regs (input mode cap : Word) :
+    let s0 := step (prepMachine input mode cap)
+    let s4 := runN s0 4
+    s0.pc = 48 ∧
+    s4.pc = 60 ∧
+    s4.halted = false ∧
+    s4.mem.get 19 = 0 ∧
+    s4.mem.get 16 = 0 ∧
+    s4.mem.get 27 = 0 ∧
+    s4.mem.get 25 = 0 ∧
+    s4.mem.get 0 = 0 := by
+  intro s0 s4
+  have boot := boot_jmp input mode cap
+  have hs0pc : s0.pc = 48 := boot.1
+  have hs0h : s0.halted = false := boot.2.1
+  have hs0m : s0.mem = (prepMachine input mode cap).mem := boot.2.2.1
+  have hZ0 : s0.mem.get 0 = 0 := by
+    rw [hs0m]
+    exact (prep_ready input mode cap).2.2.2
+  -- Fetch the four ZERO encodings from the prepared image.
+  have getk : ∀ k : Nat, k < 2323 → k ≠ 12 → k ≠ 15 → k ≠ 13 →
+      s0.mem.get (UInt16.ofNat k) = imageCell k := by
+    intro k hk hIn hMo hCa
+    rw [hs0m]
+    exact prep_image_get input mode cap k hk hIn hMo hCa
+  have cell : ∀ k : Nat, k < 2323 → imageCell k = intfmtImage[k] := by
+    intro k hk
+    have hsz : k < intfmtImage.size := by rw [intfmtImage_size]; exact hk
+    simp [imageCell, hsz]
+  -- STEP 1: ZERO SIGN (19) at pc 48
+  have h48 : s0.mem.get 48 = 19 := by
+    have := getk 48 (by decide) (by decide) (by decide) (by decide)
+    have hc : imageCell 48 = 19 := by
+      simp [cell 48 (by decide)]
+      exact image_start_ZERO_SIGN.1
+    have h' : s0.mem.get (UInt16.ofNat 48) = imageCell 48 := this
+    simpa using h'.trans hc
+  have h49 : s0.mem.get (48 + 1) = 19 := by
+    have := getk 49 (by decide) (by decide) (by decide) (by decide)
+    have hc : imageCell 49 = 19 := by
+      simp [cell 49 (by decide)]
+      exact image_start_ZERO_SIGN.2.1
+    have : s0.mem.get 48 + 1 = s0.mem.get (UInt16.ofNat 49) := by
+      have : (48 : Word) + 1 = 49 := rfl
+      simp [hs0pc, this]
+    -- use pc-relative after hs0pc
+    have hpc : s0.mem.get (s0.pc + 1) = s0.mem.get 49 := by
+      simp [hs0pc]
+      rfl
+    have h49' : s0.mem.get (UInt16.ofNat 49) = imageCell 49 := this
+    have : s0.mem.get 49 = 19 := by
+      have : (49 : Word) = UInt16.ofNat 49 := rfl
+      simpa [this] using h49'.trans hc
+    exact hpc.trans this
+  -- The rest of this proof is completed below with explicit pc facts.
+  have hpc0 : s0.pc.toNat < 32768 := by
+    simp [hs0pc]
+    decide
+  have ha : s0.mem.get s0.pc = 19 := by simpa [hs0pc] using h48
+  have hb : s0.mem.get (s0.pc + 1) = 19 := h49
+  have hc : s0.mem.get (s0.pc + 2) = s0.pc + 3 := by
+    have h50 := getk 50 (by decide) (by decide) (by decide) (by decide)
+    have him : imageCell 50 = 51 := by
+      simp [cell 50 (by decide)]
+      exact image_start_ZERO_SIGN.2.2
+    have : s0.mem.get 50 = 51 := by
+      have : (50 : Word) = UInt16.ofNat 50 := rfl
+      simpa [this] using h50.trans him
+    have hpc2 : s0.mem.get (s0.pc + 2) = s0.mem.get 50 := by
+      simp [hs0pc]; rfl
+    have hdst : s0.pc + 3 = 51 := by
+      simp [hs0pc]; rfl
+    exact hpc2.trans (this.trans hdst.symm)
+  have st1 := step_ZERO (s := s0) (x := 19) hs0h hpc0 ha hb hc (by decide)
+  -- Continue similarly for ZERO LEN, ZERO PAD, ZERO NDIG.
+  -- After 4 steps pc = 60 and the four registers are 0; Z is untouched.
+  -- We discharge the remaining steps by unfolding runN.
+  have run1 : runN s0 4 = runN (step s0) 3 :=
+    runN_succ_go s0 3 hs0h hpc0
+  -- s1
+  have s1eq : step s0 = { s0 with mem := s0.mem.set 19 0, pc := s0.pc + 3 } := st1
+  have hs1pc : (step s0).pc = 51 := by
+    rw [s1eq, hs0pc]; rfl
+  have hs1h : (step s0).halted = false := by
+    rw [s1eq]; exact hs0h
+  have hZ1 : (step s0).mem.get 0 = 0 := by
+    rw [s1eq]
+    exact (Mem.get_set_ne s0.mem 19 0 0 (by decide)).trans hZ0
+  -- ZERO LEN at 51
+  have get1 : ∀ k : Nat, k < 2323 → k ≠ 12 → k ≠ 15 → k ≠ 13 → k ≠ 19 →
+      (step s0).mem.get (UInt16.ofNat k) = imageCell k := by
+    intro k hk hIn hMo hCa h19
+    rw [s1eq]
+    have : (s0.mem.set 19 0).get (UInt16.ofNat k) = s0.mem.get (UInt16.ofNat k) :=
+      Mem.get_set_ne s0.mem 19 (UInt16.ofNat k) 0 (by
+        intro h
+        have := congrArg UInt16.toNat h
+        have hton : (UInt16.ofNat k).toNat = k := ofNat_toNat_image (by
+          rw [intfmtImage_size]; exact hk)
+        simp [hton] at this
+        exact h19 this)
+    exact this.trans (getk k hk hIn hMo hCa)
+  have hpc1 : (step s0).pc.toNat < 32768 := by
+    simp [hs1pc]; decide
+  have a1 : (step s0).mem.get (step s0).pc = 16 := by
+    have g := get1 51 (by decide) (by decide) (by decide) (by decide) (by decide)
+    have him : imageCell 51 = 16 := by
+      simp [cell 51 (by decide)]
+      exact image_start_ZERO_LEN.1
+    have : (step s0).mem.get 51 = 16 := by
+      have : (51 : Word) = UInt16.ofNat 51 := rfl
+      simpa [this] using g.trans him
+    simpa [hs1pc] using this
+  have b1 : (step s0).mem.get ((step s0).pc + 1) = 16 := by
+    have g := get1 52 (by decide) (by decide) (by decide) (by decide) (by decide)
+    have him : imageCell 52 = 16 := by
+      simp [cell 51 (by decide)] -- typo? cell 52
+      simp [cell 52 (by decide)]
+      exact image_start_ZERO_LEN.2.1
+    have : (step s0).mem.get 52 = 16 := by
+      have : (52 : Word) = UInt16.ofNat 52 := rfl
+      simpa [this] using g.trans him
+    have : (step s0).pc + 1 = 52 := by simp [hs1pc]; rfl
+    simpa [this] using ‹(step s0).mem.get 52 = 16›
+  have c1 : (step s0).mem.get ((step s0).pc + 2) = (step s0).pc + 3 := by
+    have g := get1 53 (by decide) (by decide) (by decide) (by decide) (by decide)
+    have him : imageCell 53 = 54 := by
+      simp [cell 53 (by decide)]
+      exact image_start_ZERO_LEN.2.2
+    have : (step s0).mem.get 53 = 54 := by
+      have : (53 : Word) = UInt16.ofNat 53 := rfl
+      simpa [this] using g.trans him
+    have hp2 : (step s0).pc + 2 = 53 := by simp [hs1pc]; rfl
+    have hd : (step s0).pc + 3 = 54 := by simp [hs1pc]; rfl
+    exact (by simp [hp2]; exact this).trans hd.symm
+  have st2 := step_ZERO (s := step s0) (x := 16) hs1h hpc1 a1 b1 c1 (by decide)
+  -- The last two ZEROs follow the same pattern; we package the
+  -- remaining run and the post-condition with two more applications.
+  -- To keep the kernel proof short and explicit, we continue in the
+  -- same style for PAD (27) and NDIG (25).
+  have run2 : runN (step s0) 3 = runN (step (step s0)) 2 :=
+    runN_succ_go (step s0) 2 hs1h hpc1
+  have s2eq : step (step s0) =
+      { step s0 with mem := (step s0).mem.set 16 0, pc := (step s0).pc + 3 } := st2
+  have hs2pc : (step (step s0)).pc = 54 := by
+    rw [s2eq, hs1pc]; rfl
+  have hs2h : (step (step s0)).halted = false := by
+    rw [s2eq]; exact hs1h
+  have hZ2 : (step (step s0)).mem.get 0 = 0 := by
+    rw [s2eq]
+    exact (Mem.get_set_ne (step s0).mem 16 0 0 (by decide)).trans hZ1
+  have hpc2 : (step (step s0)).pc.toNat < 32768 := by
+    simp [hs2pc]; decide
+  have get2 : ∀ k : Nat, k < 2323 → k ≠ 12 → k ≠ 15 → k ≠ 13 → k ≠ 19 → k ≠ 16 →
+      (step (step s0)).mem.get (UInt16.ofNat k) = imageCell k := by
+    intro k hk hIn hMo hCa h19 h16
+    rw [s2eq]
+    have : ((step s0).mem.set 16 0).get (UInt16.ofNat k) =
+        (step s0).mem.get (UInt16.ofNat k) :=
+      Mem.get_set_ne _ 16 (UInt16.ofNat k) 0 (by
+        intro h
+        have := congrArg UInt16.toNat h
+        have hton : (UInt16.ofNat k).toNat = k := ofNat_toNat_image (by
+          rw [intfmtImage_size]; exact hk)
+        simp [hton] at this
+        exact h16 this)
+    exact this.trans (get1 k hk hIn hMo hCa h19)
+  have a2 : (step (step s0)).mem.get (step (step s0)).pc = 27 := by
+    have g := get2 54 (by decide) (by decide) (by decide) (by decide) (by decide) (by decide)
+    have him : imageCell 54 = 27 := by
+      simp [cell 54 (by decide)]
+      exact image_start_ZERO_PAD.1
+    have : (step (step s0)).mem.get 54 = 27 := by
+      have : (54 : Word) = UInt16.ofNat 54 := rfl
+      simpa [this] using g.trans him
+    simpa [hs2pc] using this
+  have b2 : (step (step s0)).mem.get ((step (step s0)).pc + 1) = 27 := by
+    have g := get2 55 (by decide) (by decide) (by decide) (by decide) (by decide) (by decide)
+    have him : imageCell 55 = 27 := by
+      simp [cell 55 (by decide)]
+      exact image_start_ZERO_PAD.2.1
+    have : (step (step s0)).mem.get 55 = 27 := by
+      have : (55 : Word) = UInt16.ofNat 55 := rfl
+      simpa [this] using g.trans him
+    have : (step (step s0)).pc + 1 = 55 := by simp [hs2pc]; rfl
+    simpa [this] using ‹(step (step s0)).mem.get 55 = 27›
+  have c2 : (step (step s0)).mem.get ((step (step s0)).pc + 2) =
+      (step (step s0)).pc + 3 := by
+    have g := get2 56 (by decide) (by decide) (by decide) (by decide) (by decide) (by decide)
+    have him : imageCell 56 = 57 := by
+      simp [cell 56 (by decide)]
+      exact image_start_ZERO_PAD.2.2
+    have : (step (step s0)).mem.get 56 = 57 := by
+      have : (56 : Word) = UInt16.ofNat 56 := rfl
+      simpa [this] using g.trans him
+    have hp2 : (step (step s0)).pc + 2 = 56 := by simp [hs2pc]; rfl
+    have hd : (step (step s0)).pc + 3 = 57 := by simp [hs2pc]; rfl
+    exact (by simp [hp2]; exact this).trans hd.symm
+  have st3 := step_ZERO (s := step (step s0)) (x := 27) hs2h hpc2 a2 b2 c2 (by decide)
+  have run3 : runN (step (step s0)) 2 = runN (step (step (step s0))) 1 :=
+    runN_succ_go (step (step s0)) 1 hs2h hpc2
+  have s3eq : step (step (step s0)) =
+      { step (step s0) with
+        mem := (step (step s0)).mem.set 27 0
+        pc := (step (step s0)).pc + 3 } := st3
+  have hs3pc : (step (step (step s0))).pc = 57 := by
+    rw [s3eq, hs2pc]; rfl
+  have hs3h : (step (step (step s0))).halted = false := by
+    rw [s3eq]; exact hs2h
+  have hZ3 : (step (step (step s0))).mem.get 0 = 0 := by
+    rw [s3eq]
+    exact (Mem.get_set_ne (step (step s0)).mem 27 0 0 (by decide)).trans hZ2
+  have hpc3 : (step (step (step s0))).pc.toNat < 32768 := by
+    simp [hs3pc]; decide
+  have get3 : ∀ k : Nat, k < 2323 → k ≠ 12 → k ≠ 15 → k ≠ 13 →
+      k ≠ 19 → k ≠ 16 → k ≠ 27 →
+      (step (step (step s0))).mem.get (UInt16.ofNat k) = imageCell k := by
+    intro k hk hIn hMo hCa h19 h16 h27
+    rw [s3eq]
+    have : ((step (step s0)).mem.set 27 0).get (UInt16.ofNat k) =
+        (step (step s0)).mem.get (UInt16.ofNat k) :=
+      Mem.get_set_ne _ 27 (UInt16.ofNat k) 0 (by
+        intro h
+        have := congrArg UInt16.toNat h
+        have hton : (UInt16.ofNat k).toNat = k := ofNat_toNat_image (by
+          rw [intfmtImage_size]; exact hk)
+        simp [hton] at this
+        exact h27 this)
+    exact this.trans (get2 k hk hIn hMo hCa h19 h16)
+  have a3 : (step (step (step s0))).mem.get (step (step (step s0))).pc = 25 := by
+    have g := get3 57 (by decide) (by decide) (by decide) (by decide)
+      (by decide) (by decide) (by decide)
+    have him : imageCell 57 = 25 := by
+      simp [cell 57 (by decide)]
+      exact image_start_ZERO_NDIG.1
+    have : (step (step (step s0))).mem.get 57 = 25 := by
+      have : (57 : Word) = UInt16.ofNat 57 := rfl
+      simpa [this] using g.trans him
+    simpa [hs3pc] using this
+  have b3 : (step (step (step s0))).mem.get ((step (step (step s0))).pc + 1) = 25 := by
+    have g := get3 58 (by decide) (by decide) (by decide) (by decide)
+      (by decide) (by decide) (by decide)
+    have him : imageCell 58 = 25 := by
+      simp [cell 58 (by decide)]
+      exact image_start_ZERO_NDIG.2.1
+    have : (step (step (step s0))).mem.get 58 = 25 := by
+      have : (58 : Word) = UInt16.ofNat 58 := rfl
+      simpa [this] using g.trans him
+    have : (step (step (step s0))).pc + 1 = 58 := by simp [hs3pc]; rfl
+    simpa [this] using ‹(step (step (step s0))).mem.get 58 = 25›
+  have c3 : (step (step (step s0))).mem.get ((step (step (step s0))).pc + 2) =
+      (step (step (step s0))).pc + 3 := by
+    have g := get3 59 (by decide) (by decide) (by decide) (by decide)
+      (by decide) (by decide) (by decide)
+    have him : imageCell 59 = 60 := by
+      simp [cell 59 (by decide)]
+      exact image_start_ZERO_NDIG.2.2
+    have : (step (step (step s0))).mem.get 59 = 60 := by
+      have : (59 : Word) = UInt16.ofNat 59 := rfl
+      simpa [this] using g.trans him
+    have hp2 : (step (step (step s0))).pc + 2 = 59 := by simp [hs3pc]; rfl
+    have hd : (step (step (step s0))).pc + 3 = 60 := by simp [hs3pc]; rfl
+    exact (by simp [hp2]; exact this).trans hd.symm
+  have st4 := step_ZERO (s := step (step (step s0))) (x := 25)
+    hs3h hpc3 a3 b3 c3 (by decide)
+  have run4 : runN (step (step (step s0))) 1 = step (step (step (step s0))) :=
+    runN_one (step (step (step s0))) hs3h hpc3
+  -- Assemble runN s0 4
+  have hall : runN s0 4 = step (step (step (step s0))) := by
+    rw [run1, run2, run3, run4]
+  -- Post-conditions from st4
+  have s4eq : step (step (step (step s0))) =
+      { step (step (step s0)) with
+        mem := (step (step (step s0))).mem.set 25 0
+        pc := (step (step (step s0))).pc + 3 } := st4
+  have hpc4 : (step (step (step (step s0)))).pc = 60 := by
+    rw [s4eq, hs3pc]; rfl
+  have hh4 : (step (step (step (step s0)))).halted = false := by
+    rw [s4eq]; exact hs3h
+  have hZ4 : (step (step (step (step s0)))).mem.get 0 = 0 := by
+    rw [s4eq]
+    exact (Mem.get_set_ne (step (step (step s0))).mem 25 0 0 (by decide)).trans hZ3
+  have hSIGN : (step (step (step (step s0)))).mem.get 19 = 0 := by
+    rw [s4eq]
+    have : (step (step (step s0))).mem.get 19 = 0 := by
+      rw [s3eq]
+      have : (step (step s0)).mem.get 19 = 0 := by
+        rw [s2eq]
+        have : (step s0).mem.get 19 = 0 := by
+          rw [s1eq]
+          exact Mem.get_set_eq s0.mem 19 0
+        exact (Mem.get_set_ne (step s0).mem 16 19 0 (by decide)).trans this
+      exact (Mem.get_set_ne (step (step s0)).mem 27 19 0 (by decide)).trans this
+    exact (Mem.get_set_ne (step (step (step s0))).mem 25 19 0 (by decide)).trans this
+  have hLEN : (step (step (step (step s0)))).mem.get 16 = 0 := by
+    rw [s4eq]
+    have : (step (step (step s0))).mem.get 16 = 0 := by
+      rw [s3eq]
+      have : (step (step s0)).mem.get 16 = 0 := by
+        rw [s2eq]
+        exact Mem.get_set_eq (step s0).mem 16 0
+      exact (Mem.get_set_ne (step (step s0)).mem 27 16 0 (by decide)).trans this
+    exact (Mem.get_set_ne (step (step (step s0))).mem 25 16 0 (by decide)).trans this
+  have hPAD : (step (step (step (step s0)))).mem.get 27 = 0 := by
+    rw [s4eq]
+    have : (step (step (step s0))).mem.get 27 = 0 := by
+      rw [s3eq]
+      exact Mem.get_set_eq (step (step s0)).mem 27 0
+    exact (Mem.get_set_ne (step (step (step s0))).mem 25 27 0 (by decide)).trans this
+  have hNDIG : (step (step (step (step s0)))).mem.get 25 = 0 := by
+    rw [s4eq]
+    exact Mem.get_set_eq (step (step (step s0))).mem 25 0
+  refine ⟨hs0pc, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · simpa [hall] using hpc4
+  · simpa [hall] using hh4
+  · simpa [hall] using hSIGN
+  · simpa [hall] using hLEN
+  · simpa [hall] using hPAD
+  · simpa [hall] using hNDIG
+  · simpa [hall] using hZ4
+
