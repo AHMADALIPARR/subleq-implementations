@@ -107,7 +107,8 @@ theorem start_mov_INPUT_N (input mode cap : Word) :
     s8.halted = false ∧
     s8.mem.get 17 = input ∧
     s8.mem.get 0 = 0 ∧
-    s8.mem.get 12 = input := by
+    s8.mem.get 12 = input ∧
+    (∀ a, a ≠ 17 → a ≠ 0 → s8.mem.get a = s4.mem.get a) := by
   intro s0 s4 s8
   have hz := start_zero_regs input mode cap
   have hs4pc : s4.pc = 60 := hz.2.1
@@ -236,6 +237,55 @@ theorem start_mov_INPUT_N (input mode cap : Word) :
   have hZ8 : s8.mem.get 0 = 0 := hmov.2.2.2.1
   have hIn : s8.mem.get 12 = input :=
     hmov.2.2.2.2.1.trans (start_zero_regs_get_INPUT input mode cap)
-  exact ⟨hs4pc, hpc8, hmov.2.1, hN, hZ8, hIn⟩
+  have hpres := hmov.2.2.2.2.2
+  exact ⟨hs4pc, hpc8, hmov.2.1, hN, hZ8, hIn, hpres⟩
+
+/-- After `MOV INPUT N`, a non-poked, non-cleared, non-destination cell
+still equals the assembled image. -/
+theorem start_mov_get (input mode cap : Word) (k : Nat)
+    (hk : k < 2323)
+    (hIn : k ≠ 12) (hMo : k ≠ 15) (hCa : k ≠ 13)
+    (hSIGN : k ≠ 19) (hLEN : k ≠ 16) (hPAD : k ≠ 27) (hNDIG : k ≠ 25)
+    (hN : k ≠ 17) (hZ : k ≠ 0) :
+    (runN (runN (step (prepMachine input mode cap)) 4) 4).mem.get
+      (UInt16.ofNat k) = intfmtImage[k]! := by
+  have hpres := (start_mov_INPUT_N input mode cap).2.2.2.2.2.2
+  have hsz : k < intfmtImage.size := by rw [intfmtImage_size]; exact hk
+  have hton : (UInt16.ofNat k).toNat = k := ofNat_toNat_image hsz
+  have h17 : UInt16.ofNat k ≠ 17 := by
+    intro h
+    have hx := congrArg UInt16.toNat h
+    have : k = 17 := by simpa [hton] using hx
+    exact hN this
+  have h0 : UInt16.ofNat k ≠ 0 := by
+    intro h
+    have hx := congrArg UInt16.toNat h
+    have : k = 0 := by simpa [hton] using hx
+    exact hZ this
+  exact (hpres (UInt16.ofNat k) h17 h0).trans
+    (start_zero_regs_get input mode cap k hk hIn hMo hCa hSIGN hLEN hPAD hNDIG)
+
+/-- `prepMachine` writes `mode` at `MODE` (cell 15). -/
+theorem prepMachine_get_mode (input mode cap : Word) :
+    (prepMachine input mode cap).mem.get 15 = mode := by
+  have hmem :
+      (prepMachine input mode cap).mem =
+        ((loadImage.set addrInput input).set addrMode mode).set addrCap cap := rfl
+  rw [hmem, addrInput, addrMode, addrCap]
+  have h13 : (15 : Word) ≠ 13 := by decide
+  rw [Mem.get_set_ne _ 13 15 cap h13]
+  exact Mem.get_set_eq _ 15 mode
+
+/-- After `MOV INPUT N`, `MODE` still holds the poked value. -/
+theorem start_mov_get_MODE (input mode cap : Word) :
+    (runN (runN (step (prepMachine input mode cap)) 4) 4).mem.get 15 = mode := by
+  have hpres := (start_mov_INPUT_N input mode cap).2.2.2.2.2.2
+  have h4 : (runN (step (prepMachine input mode cap)) 4).mem.get 15 = mode := by
+    have hz := (start_zero_regs input mode cap).2.2.2.2.2.2.2.2
+    have hboot : (step (prepMachine input mode cap)).mem.get 15 = mode := by
+      rw [(boot_jmp input mode cap).2.2.1]
+      exact prepMachine_get_mode input mode cap
+    exact (hz 15 (by decide) (by decide) (by decide) (by decide)).trans hboot
+  exact (hpres 15 (by decide) (by decide)).trans h4
 
 end IntFmt

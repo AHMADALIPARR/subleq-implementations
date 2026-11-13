@@ -136,6 +136,14 @@ theorem le0_pos {w : Word} (h : 0 < w.toNat) (h2 : w.toNat < 32768) :
     omega
   simp [hz, hhi]
 
+/-- High-bit words are `le0`. -/
+theorem le0_hi {w : Word} (h : 32768 ≤ w.toNat) : le0 w = true := by
+  unfold le0
+  have hhi : 0x8000 ≤ w := by
+    have : 32768 ≤ w.toNat := h
+    simpa [UInt16.le_iff_toNat_le] using this
+  simp [hhi]
+
 /-- Wrap-add of a small `Nat` agrees with `Nat` addition. -/
 theorem word_add_toNat (pc : Word) (n : Nat) (h : pc.toNat + n < 65536) :
     (pc + UInt16.ofNat n).toNat = pc.toNat + n := by
