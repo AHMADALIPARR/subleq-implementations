@@ -104,7 +104,8 @@ theorem start_zero_regs (input mode cap : Word) :
     s4.mem.get 16 = 0 ∧
     s4.mem.get 27 = 0 ∧
     s4.mem.get 25 = 0 ∧
-    s4.mem.get 0 = 0 := by
+    s4.mem.get 0 = 0 ∧
+    (∀ a, a ≠ 19 → a ≠ 16 → a ≠ 27 → a ≠ 25 → s4.mem.get a = s0.mem.get a) := by
   intro s0 s4
   have step1 := start_zero_SIGN input mode cap
   have hs0pc : s0.pc = 48 := step1.1
@@ -327,6 +328,23 @@ theorem start_zero_regs (input mode cap : Word) :
       _ = s2.mem.get 0 := c
       _ = s1.mem.get 0 := b
       _ = 0 := a
-  exact ⟨hs0pc, hs4pc, hs4h, h19, h16, h27, h25, hZ⟩
+  have hpres : ∀ a, a ≠ 19 → a ≠ 16 → a ≠ 27 → a ≠ 25 →
+      s4.mem.get a = s0.mem.get a := by
+    intro a ha19 ha16 ha27 ha25
+    have a1 : s1.mem.get a = s0.mem.get a := by
+      simpa [hs1eq] using Mem.get_set_ne s0.mem 19 a 0 ha19
+    have a2 : s2.mem.get a = s1.mem.get a := by
+      simpa [hs2eq] using Mem.get_set_ne s1.mem 16 a 0 ha16
+    have a3 : s3.mem.get a = s2.mem.get a := by
+      simpa [hs3eq] using Mem.get_set_ne s2.mem 27 a 0 ha27
+    have a4 : s4'.mem.get a = s3.mem.get a := by
+      simpa [hs4eq] using Mem.get_set_ne s3.mem 25 a 0 ha25
+    calc
+      s4.mem.get a = s4'.mem.get a := by simpa [hrun]
+      _ = s3.mem.get a := a4
+      _ = s2.mem.get a := a3
+      _ = s1.mem.get a := a2
+      _ = s0.mem.get a := a1
+  exact ⟨hs0pc, hs4pc, hs4h, h19, h16, h27, h25, hZ, hpres⟩
 
 end IntFmt

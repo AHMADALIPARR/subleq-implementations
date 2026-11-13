@@ -49,6 +49,11 @@ open IntFmt
 #print axioms Subleq.step_JLEZ
 #print axioms Subleq.step_SUB
 #print axioms Subleq.step_HALT
+#print axioms Subleq.runN_MOV
+#print axioms Subleq.runN_ADD
+#print axioms Subleq.runN_INC
+#print axioms Subleq.sub_sub_zero
+#print axioms Subleq.add_sub_neg
 
 #print axioms extract_split
 #print axioms parseDecText_append
@@ -64,6 +69,10 @@ open IntFmt
 #print axioms afterBoot_get
 #print axioms start_zero_SIGN
 #print axioms start_zero_regs
+#print axioms prepMachine_get_input
+#print axioms start_zero_regs_get
+#print axioms start_zero_regs_get_INPUT
+#print axioms start_mov_INPUT_N
 #print axioms Subleq.runN_add
 #print axioms Subleq.runCounted_programHalt_le
 #print axioms Subleq.runCounted_zero_go
