@@ -1,0 +1,20 @@
+ISSUE3 tfp_snprintf(size=0)=8 glibc=8 buf[0]='Z'
+PASS: issue 3: size==0 returns length and writes nothing
+ISSUE2 tfp '%10ad' -> [d] ret=1 len=1
+PASS: issue 2: 'a' is not a decimal width digit (no width-110 field)
+ISSUE1 tfp=[-2147483648] ret=11 glibc=[-2147483648] ret=11
+PASS: issue 1: INT_MIN formats without signed negation, matches glibc
+ISSUE4 sweep diffs vs glibc snprintf: 0
+PASS: issue 4: supported-flag sweep matches glibc
+ISSUE5 parse 9999999999 -> 2147483647 (INT_MAX=2147483647)
+PASS: issue 5: 9999999999 saturates at INT_MAX (not 1410065407)
+ISSUE5 parse 2147483648 -> 2147483647
+PASS: issue 5: 2147483648 saturates at INT_MAX (non-negative)
+ISSUE5 control %200d tfp_len=200 glibc_len=200 match=yes
+PASS: issue 5: in-range %%200d still matches glibc
+ISSUE6 tfp_sprintf_checked ret=33 tiny='OVERFLO' (cap=8)
+PASS: issue 6: bounded sprintf_checked does not overflow and NUL-terminates
+PASS: oracle i16toa(-32768) = -32768
+PASS: oracle u16toa(65535) length 5 with cap 0
+PASS: oracle i16toa cap 1 writes only NUL, returns 3
+checked re-audit: PASS (0 failures)
