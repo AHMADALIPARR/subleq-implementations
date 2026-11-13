@@ -1,0 +1,54 @@
+ISSUE6: tfp_sprintf into 8-byte buffer with a 40-char message
+=================================================================
+==84682==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7fd0e6100028 at pc 0x55ad5c2e90da bp 0x7fff93dbaac0 sp 0x7fff93dbaab8
+WRITE of size 1 at 0x7fd0e6100028 thread T0
+    #0 0x55ad5c2e90d9 in _vsprintf_putcf ../tinyprintf.c:562
+    #1 0x55ad5c2e64d5 in tfp_format ../tinyprintf.c:284
+    #2 0x55ad5c2e91d6 in tfp_vsprintf ../tinyprintf.c:570
+    #3 0x55ad5c2e9404 in tfp_sprintf ../tinyprintf.c:581
+    #4 0x55ad5c2e1f51 in test_issue6 /workspace/subleq-implementations/debugger/tests/audit-tinyprintf.c:95
+    #5 0x55ad5c2e4017 in main /workspace/subleq-implementations/debugger/tests/audit-tinyprintf.c:229
+    #6 0x7fd0e8635ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: 5e5b51f4c39af9ac589408c1dc432ba390a273cc)
+    #7 0x7fd0e8635d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: 5e5b51f4c39af9ac589408c1dc432ba390a273cc)
+    #8 0x55ad5c2e1250 in _start (/tmp/audit-tfp+0xb250) (BuildId: 0d8769051727a476dcc0a60d33c9dcf76674f1b7)
+
+Address 0x7fd0e6100028 is located in stack of thread T0 at offset 40 in frame
+    #0 0x55ad5c2e1e53 in test_issue6 /workspace/subleq-implementations/debugger/tests/audit-tinyprintf.c:90
+
+  This frame has 1 object(s):
+    [32, 40) 'tiny' (line 92) <== Memory access at offset 40 overflows this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-buffer-overflow ../tinyprintf.c:562 in _vsprintf_putcf
+Shadow bytes around the buggy address:
+  0x7fd0e60ffd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fd0e60ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fd0e60ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fd0e60fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fd0e60fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x7fd0e6100000: f1 f1 f1 f1 00[f3]f3 f3 f1 f1 f1 f1 00 00 f3 f3
+  0x7fd0e6100080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fd0e6100100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fd0e6100180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fd0e6100200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fd0e6100280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==84682==ABORTING

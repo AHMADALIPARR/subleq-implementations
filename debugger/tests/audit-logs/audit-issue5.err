@@ -1,0 +1,5 @@
+ISSUE5: parsing %9999999999d (width larger than UINT_MAX)
+ISSUE5 tfp ret=1410065407 len=255 content_head=                                        
+ISSUE5: parsing %2147483648d (UINT value INT_MAX+1 assigned to int width)
+ISSUE5 tfp ret=-2147483648 len=255 (may be huge or negative-width behavior)
+ISSUE5 control %200d tfp_len=200 glibc_len=200 match=yes
