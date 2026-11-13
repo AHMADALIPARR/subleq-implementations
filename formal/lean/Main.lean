@@ -187,6 +187,12 @@ open IntFmt
 #print axioms have_dig_signed_ndig4_done
 #print axioms p3_done_signed_ndig1_done
 #print axioms p3_done_signed_ndig4_done
+#print axioms after_pad_sign0_ndig5_done
+#print axioms after_pad_minus_ndig5_done
+#print axioms have_dig_unsigned_ndig5_done
+#print axioms have_dig_signed_ndig5_done
+#print axioms p3_done_unsigned_ndig5_done
+#print axioms p3_done_signed_ndig5_done
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
