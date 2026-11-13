@@ -142,6 +142,10 @@ open IntFmt
 #print axioms after_sign_to_emit
 #print axioms pad_one_iter_idx0
 #print axioms after_pad_minus_to_emit_idx0
+#print axioms emit_prelude
+#print axioms dig_next
+#print axioms dig_loop_exit
+#print axioms dig_loop_to_body
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
