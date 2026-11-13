@@ -1,0 +1,7 @@
+runs=131128 fails=0
+u16toa_steps_min=396
+u16toa_steps_max=1223
+u16toa_steps_mean=934
+i16toa_steps_min=411
+i16toa_steps_max=1266
+i16toa_steps_mean=945
