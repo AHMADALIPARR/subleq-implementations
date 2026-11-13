@@ -34,3 +34,4 @@ import IntFmt.StoreCh
 import IntFmt.PadLoop
 import IntFmt.EmitDigs
 import IntFmt.EmitNdig
+import IntFmt.WriteNul

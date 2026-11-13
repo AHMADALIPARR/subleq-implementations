@@ -159,6 +159,15 @@ open IntFmt
 #print axioms emit_ndig1_idx1
 #print axioms emit_ndig5_idx0
 #print axioms emit_ndig5_idx1
+#print axioms after_digs_nul_at_len
+#print axioms write_nul_idx0
+#print axioms write_nul_idx6
+#print axioms write_nul_done_idx1
+#print axioms after_digs_write_nul_done_len1
+#print axioms emit_ndig1_idx0_write_nul_done
+#print axioms emit_ndig5_idx0_write_nul_done
+#print axioms emit_ndig1_idx1_write_nul_done
+#print axioms emit_ndig5_idx1_write_nul_done
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
