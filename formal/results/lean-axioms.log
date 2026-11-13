@@ -1,0 +1,15 @@
+50:info: Main.lean:13:0: 'IntFmt.divmodSub_eq' depends on axioms: [propext, Quot.sound]
+51:info: Main.lean:14:0: 'IntFmt.value_uToDigits' depends on axioms: [propext, Quot.sound]
+52:info: Main.lean:15:0: 'IntFmt.unsignedMag_eq_natAbs' depends on axioms: [propext, Quot.sound]
+53:info: Main.lean:16:0: 'IntFmt.i16toa_eq_intToDec' depends on axioms: [propext, Quot.sound]
+54:info: Main.lean:17:0: 'IntFmt.i16toa_minInt' depends on axioms: [propext, Quot.sound]
+55:info: Main.lean:18:0: 'IntFmt.snprintf_length' does not depend on any axioms
+56:info: Main.lean:19:0: 'IntFmt.snprintf_buf_length' depends on axioms: [propext, Quot.sound]
+57:info: Main.lean:20:0: 'IntFmt.snprintf_cap0' does not depend on any axioms
+58:info: Main.lean:21:0: 'IntFmt.snprintf_cap1' depends on axioms: [propext]
+59:info: Main.lean:22:0: 'IntFmt.snprintf_index_lt_cap' depends on axioms: [propext, Quot.sound]
+60:info: Main.lean:23:0: 'IntFmt.subleqI16toa_refines_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
+61:info: Main.lean:24:0: 'IntFmt.putAll_i16toa' depends on axioms: [propext, Classical.choice, Quot.sound]
+62:info: Main.lean:25:0: 'IntFmt.run_fuel0_halted' does not depend on any axioms
+63:info: Main.lean:26:0: 'IntFmt.check_min' depends on axioms: [propext, Classical.choice, Quot.sound]
+64:info: Main.lean:27:0: 'IntFmt.Subleq.sub_defined' does not depend on any axioms
