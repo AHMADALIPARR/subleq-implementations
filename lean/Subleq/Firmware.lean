@@ -11,8 +11,6 @@ Hand-written Lean 4 proofs that the higher-level operations recovered by the
 firmware-aware decompiler have the same semantics as the SUBLEQ instruction
 sequences they represent.
 
-No `sorry`, no `admit`, no extra axioms.
-
 Numerical facts use `decide` (core equivalent of `norm_num` for concrete
 arithmetic in this project, which does not depend on Mathlib).
 -/
