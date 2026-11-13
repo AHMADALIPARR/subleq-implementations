@@ -289,5 +289,175 @@ theorem p0PlaceSteps_lt {n : Nat} (h : n < 10000) :
   · have hpos : 0 < n := Nat.pos_of_ne_zero h0
     rw [p0PlaceSteps_small hpos h, p0CmpSteps_small hpos h]
 
+/-- 81-cell relative encoding of one P0-style place loop, starting at
+`loopPc`, subtracting the constant at address `cAddr` into `N`, and
+accumulating the quotient at address `qAddr`. -/
+def placeCells (loopPc cAddr qAddr : Nat) : List Nat :=
+  [
+    18, 18, loopPc + 3, 17, 0, loopPc + 6,
+    0, 18, loopPc + 9, 0, 0, loopPc + 12,
+    0, 18, loopPc + 18, 0, 0, loopPc + 33,
+    3, 0, loopPc + 21, 0, 18, loopPc + 24,
+    0, 0, loopPc + 27, 0, 18, loopPc + 66,
+    0, 0, loopPc + 81, 18, 18, loopPc + 36,
+    17, 0, loopPc + 39, 0, 18, loopPc + 42,
+    0, 0, loopPc + 45, cAddr, 18, loopPc + 48,
+    0, 18, loopPc + 54, 0, 0, loopPc + 66,
+    3, 0, loopPc + 57, 0, 18, loopPc + 60,
+    0, 0, loopPc + 63, 0, 18, loopPc + 81,
+    cAddr, 17, loopPc + 69, 3, 0, loopPc + 72,
+    0, qAddr, loopPc + 75, 0, 0, loopPc + 78,
+    0, 0, loopPc
+  ]
+
+theorem placeCells_length (loopPc cAddr qAddr : Nat) :
+    (placeCells loopPc cAddr qAddr).length = 81 := rfl
+
+def placeTemplate (loopPc cAddr qAddr off : Nat) : Nat :=
+  (placeCells loopPc cAddr qAddr)[off]?.getD 0
+
+/-- Compare-diamond steps for a place loop with constant `c`. -/
+def placeCmpSteps (c n : Nat) : Nat :=
+  if n < c then
+    if n = 0 then 10 else 16
+  else if 32768 ≤ n then 9
+  else if n = c then 16
+  else 13
+
+theorem placeCmpSteps_zero {c : Nat} (hc : 0 < c) : placeCmpSteps c 0 = 10 := by
+  simp [placeCmpSteps, hc]
+
+theorem placeCmpSteps_small {c n : Nat} (h0 : 0 < n) (h : n < c) :
+    placeCmpSteps c n = 16 := by
+  have : n ≠ 0 := Nat.pos_iff_ne_zero.mp h0
+  simp [placeCmpSteps, h, this]
+
+theorem placeCmpSteps_hi {c n : Nat} (h : 32768 ≤ n) (hc : c ≤ 32768) :
+    placeCmpSteps c n = 9 := by
+  have : ¬ n < c := Nat.not_lt_of_le (Nat.le_trans hc h)
+  simp [placeCmpSteps, this, h]
+
+theorem placeCmpSteps_eq {c : Nat} (hc : c < 32768) :
+    placeCmpSteps c c = 16 := by
+  have hlt : ¬ c < c := Nat.lt_irrefl c
+  have hhi : ¬ 32768 ≤ c := Nat.not_le_of_gt hc
+  simp [placeCmpSteps, hlt, hhi]
+
+theorem placeCmpSteps_mid {c n : Nat} (h1 : c < n) (h2 : n < 32768) :
+    placeCmpSteps c n = 13 := by
+  have hge : ¬ n < c := Nat.not_lt_of_le (Nat.le_of_lt h1)
+  have hne : n ≠ c := Nat.ne_of_gt h1
+  have hhi : ¬ 32768 ≤ n := Nat.not_le_of_gt h2
+  simp [placeCmpSteps, hge, hhi, hne]
+
+theorem placeCmpSteps_le (c n : Nat) : placeCmpSteps c n + 5 ≤ 21 := by
+  unfold placeCmpSteps
+  by_cases h1 : n < c
+  · by_cases h0 : n = 0
+    · have hc : 0 < c := by simpa [h0] using h1
+      simp [h1, h0, hc]
+    · simp [h1, h0]
+  · by_cases h2 : 32768 ≤ n
+    · simp [h1, h2]
+    · by_cases h3 : n = c
+      · subst h3
+        simp [h1, h2]
+      · simp [h1, h2, h3]
+
+theorem p0CmpSteps_eq_place (n : Nat) :
+    p0CmpSteps n = placeCmpSteps 10000 n := rfl
+
+/-- Exact step count of a place loop from its LOOP label to DONE. -/
+def placeSteps (c n : Nat) : Nat :=
+  (List.range (n / c)).foldl
+    (fun acc i => acc + placeCmpSteps c (n - i * c) + 5) 0
+    + placeCmpSteps c (n % c)
+
+theorem placeSteps_zero {c : Nat} (hc : 0 < c) : placeSteps c 0 = 10 := by
+  have hdiv : 0 / c = 0 := Nat.div_eq_of_lt hc
+  have hmod : 0 % c = 0 := Nat.mod_eq_of_lt hc
+  simp [placeSteps, hdiv, hmod, placeCmpSteps, hc]
+
+theorem placeSteps_small {c n : Nat} (h0 : 0 < n) (h : n < c) :
+    placeSteps c n = 16 := by
+  have hdiv : n / c = 0 := Nat.div_eq_of_lt h
+  have hmod : n % c = n := Nat.mod_eq_of_lt h
+  rw [placeSteps, hdiv, hmod, placeCmpSteps_small h0 h]
+  rfl
+
+theorem placeSteps_lt {c n : Nat} (h : n < c) :
+    placeSteps c n = placeCmpSteps c n := by
+  by_cases h0 : n = 0
+  · subst h0
+    -- `0 < c` follows from `0 < c` via `n < c` with n=0
+    have hc : 0 < c := h
+    exact (placeSteps_zero hc).trans (placeCmpSteps_zero hc).symm
+  · have hpos : 0 < n := Nat.pos_of_ne_zero h0
+    rw [placeSteps_small hpos h, placeCmpSteps_small hpos h]
+
+private theorem foldl_place_add_left (c : Nat) (f : Nat → Nat) (xs : List Nat) (acc0 : Nat) :
+    xs.foldl (fun acc i => acc + placeCmpSteps c (f i) + 5) acc0 =
+      acc0 + xs.foldl (fun acc i => acc + placeCmpSteps c (f i) + 5) 0 := by
+  induction xs generalizing acc0 with
+  | nil =>
+    simp [List.foldl_nil]
+  | cons i rest ih =>
+    rw [List.foldl_cons, List.foldl_cons]
+    rw [ih (acc0 + placeCmpSteps c (f i) + 5)]
+    rw [ih (0 + placeCmpSteps c (f i) + 5)]
+    omega
+
+private theorem sub_succ_mul (n i c : Nat) :
+    n - (i + 1) * c = n - c - i * c := by
+  have hmul : (i + 1) * c = i * c + c := Nat.succ_mul i c
+  rw [hmul, Nat.sub_add_eq]
+  exact Nat.sub_right_comm n (i * c) c
+
+theorem placeSteps_ge {c n : Nat} (hc : 0 < c) (h : c ≤ n) :
+    placeSteps c n = placeCmpSteps c n + 5 + placeSteps c (n - c) := by
+  have hdiv : n / c = (n - c) / c + 1 :=
+    Nat.div_eq_sub_div hc h
+  have hmod : n % c = (n - c) % c :=
+    Nat.mod_eq_sub_mod h
+  unfold placeSteps
+  rw [hdiv, hmod, range_succ_cons]
+  simp [List.foldl_cons, List.foldl_map, Nat.mul_zero, Nat.sub_zero, Nat.zero_add]
+  have hf :
+      (fun acc i => acc + placeCmpSteps c (n - (i + 1) * c) + 5) =
+        (fun acc i => acc + placeCmpSteps c (n - c - i * c) + 5) := by
+    funext acc i
+    rw [sub_succ_mul]
+  rw [hf, foldl_place_add_left c (fun i => n - c - i * c)]
+  exact Nat.add_assoc _ _ _
+
+private theorem foldl_place_le (c : Nat) (xs : List Nat) (n acc : Nat) :
+    xs.foldl (fun acc i => acc + placeCmpSteps c (n - i * c) + 5) acc ≤
+      acc + 21 * xs.length := by
+  induction xs generalizing acc with
+  | nil =>
+    simp
+  | cons i rest ih =>
+    simp [List.foldl]
+    have hstep := placeCmpSteps_le c (n - i * c)
+    have := ih (acc + placeCmpSteps c (n - i * c) + 5)
+    omega
+
+theorem placeSteps_le (c n : Nat) (hc : 0 < c) :
+    placeSteps c n ≤ 16 + 21 * (n / c) := by
+  have hfold := foldl_place_le c (List.range (n / c)) n 0
+  have hlen := length_range (n / c)
+  have hcmp : placeCmpSteps c (n % c) ≤ 16 := by
+    have := placeCmpSteps_le c (n % c)
+    omega
+  have hbound :
+      (List.range (n / c)).foldl
+        (fun acc i => acc + placeCmpSteps c (n - i * c) + 5) 0 ≤
+        21 * (n / c) := by
+    rw [Nat.zero_add] at hfold
+    rw [hlen] at hfold
+    exact hfold
+  rw [placeSteps]
+  omega
+
 
 end IntFmt
