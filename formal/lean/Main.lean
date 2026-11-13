@@ -89,6 +89,7 @@ open IntFmt
 #print axioms p0PlaceSteps_le
 #print axioms digits_zero_Qs
 #print axioms p0_ge_body
+#print axioms p0_exit_zero
 #print axioms parseDecText_intfmtDecText
 #print axioms program_identity_parsed
 #print axioms Subleq.runN_add

@@ -489,4 +489,333 @@ theorem p0_ge_body {s : Machine}
     exact h1.trans h0
   exact ⟨hs5pc, hs5h, hs5Z, hs5N, hs5Q, hNton, hQton, hpres⟩
 
+
+/-- `N = 0` at `P0_LOOP`: the `P0_LE0` arm exits to `P0_DONE` in 10 steps
+without changing `N` or `Q0`. -/
+theorem p0_exit_zero {s : Machine}
+    (hpc : s.pc = 189)
+    (hh : s.halted = false)
+    (hZ : s.mem.get 0 = 0)
+    (hONE : s.mem.get 3 = 1)
+    (hN : s.mem.get 17 = 0)
+    (hcode : ∀ k : Nat, 189 ≤ k → k < 270 →
+      s.mem.get (UInt16.ofNat k) = intfmtImage[k]!) :
+    let s10 := runN s 10
+    s10.pc = 270 ∧
+    s10.halted = false ∧
+    s10.mem.get 17 = 0 ∧
+    s10.mem.get 20 = s.mem.get 20 ∧
+    s10.mem.get 0 = 0 ∧
+    (∀ a, a ≠ 18 → a ≠ 0 → s10.mem.get a = s.mem.get a) := by
+  intro s10
+  have hp : s.pc = UInt16.ofNat 189 :=
+    hpc.trans (rfl : (189 : Word) = UInt16.ofNat 189)
+  have g (k : Nat) (h1 : 189 ≤ k) (h2 : k < 270) :
+      s.mem.get (UInt16.ofNat k) = intfmtImage[k]! := hcode k h1 h2
+  have poff (off : Nat) (hoff : off ≤ 12) :
+      s.pc + UInt16.ofNat off = UInt16.ofNat (189 + off) :=
+    word_pc_off 189 off hp (by omega)
+  -- MOV N T at 189
+  have m0 : s.mem.get s.pc = 18 := by
+    rw [hp]
+    have hval : decChunk011[13]! = 18 := rfl
+    exact (g 189 (by decide) (by decide)).trans ((cell176 13 (by decide)).trans hval)
+  have m1 : s.mem.get (s.pc + UInt16.ofNat 1) = 18 := by
+    rw [poff 1 (by decide)]
+    have hval : decChunk011[14]! = 18 := rfl
+    exact (g 190 (by decide) (by decide)).trans ((cell176 14 (by decide)).trans hval)
+  have m2 : s.mem.get (s.pc + UInt16.ofNat 2) = s.pc + UInt16.ofNat 3 := by
+    rw [poff 2 (by decide), poff 3 (by decide)]
+    have hval : decChunk011[15]! = 192 := rfl
+    have hv : (192 : Word) = UInt16.ofNat 192 := rfl
+    exact (g 191 (by decide) (by decide)).trans ((cell176 15 (by decide)).trans (hval.trans hv))
+  have m3 : s.mem.get (s.pc + UInt16.ofNat 3) = 17 := by
+    rw [poff 3 (by decide)]
+    have hval : decChunk012[0]! = 17 := rfl
+    exact (g 192 (by decide) (by decide)).trans ((cell192 0 (by decide)).trans hval)
+  have m4 : s.mem.get (s.pc + UInt16.ofNat 4) = 0 := by
+    rw [poff 4 (by decide)]
+    have hval : decChunk012[1]! = 0 := rfl
+    exact (g 193 (by decide) (by decide)).trans ((cell192 1 (by decide)).trans hval)
+  have m5 : s.mem.get (s.pc + UInt16.ofNat 5) = s.pc + UInt16.ofNat 6 := by
+    rw [poff 5 (by decide), poff 6 (by decide)]
+    have hval : decChunk012[2]! = 195 := rfl
+    have hv : (195 : Word) = UInt16.ofNat 195 := rfl
+    exact (g 194 (by decide) (by decide)).trans ((cell192 2 (by decide)).trans (hval.trans hv))
+  have m6 : s.mem.get (s.pc + UInt16.ofNat 6) = 0 := by
+    rw [poff 6 (by decide)]
+    have hval : decChunk012[3]! = 0 := rfl
+    exact (g 195 (by decide) (by decide)).trans ((cell192 3 (by decide)).trans hval)
+  have m7 : s.mem.get (s.pc + UInt16.ofNat 7) = 18 := by
+    rw [poff 7 (by decide)]
+    have hval : decChunk012[4]! = 18 := rfl
+    exact (g 196 (by decide) (by decide)).trans ((cell192 4 (by decide)).trans hval)
+  have m8 : s.mem.get (s.pc + UInt16.ofNat 8) = s.pc + UInt16.ofNat 9 := by
+    rw [poff 8 (by decide), poff 9 (by decide)]
+    have hval : decChunk012[5]! = 198 := rfl
+    have hv : (198 : Word) = UInt16.ofNat 198 := rfl
+    exact (g 197 (by decide) (by decide)).trans ((cell192 5 (by decide)).trans (hval.trans hv))
+  have m9 : s.mem.get (s.pc + UInt16.ofNat 9) = 0 := by
+    rw [poff 9 (by decide)]
+    have hval : decChunk012[6]! = 0 := rfl
+    exact (g 198 (by decide) (by decide)).trans ((cell192 6 (by decide)).trans hval)
+  have m10 : s.mem.get (s.pc + UInt16.ofNat 10) = 0 := by
+    rw [poff 10 (by decide)]
+    have hval : decChunk012[7]! = 0 := rfl
+    exact (g 199 (by decide) (by decide)).trans ((cell192 7 (by decide)).trans hval)
+  have m11 : s.mem.get (s.pc + UInt16.ofNat 11) = s.pc + UInt16.ofNat 12 := by
+    rw [poff 11 (by decide), poff 12 (by decide)]
+    have hval : decChunk012[8]! = 201 := rfl
+    have hv : (201 : Word) = UInt16.ofNat 201 := rfl
+    exact (g 200 (by decide) (by decide)).trans ((cell192 8 (by decide)).trans (hval.trans hv))
+  have hcodeD : ∀ i : Nat, i < 12 → s.pc + UInt16.ofNat i ≠ (18 : Word) := by
+    intro i hi
+    have : (18 : Word) = UInt16.ofNat 18 := rfl
+    rw [this]
+    exact pc_off_ne 189 i 18 hp (by omega) (by omega) (by omega)
+  have hcodeZ : ∀ i : Nat, i < 12 → s.pc + UInt16.ofNat i ≠ (0 : Word) := by
+    intro i hi
+    have : (0 : Word) = UInt16.ofNat 0 := rfl
+    rw [this]
+    exact pc_off_ne 189 i 0 hp (by omega) (by omega) (by omega)
+  have hpcM : s.pc.toNat + 12 ≤ 32768 := by simp [hpc]
+  have hpcM0 : 0 < s.pc.toNat := by simp [hpc]
+  have hmov :=
+    runN_MOV (s := s) (src := 17) (dst := 18)
+      hh hpcM hpcM0 hZ (by decide) (by decide) (by decide) (by decide)
+      m0 m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 m11 hcodeD hcodeZ
+  let s4 := runN s 4
+  have hs4pc : s4.pc = 201 := by
+    have hadd : s.pc + UInt16.ofNat 12 = (201 : Word) := by
+      rw [poff 12 (by decide)]
+      exact (rfl : UInt16.ofNat 201 = (201 : Word))
+    exact hmov.1.trans hadd
+  have hs4h : s4.halted = false := hmov.2.1
+  have hT4 : s4.mem.get 18 = 0 := hmov.2.2.1.trans hN
+  have hZ4 : s4.mem.get 0 = 0 := hmov.2.2.2.1
+  have hpres4 := hmov.2.2.2.2.2
+  have hN4 : s4.mem.get 17 = 0 := hmov.2.2.2.2.1.trans hN
+  have g4 (k : Nat) (h1 : 201 ≤ k) (h2 : k < 270) :
+      s4.mem.get (UInt16.ofNat k) = intfmtImage[k]! :=
+    (hpres4 (UInt16.ofNat k) (ofNat_ne k 18 (by omega) (by omega) (by omega))
+      (ofNat_ne k 0 (by omega) (by omega) (by omega))).trans (g k (by omega) h2)
+  -- JLEZ T P0_LE0, T = 0, taken
+  have j0 : s4.mem.get s4.pc = 0 := by
+    have hp4 : s4.pc = UInt16.ofNat 201 :=
+      hs4pc.trans (rfl : (201 : Word) = UInt16.ofNat 201)
+    rw [hp4]
+    have hval : decChunk012[9]! = 0 := rfl
+    exact (g4 201 (by decide) (by decide)).trans ((cell192 9 (by decide)).trans hval)
+  have j1 : s4.mem.get (s4.pc + 1) = 18 := by
+    have : s4.pc + 1 = (202 : Word) := by simp [hs4pc]
+    rw [this, (rfl : (202 : Word) = UInt16.ofNat 202)]
+    have hval : decChunk012[10]! = 18 := rfl
+    exact (g4 202 (by decide) (by decide)).trans ((cell192 10 (by decide)).trans hval)
+  have j2 : s4.mem.get (s4.pc + 2) = 207 := by
+    have : s4.pc + 2 = (203 : Word) := by simp [hs4pc]
+    rw [this, (rfl : (203 : Word) = UInt16.ofNat 203)]
+    have hval : decChunk012[11]! = 207 := rfl
+    exact (g4 203 (by decide) (by decide)).trans ((cell192 11 (by decide)).trans hval)
+  have hpc4 : s4.pc.toNat < 32768 := by simp [hs4pc]
+  have hjlez :=
+    step_JLEZ (s := s4) (x := 18) (dest := 207)
+      hs4h hpc4 hZ4 j0 j1 j2 (by decide)
+  have hle : (s4.mem.get 18 = 0 || 0x8000 ≤ s4.mem.get 18) = true := by
+    have : le0 (s4.mem.get 18) = true := by
+      rw [hT4]; exact le0_zero
+    simpa [le0] using this
+  have hs5eq : step s4 = { s4 with pc := 207 } := by
+    have hif :
+        (if s4.mem.get 18 = 0 || 0x8000 ≤ s4.mem.get 18 then (207 : Word)
+          else s4.pc + 3) = (207 : Word) := by
+      simp [hle]
+    rw [hjlez, hif]
+  have hs5pc : (step s4).pc = 207 := by rw [hs5eq]
+  have hs5h : (step s4).halted = false := by rw [hs5eq]; exact hs4h
+  have hs5Z : (step s4).mem.get 0 = 0 := by rw [hs5eq]; exact hZ4
+  have hs5ONE : (step s4).mem.get 3 = 1 := by
+    rw [hs5eq]; exact (hpres4 3 (by decide) (by decide)).trans hONE
+  have hpres5 : ∀ a, a ≠ 18 → a ≠ 0 → (step s4).mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    rw [hs5eq]
+    exact hpres4 a ha18 ha0
+  -- INC T at P0_LE0 (pc 207)
+  let s5 := step s4
+  have hp5 : s5.pc = UInt16.ofNat 207 :=
+    hs5pc.trans (rfl : (207 : Word) = UInt16.ofNat 207)
+  have poff5 (off : Nat) (hoff : off ≤ 9) :
+      s5.pc + UInt16.ofNat off = UInt16.ofNat (207 + off) :=
+    word_pc_off 207 off hp5 (by omega)
+  have g5 (off : Nat) (hoff : off < 15) :
+      s5.mem.get (UInt16.ofNat (207 + off)) = intfmtImage[207 + off]! := by
+    have hcell := g (207 + off) (by omega) (by omega)
+    exact (hpres5 (UInt16.ofNat (207 + off))
+      (ofNat_ne (207 + off) 18 (by omega) (by omega) (by omega))
+      (ofNat_ne (207 + off) 0 (by omega) (by omega) (by omega))).trans hcell
+  have i0 : s5.mem.get s5.pc = 3 := by
+    rw [hp5]
+    have hval : decChunk012[15]! = 3 := rfl
+    exact (g5 0 (by decide)).trans ((cell192 15 (by decide)).trans hval)
+  have i1 : s5.mem.get (s5.pc + UInt16.ofNat 1) = 0 := by
+    rw [poff5 1 (by decide)]
+    have hval : decChunk013[0]! = 0 := rfl
+    exact (g5 1 (by decide)).trans ((cell208 0 (by decide)).trans hval)
+  have i2 : s5.mem.get (s5.pc + UInt16.ofNat 2) = s5.pc + UInt16.ofNat 3 := by
+    rw [poff5 2 (by decide), poff5 3 (by decide)]
+    have hval : decChunk013[1]! = 210 := rfl
+    have hv : (210 : Word) = UInt16.ofNat 210 := rfl
+    exact (g5 2 (by decide)).trans ((cell208 1 (by decide)).trans (hval.trans hv))
+  have i3 : s5.mem.get (s5.pc + UInt16.ofNat 3) = 0 := by
+    rw [poff5 3 (by decide)]
+    have hval : decChunk013[2]! = 0 := rfl
+    exact (g5 3 (by decide)).trans ((cell208 2 (by decide)).trans hval)
+  have i4 : s5.mem.get (s5.pc + UInt16.ofNat 4) = 18 := by
+    rw [poff5 4 (by decide)]
+    have hval : decChunk013[3]! = 18 := rfl
+    exact (g5 4 (by decide)).trans ((cell208 3 (by decide)).trans hval)
+  have i5 : s5.mem.get (s5.pc + UInt16.ofNat 5) = s5.pc + UInt16.ofNat 6 := by
+    rw [poff5 5 (by decide), poff5 6 (by decide)]
+    have hval : decChunk013[4]! = 213 := rfl
+    have hv : (213 : Word) = UInt16.ofNat 213 := rfl
+    exact (g5 5 (by decide)).trans ((cell208 4 (by decide)).trans (hval.trans hv))
+  have i6 : s5.mem.get (s5.pc + UInt16.ofNat 6) = 0 := by
+    rw [poff5 6 (by decide)]
+    have hval : decChunk013[5]! = 0 := rfl
+    exact (g5 6 (by decide)).trans ((cell208 5 (by decide)).trans hval)
+  have i7 : s5.mem.get (s5.pc + UInt16.ofNat 7) = 0 := by
+    rw [poff5 7 (by decide)]
+    have hval : decChunk013[6]! = 0 := rfl
+    exact (g5 7 (by decide)).trans ((cell208 6 (by decide)).trans hval)
+  have i8 : s5.mem.get (s5.pc + UInt16.ofNat 8) = s5.pc + UInt16.ofNat 9 := by
+    rw [poff5 8 (by decide), poff5 9 (by decide)]
+    have hval : decChunk013[7]! = 216 := rfl
+    have hv : (216 : Word) = UInt16.ofNat 216 := rfl
+    exact (g5 8 (by decide)).trans ((cell208 7 (by decide)).trans (hval.trans hv))
+  have hcodeD5 : ∀ i : Nat, i < 9 → s5.pc + UInt16.ofNat i ≠ (18 : Word) := by
+    intro i hi
+    have : (18 : Word) = UInt16.ofNat 18 := rfl
+    rw [this]
+    exact pc_off_ne 207 i 18 hp5 (by omega) (by omega) (by omega)
+  have hcodeZ5 : ∀ i : Nat, i < 9 → s5.pc + UInt16.ofNat i ≠ (0 : Word) := by
+    intro i hi
+    have : (0 : Word) = UInt16.ofNat 0 := rfl
+    rw [this]
+    exact pc_off_ne 207 i 0 hp5 (by omega) (by omega) (by omega)
+  have hpc5b : s5.pc.toNat + 9 ≤ 32768 := by
+    have : s5.pc = 207 := hs5pc
+    simp [this]
+  have hpc50 : 0 < s5.pc.toNat := by
+    have : s5.pc = 207 := hs5pc
+    simp [this]
+  have hinc :=
+    runN_ADD (s := s5) (src := 3) (dst := 18)
+      hs5h hpc5b hpc50 hs5Z (by decide) (by decide) (by decide)
+      i0 i1 i2 i3 i4 i5 i6 i7 i8 hcodeD5 hcodeZ5
+  let s8 := runN s5 3
+  have hs8pc : s8.pc = 216 := by
+    have hadd : s5.pc + UInt16.ofNat 9 = (216 : Word) := by
+      rw [poff5 9 (by decide)]
+      exact (rfl : UInt16.ofNat 216 = (216 : Word))
+    exact hinc.1.trans hadd
+  have hs8h : s8.halted = false := hinc.2.1
+  have hT8 : s8.mem.get 18 = 1 := by
+    have hT5 : s5.mem.get 18 = 0 := by
+      rw [show s5 = step s4 from rfl, hs5eq]; exact hT4
+    have : s5.mem.get 18 + s5.mem.get 3 = (0 : Word) + 1 := by
+      rw [hT5, hs5ONE]
+    exact hinc.2.2.1.trans this
+  have hZ8 : s8.mem.get 0 = 0 := hinc.2.2.2.1
+  have hpres8 : ∀ a, a ≠ 18 → a ≠ 0 → s8.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    exact (hinc.2.2.2.2 a ha18 ha0).trans (hpres5 a ha18 ha0)
+  -- JLEZ T P0_GE, T = 1, not taken; JMP P0_DONE
+  have k0 : s8.mem.get s8.pc = 0 := by
+    have hp8 : s8.pc = UInt16.ofNat 216 :=
+      hs8pc.trans (rfl : (216 : Word) = UInt16.ofNat 216)
+    rw [hp8]
+    have hval : decChunk013[8]! = 0 := rfl
+    exact (hpres8 (UInt16.ofNat 216) (by decide) (by decide)).trans
+      ((g 216 (by decide) (by decide)).trans ((cell208 8 (by decide)).trans hval))
+  have k1 : s8.mem.get (s8.pc + 1) = 18 := by
+    have : s8.pc + 1 = (217 : Word) := by simp [hs8pc]
+    rw [this, (rfl : (217 : Word) = UInt16.ofNat 217)]
+    have hval : decChunk013[9]! = 18 := rfl
+    exact (hpres8 (UInt16.ofNat 217) (by decide) (by decide)).trans
+      ((g 217 (by decide) (by decide)).trans ((cell208 9 (by decide)).trans hval))
+  have k2 : s8.mem.get (s8.pc + 2) = 255 := by
+    have : s8.pc + 2 = (218 : Word) := by simp [hs8pc]
+    rw [this, (rfl : (218 : Word) = UInt16.ofNat 218)]
+    have hval : decChunk013[10]! = 255 := rfl
+    exact (hpres8 (UInt16.ofNat 218) (by decide) (by decide)).trans
+      ((g 218 (by decide) (by decide)).trans ((cell208 10 (by decide)).trans hval))
+  have hpc8 : s8.pc.toNat < 32768 := by simp [hs8pc]
+  have hjlez2 :=
+    step_JLEZ (s := s8) (x := 18) (dest := 255)
+      hs8h hpc8 hZ8 k0 k1 k2 (by decide)
+  have hle2 : (s8.mem.get 18 = 0 || 0x8000 ≤ s8.mem.get 18) = false := by
+    have : le0 (s8.mem.get 18) = false := by
+      rw [hT8]; exact le0_pos (by decide) (by decide)
+    simpa [le0] using this
+  have hs9eq : step s8 = { s8 with pc := s8.pc + 3 } := by
+    have hif :
+        (if s8.mem.get 18 = 0 || 0x8000 ≤ s8.mem.get 18 then (255 : Word)
+          else s8.pc + 3) = s8.pc + 3 := by
+      simp [hle2]
+    rw [hjlez2, hif]
+  have hs9pc : (step s8).pc = 219 := by
+    have : s8.pc + 3 = (219 : Word) := by simp [hs8pc]
+    rw [hs9eq]; exact this
+  have hs9h : (step s8).halted = false := by rw [hs9eq]; exact hs8h
+  have hs9Z : (step s8).mem.get 0 = 0 := by rw [hs9eq]; exact hZ8
+  have jmp0 : (step s8).mem.get (step s8).pc = 0 := by
+    have hp9 : (step s8).pc = UInt16.ofNat 219 :=
+      hs9pc.trans (rfl : (219 : Word) = UInt16.ofNat 219)
+    rw [hp9]
+    have hmem : (step s8).mem.get (UInt16.ofNat 219) = s8.mem.get (UInt16.ofNat 219) := by
+      rw [hs9eq]
+    have hval : decChunk013[11]! = 0 := rfl
+    exact hmem.trans ((hpres8 (UInt16.ofNat 219) (by decide) (by decide)).trans
+      ((g 219 (by decide) (by decide)).trans ((cell208 11 (by decide)).trans hval)))
+  have jmp1 : (step s8).mem.get ((step s8).pc + 1) = 0 := by
+    have : (step s8).pc + 1 = (220 : Word) := by simp [hs9pc]
+    rw [this, (rfl : (220 : Word) = UInt16.ofNat 220)]
+    have hmem : (step s8).mem.get (UInt16.ofNat 220) = s8.mem.get (UInt16.ofNat 220) := by
+      rw [hs9eq]
+    have hval : decChunk013[12]! = 0 := rfl
+    exact hmem.trans ((hpres8 (UInt16.ofNat 220) (by decide) (by decide)).trans
+      ((g 220 (by decide) (by decide)).trans ((cell208 12 (by decide)).trans hval)))
+  have jmp2 : (step s8).mem.get ((step s8).pc + 2) = 270 := by
+    have : (step s8).pc + 2 = (221 : Word) := by simp [hs9pc]
+    rw [this, (rfl : (221 : Word) = UInt16.ofNat 221)]
+    have hmem : (step s8).mem.get (UInt16.ofNat 221) = s8.mem.get (UInt16.ofNat 221) := by
+      rw [hs9eq]
+    have hval : decChunk013[13]! = 270 := rfl
+    exact hmem.trans ((hpres8 (UInt16.ofNat 221) (by decide) (by decide)).trans
+      ((g 221 (by decide) (by decide)).trans ((cell208 13 (by decide)).trans hval)))
+  have hpc9 : (step s8).pc.toNat < 32768 := by simp [hs9pc]
+  have hjmp :=
+    step_JMP (s := step s8) (dest := 270) hs9h hpc9 hs9Z jmp0 jmp1 jmp2
+  have hrun : s10 = step (step s8) := by
+    have h10 : runN s 10 = runN s4 6 := runN_add_eq s 4 6 10 (by decide)
+    have h6 : runN s4 6 = runN s5 5 := runN_succ_go s4 5 hs4h hpc4
+    have h5 : runN s5 5 = runN s8 2 := runN_add_eq s5 3 2 5 (by decide)
+    have h2 := runN_2_steps s8 hs8h hpc8 hs9h hpc9
+    exact h10.trans (h6.trans (h5.trans h2))
+  have hmem : (step (step s8)).mem = s8.mem := by
+    have h1 : (step s8).mem = s8.mem := by rw [hs9eq]
+    have h2 : (step (step s8)).mem = (step s8).mem := by rw [hjmp]
+    exact h2.trans h1
+  have hs10pc : s10.pc = 270 := by rw [hrun, hjmp]
+  have hs10h : s10.halted = false := by rw [hrun, hjmp]; exact hs9h
+  have hs10Z : s10.mem.get 0 = 0 := by rw [hrun, hmem]; exact hZ8
+  have hs10N : s10.mem.get 17 = 0 := by
+    rw [hrun, hmem]; exact (hpres8 17 (by decide) (by decide)).trans hN
+  have hs10Q : s10.mem.get 20 = s.mem.get 20 := by
+    rw [hrun, hmem]; exact hpres8 20 (by decide) (by decide)
+  have hpres : ∀ a, a ≠ 18 → a ≠ 0 → s10.mem.get a = s.mem.get a := by
+    intro a ha18 ha0
+    rw [hrun, hmem]
+    exact hpres8 a ha18 ha0
+  exact ⟨hs10pc, hs10h, hs10N, hs10Q, hs10Z, hpres⟩
+
 end IntFmt
