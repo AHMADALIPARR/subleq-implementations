@@ -31,3 +31,4 @@ import IntFmt.Ascii
 import IntFmt.Ndig
 import IntFmt.PadLen
 import IntFmt.StoreCh
+import IntFmt.PadLoop

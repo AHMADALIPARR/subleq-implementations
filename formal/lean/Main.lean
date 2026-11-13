@@ -133,6 +133,15 @@ open IntFmt
 #print axioms stored_ret_pad
 #print axioms stored_ret_sign
 #print axioms stored_ret_dig
+#print axioms write_space
+#print axioms write_minus
+#print axioms write_space_pad_idx0
+#print axioms write_minus_sign_idx0
+#print axioms sp_loop_to_write_space
+#print axioms after_pad_to_write_minus
+#print axioms after_sign_to_emit
+#print axioms pad_one_iter_idx0
+#print axioms after_pad_minus_to_emit_idx0
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
