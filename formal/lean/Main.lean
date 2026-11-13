@@ -111,6 +111,11 @@ open IntFmt
 #print axioms p3_loop
 #print axioms ascii_convert
 #print axioms ascii_mov_N_Q4
+#print axioms ndig_five
+#print axioms ndig_four
+#print axioms ndig_three
+#print axioms ndig_two
+#print axioms ndig_one
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText

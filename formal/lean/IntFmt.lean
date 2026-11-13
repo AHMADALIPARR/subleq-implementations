@@ -28,3 +28,4 @@ import IntFmt.Place0
 import IntFmt.PlaceImage
 import IntFmt.PlaceLoop
 import IntFmt.Ascii
+import IntFmt.Ndig
