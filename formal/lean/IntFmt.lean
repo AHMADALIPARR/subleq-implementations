@@ -30,3 +30,4 @@ import IntFmt.PlaceLoop
 import IntFmt.Ascii
 import IntFmt.Ndig
 import IntFmt.PadLen
+import IntFmt.StoreCh

@@ -125,6 +125,9 @@ open IntFmt
 #print axioms cap_nz_to_sploop
 #print axioms sp_loop_pad0
 #print axioms have_dig_to_after_pad_unsigned
+#print axioms after_pad_sign0
+#print axioms st0_store
+#print axioms store_ch_idx0
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
