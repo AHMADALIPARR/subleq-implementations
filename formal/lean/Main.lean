@@ -20,11 +20,16 @@ open IntFmt
 #print axioms snprintf_cap0
 #print axioms snprintf_cap1
 #print axioms snprintf_index_lt_cap
+#print axioms snprintf_nul
 #print axioms subleqI16toa_refines_spec
 #print axioms putAll_i16toa
 #print axioms run_fuel0_halted
 #print axioms check_min
 #print axioms Subleq.sub_defined
+#print axioms intfmtFuel_gt_maxMeasured
+#print axioms image_sub_defined
+#print axioms runImage_terminates
+#print axioms image_mem_in_range
 
 def main : IO Unit := do
   IO.println "IntFmt formal driver"

@@ -10,3 +10,5 @@ import IntFmt.Buffer
 import IntFmt.Subleq
 import IntFmt.Refinement
 import IntFmt.Evidence
+import IntFmt.Image
+import IntFmt.ImageRun
