@@ -25,3 +25,5 @@ import IntFmt.StartBlock
 import IntFmt.StartMov
 import IntFmt.ParseJoin
 import IntFmt.Place0
+import IntFmt.PlaceImage
+import IntFmt.PlaceLoop

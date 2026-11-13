@@ -98,6 +98,13 @@ open IntFmt
 #print axioms p0_to_ge
 #print axioms p0_one_iter
 #print axioms p0_loop
+#print axioms placeSteps_ge
+#print axioms placeSteps_le
+#print axioms p1_image
+#print axioms p2_image
+#print axioms p3_image
+#print axioms place_loop_mov_N_T
+#print axioms place_pos_mov_N_T
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
