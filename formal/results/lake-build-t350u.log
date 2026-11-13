@@ -1,0 +1,233 @@
+⚠ [3/47] Replayed IntFmt.Decimal
+warning: IntFmt/Decimal.lean:64:4: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [valueFrom, List.foldl]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/Decimal.lean:67:5: Variable name `h` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _h
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [5/47] Replayed IntFmt.Subleq
+warning: IntFmt/Subleq.lean:86:24: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:86:38: Variable name `fuel` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _fuel
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:90:27: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:135:59: Variable name `hn` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hn
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [6/47] Replayed IntFmt.Refinement
+warning: IntFmt/Refinement.lean:29:32: Variable name `h` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _h
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [14/47] Replayed IntFmt.ParseFacts
+warning: IntFmt/ParseFacts.lean:21:10: This simp argument is unused:
+  Array.size_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [Array.size_extract, Nat.min_eq_left he, Nat.min_eq_left hms, Nat.min_eq_left hss]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: IntFmt/ParseFacts.lean:22:26: This simp argument is unused:
+  Nat.min_eq_left hms
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [Array.size_append, Array.size_extract, Nat.min_eq_left he, Nat.min_eq_left hss]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: IntFmt/ParseFacts.lean:22:47: This simp argument is unused:
+  Nat.min_eq_left hss
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [Array.size_append, Array.size_extract, Nat.min_eq_left he, Nat.min_eq_left hms]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: IntFmt/ParseFacts.lean:36:12: This simp argument is unused:
+  hlt
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hmin, this, Array.getElem_extract]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: IntFmt/ParseFacts.lean:45:12: This simp argument is unused:
+  hlt
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [this, Array.getElem_extract]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: IntFmt/ParseFacts.lean:47:18: This simp argument is unused:
+  hszL
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hmin]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: IntFmt/ParseFacts.lean:58:4: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/ParseFacts.lean:215:5: Variable name `hw` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hw
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/ParseFacts.lean:258:12: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [this, h]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/ParseFacts.lean:422:23: This simp argument is unused:
+  Array.size_extract
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [catArrays]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: IntFmt/ParseFacts.lean:424:12: This simp argument is unused:
+  catArrays
+
+Hint: Omit it from the simp argument list.
+  [apply] simp at hi1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+⚠ [22/47] Replayed IntFmt.StartBlock
+warning: IntFmt/StartBlock.lean:89:4: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [hs1]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/StartBlock.lean:119:32: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [hs1eq]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/StartBlock.lean:163:32: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [hs2eq]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/StartBlock.lean:205:32: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [hs3eq]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/StartBlock.lean:271:32: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [hrun, hs4eq]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/StartBlock.lean:286:43: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [hrun]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/StartBlock.lean:299:43: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [hrun]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/StartBlock.lean:309:43: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [hrun]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/StartBlock.lean:325:41: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [hrun]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+ℹ [45/47] Built Main (234ms)
+info: Main.lean:13:0: 'IntFmt.divmodSub_eq' depends on axioms: [propext, Quot.sound]
+info: Main.lean:14:0: 'IntFmt.value_uToDigits' depends on axioms: [propext, Quot.sound]
+info: Main.lean:15:0: 'IntFmt.unsignedMag_eq_natAbs' depends on axioms: [propext, Quot.sound]
+info: Main.lean:16:0: 'IntFmt.i16toa_eq_intToDec' depends on axioms: [propext, Quot.sound]
+info: Main.lean:17:0: 'IntFmt.i16toa_minInt' depends on axioms: [propext, Quot.sound]
+info: Main.lean:18:0: 'IntFmt.snprintf_length' does not depend on any axioms
+info: Main.lean:19:0: 'IntFmt.snprintf_buf_length' depends on axioms: [propext, Quot.sound]
+info: Main.lean:20:0: 'IntFmt.snprintf_cap0' does not depend on any axioms
+info: Main.lean:21:0: 'IntFmt.snprintf_cap1' depends on axioms: [propext]
+info: Main.lean:22:0: 'IntFmt.snprintf_index_lt_cap' depends on axioms: [propext, Quot.sound]
+info: Main.lean:23:0: 'IntFmt.snprintf_nul' depends on axioms: [propext]
+info: Main.lean:24:0: 'IntFmt.subleqI16toa_refines_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:25:0: 'IntFmt.putAll_i16toa' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:26:0: 'IntFmt.run_fuel0_halted' does not depend on any axioms
+info: Main.lean:27:0: 'IntFmt.check_min' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:28:0: 'IntFmt.Subleq.sub_defined' does not depend on any axioms
+info: Main.lean:29:0: 'IntFmt.intfmtFuel_gt_maxMeasured' does not depend on any axioms
+info: Main.lean:30:0: 'IntFmt.image_sub_defined' does not depend on any axioms
+info: Main.lean:31:0: 'IntFmt.runImage_terminates' does not depend on any axioms
+info: Main.lean:32:0: 'IntFmt.image_mem_in_range' does not depend on any axioms
+info: Main.lean:35:0: 'IntFmt.intfmtImage_size' does not depend on any axioms
+info: Main.lean:36:0: 'IntFmt.intfmtImage_prefix16_eq_parse' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:37:0: 'IntFmt.parseDec_line0' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:38:0: 'IntFmt.parse_min_cell' does not depend on any axioms
+info: Main.lean:39:0: 'IntFmt.image_cell_startTarget' does not depend on any axioms
+info: Main.lean:40:0: 'IntFmt.image_cell_K45' does not depend on any axioms
+info: Main.lean:41:0: 'IntFmt.image_cell_haltTarget' does not depend on any axioms
+info: Main.lean:42:0: 'IntFmt.loadImage_eq_aux' depends on axioms: [propext, Quot.sound]
+info: Main.lean:43:0: 'IntFmt.boot_jmp' depends on axioms: [propext, Quot.sound]
+info: Main.lean:44:0: 'IntFmt.program_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:45:0: 'IntFmt.safety_applies' does not depend on any axioms
+info: Main.lean:46:0: 'IntFmt.run_intfmtFuel_of_done' depends on axioms: [propext]
+info: Main.lean:47:0: 'IntFmt.Subleq.step_JMP' depends on axioms: [propext, Quot.sound]
+info: Main.lean:48:0: 'IntFmt.Subleq.step_ZERO' depends on axioms: [propext]
+info: Main.lean:49:0: 'IntFmt.Subleq.step_JLEZ' depends on axioms: [propext, Quot.sound]
+info: Main.lean:50:0: 'IntFmt.Subleq.step_SUB' depends on axioms: [propext]
+info: Main.lean:51:0: 'IntFmt.Subleq.step_HALT' depends on axioms: [propext, Quot.sound]
+info: Main.lean:53:0: 'IntFmt.extract_split' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:54:0: 'IntFmt.parseDecText_append' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:55:0: 'IntFmt.parse_atA' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:56:0: 'IntFmt.image_atA' depends on axioms: [propext, Quot.sound]
+info: Main.lean:57:0: 'IntFmt.parse_line000' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:58:0: 'IntFmt.image_chunk000' does not depend on any axioms
+info: Main.lean:59:0: 'IntFmt.k48_is_ascii_zero' does not depend on any axioms
+info: Main.lean:60:0: 'IntFmt.k45_is_ascii_minus' does not depend on any axioms
+info: Main.lean:61:0: 'IntFmt.formatSpec_neg_uses_minus' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:62:0: 'IntFmt.image_start_ZERO_SIGN' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:63:0: 'IntFmt.imageCell_eq_bang' depends on axioms: [propext]
+info: Main.lean:64:0: 'IntFmt.afterBoot_get' depends on axioms: [propext, Quot.sound]
+info: Main.lean:65:0: 'IntFmt.start_zero_SIGN' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:66:0: 'IntFmt.start_zero_regs' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:67:0: 'IntFmt.Subleq.runN_add' depends on axioms: [propext]
+info: Main.lean:68:0: 'IntFmt.Subleq.runCounted_programHalt_le' depends on axioms: [propext, Quot.sound]
+info: Main.lean:69:0: 'IntFmt.Subleq.runCounted_zero_go' depends on axioms: [propext]
+✔ [47/47] Built intfmt:exe (1.7s)
+Build completed successfully (47 jobs).
+elapsed 2.39 status 0
