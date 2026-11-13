@@ -109,6 +109,8 @@ open IntFmt
 #print axioms p1_loop
 #print axioms p2_loop
 #print axioms p3_loop
+#print axioms ascii_convert
+#print axioms ascii_mov_N_Q4
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText

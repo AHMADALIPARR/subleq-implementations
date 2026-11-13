@@ -27,3 +27,4 @@ import IntFmt.ParseJoin
 import IntFmt.Place0
 import IntFmt.PlaceImage
 import IntFmt.PlaceLoop
+import IntFmt.Ascii
