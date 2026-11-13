@@ -1,0 +1,90 @@
+⚠ [2/16] Replayed IntFmt.Decimal
+warning: IntFmt/Decimal.lean:64:4: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [valueFrom, List.foldl]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/Decimal.lean:67:5: Variable name `h` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _h
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [3/16] Replayed IntFmt.Subleq
+warning: IntFmt/Subleq.lean:86:24: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:86:38: Variable name `fuel` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _fuel
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:90:27: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:135:59: Variable name `hn` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hn
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+✖ [6/16] Building IntFmt.Evidence (308ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Evidence.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Evidence.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Evidence.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Evidence.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Evidence.setup.json --json
+error: IntFmt/Evidence.lean:32:42: unsolved goals
+⊢ i16toa 0 ⋯ = intToDec 0
+warning: IntFmt/Evidence.lean:34:8: This simp argument is unused:
+  i16toa_eq_intToDec
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: IntFmt/Evidence.lean:36:48: unsolved goals
+⊢ i16toa (-32768) ⋯ = intToDec (-32768)
+warning: IntFmt/Evidence.lean:38:8: This simp argument is unused:
+  i16toa_eq_intToDec
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: IntFmt/Evidence.lean:40:45: unsolved goals
+⊢ i16toa 32767 ⋯ = intToDec 32767
+warning: IntFmt/Evidence.lean:42:8: This simp argument is unused:
+  i16toa_eq_intToDec
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+✖ [8/16] Building IntFmt.Buffer (469ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Buffer.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Buffer.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Buffer.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Buffer.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Buffer.setup.json --json
+warning: IntFmt/Buffer.lean:59:26: This simp argument is unused:
+  ih
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: IntFmt/Buffer.lean:71:2: Type mismatch
+  getElem?_append_zero (List.take (cap - 1) payload) (List.replicate (cap - (List.take (cap - 1) payload).length - 1) 0)
+has type
+  (List.take (cap - 1) payload ++
+        0 :: List.replicate (cap - (List.take (cap - 1) payload).length - 1) 0)[(List.take (cap - 1) payload).length]? =
+    some 0
+but is expected to have type
+  (List.take (cap - 1) payload ++
+        0 :: List.replicate (cap - min (cap - 1) payload.length - 1) 0)[(List.take (cap - 1) payload).length]? =
+    some 0
+Some required targets logged failures:
+- IntFmt.Evidence
+- IntFmt.Buffer
+error: build failed

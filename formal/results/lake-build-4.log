@@ -1,0 +1,118 @@
+⚠ [2/16] Built IntFmt.Decimal (379ms)
+warning: IntFmt/Decimal.lean:64:4: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [valueFrom, List.foldl]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/Decimal.lean:67:5: Variable name `h` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _h
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+✖ [3/16] Building IntFmt.Buffer (297ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Buffer.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Buffer.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Buffer.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Buffer.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Buffer.setup.json --json
+error: IntFmt/Buffer.lean:71:6: No goals to be solved
+warning: IntFmt/Buffer.lean:72:2: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [List.length_take]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+✖ [5/16] Building IntFmt.Evidence (209ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Evidence.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Evidence.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Evidence.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Evidence.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Evidence.setup.json --json
+error: IntFmt/Evidence.lean:17:2: Application type mismatch: The argument
+  List.range 65536
+has type
+  List Nat
+but is expected to have type
+  List Int
+in the application
+  List.map (fun k => k - 32768) (List.range 65536)
+warning: IntFmt/Evidence.lean:19:0: Definition `inInt16_of_all` is a proposition; use `theorem` instead of `def`
+
+Note: This linter can be disabled with `set_option linter.defProp false`
+error: IntFmt/Evidence.lean:25:2: failed to synthesize instance of type class
+  Decidable (inInt16 n)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: IntFmt/Evidence.lean:33:45: Tactic `decide` failed to reduce
+  @decide (checkOne 0 = true) (instDecidableEqBool (checkOne 0) true)
+to `true` or `false`.
+
+After unfolding the instances `instDecidableEqBool` and `Bool.decEq`, reduction got stuck at
+  sorry
+error: IntFmt/Evidence.lean:34:44: Tactic `decide` failed to reduce
+  @decide (checkOne 1 = true) (instDecidableEqBool (checkOne 1) true)
+to `true` or `false`.
+
+After unfolding the instances `instDecidableEqBool` and `Bool.decEq`, reduction got stuck at
+  sorry
+error: IntFmt/Evidence.lean:35:51: Tactic `decide` failed to reduce
+  @decide (checkOne (-1) = true) (instDecidableEqBool (checkOne (-1)) true)
+to `true` or `false`.
+
+After unfolding the instances `instDecidableEqBool` and `Bool.decEq`, reduction got stuck at
+  sorry
+error: IntFmt/Evidence.lean:36:51: Tactic `decide` failed to reduce
+  @decide (checkOne (-32768) = true) (instDecidableEqBool (checkOne (-32768)) true)
+to `true` or `false`.
+
+After unfolding the instances `instDecidableEqBool` and `Bool.decEq`, reduction got stuck at
+  sorry
+error: IntFmt/Evidence.lean:37:56: Tactic `decide` failed to reduce
+  @decide (checkOne (-32767) = true) (instDecidableEqBool (checkOne (-32767)) true)
+to `true` or `false`.
+
+After unfolding the instances `instDecidableEqBool` and `Bool.decEq`, reduction got stuck at
+  sorry
+error: IntFmt/Evidence.lean:38:48: Tactic `decide` failed to reduce
+  @decide (checkOne 32767 = true) (instDecidableEqBool (checkOne 32767) true)
+to `true` or `false`.
+
+After unfolding the instances `instDecidableEqBool` and `Bool.decEq`, reduction got stuck at
+  sorry
+error: IntFmt/Evidence.lean:39:44: Tactic `decide` failed to reduce
+  @decide (checkOne 42 = true) (instDecidableEqBool (checkOne 42) true)
+to `true` or `false`.
+
+After unfolding the instances `instDecidableEqBool` and `Bool.decEq`, reduction got stuck at
+  sorry
+error: IntFmt/Evidence.lean:40:53: Tactic `decide` failed to reduce
+  @decide (checkOne (-42) = true) (instDecidableEqBool (checkOne (-42)) true)
+to `true` or `false`.
+
+After unfolding the instances `instDecidableEqBool` and `Bool.decEq`, reduction got stuck at
+  sorry
+⚠ [7/16] Built IntFmt.Subleq (260ms)
+warning: IntFmt/Subleq.lean:86:24: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:86:38: Variable name `fuel` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _fuel
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:90:27: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:135:59: Variable name `hn` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hn
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+✔ [14/16] Built IntFmt.Decimal:c.o (704ms)
+✔ [15/16] Built IntFmt.Subleq:c.o (443ms)
+Some required targets logged failures:
+- IntFmt.Buffer
+- IntFmt.Evidence
+error: build failed

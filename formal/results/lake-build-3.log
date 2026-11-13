@@ -1,0 +1,57 @@
+✖ [2/16] Building IntFmt.Decimal (363ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Decimal.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Decimal.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Decimal.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Decimal.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Decimal.setup.json --json
+warning: IntFmt/Decimal.lean:39:10: `Nat.div_eq` has been deprecated: Use `Nat.div_eq_ite` instead
+
+Hint: Replace the deprecated name:
+  Nat.div_eq_̲i̲t̲e̲
+error: IntFmt/Decimal.lean:39:4: unsolved goals
+case pos.left
+n✝ base : Nat
+hb : 2 ≤ base
+n : Nat
+ih : ∀ (m : Nat), m < n → divmodSub m base = (m / base, m % base)
+h : 2 ≤ base ∧ base ≤ n
+hlt : n - base < n
+ih' : divmodSub (n - base) base = ((n - base) / base, (n - base) % base)
+hb0 : 0 < base
+hle : base ≤ n
+⊢ (if base ≤ n - base then (n - base - base) / base + 1 else 0) + 1 = n / base
+warning: IntFmt/Decimal.lean:40:17: This simp argument is unused:
+  hle
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hb0]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: IntFmt/Decimal.lean:63:4: No goals to be solved
+warning: IntFmt/Decimal.lean:66:5: Variable name `h` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _h
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: IntFmt/Decimal.lean:95:4: Type mismatch
+  Nat.div_add_mod n base
+has type
+  base * (n / base) + n % base = n
+but is expected to have type
+  n / base * base + n % base = n
+error: IntFmt/Decimal.lean:192:57: unexpected token '/--'; expected '#guard_msgs', 'abbrev', 'add_decl_doc', 'axiom', 'binder_predicate', 'builtin_cbv_simproc', 'builtin_cbv_simproc_decl', 'builtin_dsimproc', 'builtin_dsimproc_decl', 'builtin_grind_propagator', 'builtin_initialize', 'builtin_simproc', 'builtin_simproc_decl', 'cbv_simproc', 'cbv_simproc_decl', 'class', 'coinductive', 'declare_simp_like_tactic', 'declare_syntax_cat', 'def', 'dsimproc', 'dsimproc_decl', 'elab', 'elab_rules', 'example', 'grind_propagator', 'inductive', 'infix', 'infixl', 'infixr', 'initialize', 'instance', 'macro', 'macro_rules', 'notation', 'opaque', 'postfix', 'prefix', 'recall', 'recommended_spelling', 'register_error_explanation', 'register_tactic_tag', 'register_try?_tactic', 'simproc', 'simproc_decl', 'structure', 'syntax', 'tactic_extension', 'theorem' or 'unif_hint'
+error: IntFmt/Decimal.lean:195:68: unexpected token 'end'; expected '#guard_msgs', 'abbrev', 'add_decl_doc', 'axiom', 'binder_predicate', 'builtin_cbv_simproc', 'builtin_cbv_simproc_decl', 'builtin_dsimproc', 'builtin_dsimproc_decl', 'builtin_grind_propagator', 'builtin_initialize', 'builtin_simproc', 'builtin_simproc_decl', 'cbv_simproc', 'cbv_simproc_decl', 'class', 'coinductive', 'declare_simp_like_tactic', 'declare_syntax_cat', 'def', 'dsimproc', 'dsimproc_decl', 'elab', 'elab_rules', 'example', 'grind_propagator', 'inductive', 'infix', 'infixl', 'infixr', 'initialize', 'instance', 'macro', 'macro_rules', 'notation', 'opaque', 'postfix', 'prefix', 'recall', 'recommended_spelling', 'register_error_explanation', 'register_tactic_tag', 'register_try?_tactic', 'simproc', 'simproc_decl', 'structure', 'syntax', 'tactic_extension', 'theorem' or 'unif_hint'
+✖ [8/16] Building IntFmt.Buffer (428ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Buffer.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Buffer.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Buffer.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Buffer.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Buffer.setup.json --json
+error: IntFmt/Buffer.lean:71:6: No goals to be solved
+error: IntFmt/Buffer.lean:72:2: Type mismatch
+  helper (List.take (cap - 1) payload) (List.replicate (cap - (List.take (cap - 1) payload).length - 1) 0)
+has type
+  (List.take (cap - 1) payload ++
+        0 :: List.replicate (cap - (List.take (cap - 1) payload).length - 1) 0)[(List.take (cap - 1) payload).length]? =
+    some 0
+but is expected to have type
+  (List.take (cap - 1) payload ++
+        0 :: List.replicate (cap - min (cap - 1) payload.length - 1) 0)[(List.take (cap - 1) payload).length]? =
+    some 0
+Some required targets logged failures:
+- IntFmt.Decimal
+- IntFmt.Buffer
+error: build failed
