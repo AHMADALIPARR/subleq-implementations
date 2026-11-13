@@ -1,0 +1,11 @@
+DIFF fmt=%#x u=0 tfp=[0x0] ret=3 glibc=[0] ret=1
+DIFF fmt=%#X u=0 tfp=[0X0] ret=3 glibc=[0] ret=1
+DIFF fmt=%#08x u=0 tfp=[0x000000] ret=8 glibc=[00000000] ret=8
+DIFF fmt=%-#8x u=0 tfp=[0x0     ] ret=8 glibc=[0       ] ret=8
+DIFF fmt=%#8.3x u=0 tfp=[   0x000] ret=8 glibc=[     000] ret=8
+DIFF fmt=%#o u=0 tfp=[00] ret=2 glibc=[0] ret=1
+DIFF fmt=%08s s="" tfp=[00000000] ret=8 glibc=[        ] ret=8
+DIFF fmt=%08s s="a" tfp=[0000000a] ret=8 glibc=[       a] ret=8
+DIFF fmt=%08s s="ab" tfp=[000000ab] ret=8 glibc=[      ab] ret=8
+DIFF fmt=%08s s="hello" tfp=[000hello] ret=8 glibc=[   hello] ret=8
+REFINED ISSUE4 diffs (supported flags only, no +/space, no INT_MIN): 10

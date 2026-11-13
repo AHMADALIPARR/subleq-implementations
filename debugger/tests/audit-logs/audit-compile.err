@@ -1,0 +1,32 @@
+audit-tinyprintf.c: In function ‘test_issue2’:
+audit-tinyprintf.c:61:45: warning: format ‘%a’ expects argument of type ‘double’, but argument 4 has type ‘int’ [-Wformat=]
+   61 |     t = tfp_snprintf(tbuf, sizeof tbuf, "%10ad", 5);
+      |                                          ~~~^    ~
+      |                                             |    |
+      |                                             |    int
+      |                                             double
+      |                                          %10d
+audit-tinyprintf.c:62:41: warning: format ‘%a’ expects argument of type ‘double’, but argument 4 has type ‘int’ [-Wformat=]
+   62 |     g = snprintf(gbuf, sizeof gbuf, "%10ad", 5);
+      |                                      ~~~^    ~
+      |                                         |    |
+      |                                         |    int
+      |                                         double
+      |                                      %10d
+audit-tinyprintf.c: At top level:
+audit-tinyprintf.c:30:13: warning: ‘note’ defined but not used [-Wunused-function]
+   30 | static void note(const char *s)
+      |             ^~~~
+audit-tinyprintf.c: In function ‘test_issue5’:
+audit-tinyprintf.c:106:42: warning: ‘%9999999999d’ directive output of 9999999999 bytes exceeds ‘INT_MAX’ [-Wformat-overflow=]
+  106 |     t = tfp_snprintf(tbuf, sizeof tbuf, "%9999999999d", 7);
+      |                                          ^~~~~~~~~~~~
+audit-tinyprintf.c:106:9: note: ‘tfp_snprintf’ output 10000000000 bytes
+  106 |     t = tfp_snprintf(tbuf, sizeof tbuf, "%9999999999d", 7);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+audit-tinyprintf.c:110:42: warning: ‘%2147483648d’ directive output of 2147483648 bytes exceeds ‘INT_MAX’ [-Wformat-overflow=]
+  110 |     t = tfp_snprintf(tbuf, sizeof tbuf, "%2147483648d", 7);
+      |                                          ^~~~~~~~~~~~
+audit-tinyprintf.c:110:9: note: ‘tfp_snprintf’ output 2147483649 bytes
+  110 |     t = tfp_snprintf(tbuf, sizeof tbuf, "%2147483648d", 7);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
