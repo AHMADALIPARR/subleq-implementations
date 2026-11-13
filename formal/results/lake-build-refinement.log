@@ -1,0 +1,86 @@
+⚠ [2/28] Replayed IntFmt.Decimal
+warning: IntFmt/Decimal.lean:64:4: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [valueFrom, List.foldl]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+warning: IntFmt/Decimal.lean:67:5: Variable name `h` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _h
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [4/28] Replayed IntFmt.Subleq
+warning: IntFmt/Subleq.lean:86:24: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:86:38: Variable name `fuel` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _fuel
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:90:27: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:135:59: Variable name `hn` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hn
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [5/28] Replayed IntFmt.Refinement
+warning: IntFmt/Refinement.lean:29:32: Variable name `h` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _h
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+ℹ [26/28] Built Main (253ms)
+info: Main.lean:13:0: 'IntFmt.divmodSub_eq' depends on axioms: [propext, Quot.sound]
+info: Main.lean:14:0: 'IntFmt.value_uToDigits' depends on axioms: [propext, Quot.sound]
+info: Main.lean:15:0: 'IntFmt.unsignedMag_eq_natAbs' depends on axioms: [propext, Quot.sound]
+info: Main.lean:16:0: 'IntFmt.i16toa_eq_intToDec' depends on axioms: [propext, Quot.sound]
+info: Main.lean:17:0: 'IntFmt.i16toa_minInt' depends on axioms: [propext, Quot.sound]
+info: Main.lean:18:0: 'IntFmt.snprintf_length' does not depend on any axioms
+info: Main.lean:19:0: 'IntFmt.snprintf_buf_length' depends on axioms: [propext, Quot.sound]
+info: Main.lean:20:0: 'IntFmt.snprintf_cap0' does not depend on any axioms
+info: Main.lean:21:0: 'IntFmt.snprintf_cap1' depends on axioms: [propext]
+info: Main.lean:22:0: 'IntFmt.snprintf_index_lt_cap' depends on axioms: [propext, Quot.sound]
+info: Main.lean:23:0: 'IntFmt.snprintf_nul' depends on axioms: [propext]
+info: Main.lean:24:0: 'IntFmt.subleqI16toa_refines_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:25:0: 'IntFmt.putAll_i16toa' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:26:0: 'IntFmt.run_fuel0_halted' does not depend on any axioms
+info: Main.lean:27:0: 'IntFmt.check_min' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:28:0: 'IntFmt.Subleq.sub_defined' does not depend on any axioms
+info: Main.lean:29:0: 'IntFmt.intfmtFuel_gt_maxMeasured' does not depend on any axioms
+info: Main.lean:30:0: 'IntFmt.image_sub_defined' does not depend on any axioms
+info: Main.lean:31:0: 'IntFmt.runImage_terminates' does not depend on any axioms
+info: Main.lean:32:0: 'IntFmt.image_mem_in_range' does not depend on any axioms
+info: Main.lean:35:0: 'IntFmt.intfmtImage_size' does not depend on any axioms
+info: Main.lean:36:0: 'IntFmt.intfmtImage_prefix16_eq_parse' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:37:0: 'IntFmt.parseDec_line0' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:38:0: 'IntFmt.parse_min_cell' does not depend on any axioms
+info: Main.lean:39:0: 'IntFmt.image_cell_startTarget' does not depend on any axioms
+info: Main.lean:40:0: 'IntFmt.image_cell_K45' does not depend on any axioms
+info: Main.lean:41:0: 'IntFmt.image_cell_haltTarget' does not depend on any axioms
+info: Main.lean:42:0: 'IntFmt.loadImage_eq_aux' depends on axioms: [propext, Quot.sound]
+info: Main.lean:43:0: 'IntFmt.boot_jmp' depends on axioms: [propext, Quot.sound]
+info: Main.lean:44:0: 'IntFmt.program_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: Main.lean:45:0: 'IntFmt.safety_applies' does not depend on any axioms
+info: Main.lean:46:0: 'IntFmt.run_intfmtFuel_of_done' depends on axioms: [propext]
+info: Main.lean:47:0: 'IntFmt.Subleq.step_JMP' depends on axioms: [propext, Quot.sound]
+info: Main.lean:48:0: 'IntFmt.Subleq.step_ZERO' depends on axioms: [propext]
+info: Main.lean:49:0: 'IntFmt.Subleq.step_JLEZ' depends on axioms: [propext, Quot.sound]
+info: Main.lean:50:0: 'IntFmt.Subleq.step_SUB' depends on axioms: [propext]
+info: Main.lean:51:0: 'IntFmt.Subleq.step_HALT' depends on axioms: [propext, Quot.sound]
+✔ [27/28] Built Main:c.o (81ms)
+✔ [28/28] Built intfmt:exe (361ms)
+Build completed successfully (28 jobs).
