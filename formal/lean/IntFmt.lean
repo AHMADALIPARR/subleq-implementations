@@ -42,3 +42,6 @@ import IntFmt.AsciiHalt
 import IntFmt.SignHalt
 import IntFmt.HaveDigHalt5
 import IntFmt.FrontPath
+import IntFmt.EndToEnd
+import IntFmt.EndToEndRun
+import IntFmt.EndToEndSign

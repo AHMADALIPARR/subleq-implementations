@@ -207,6 +207,10 @@ open IntFmt
 #print axioms Subleq.runCounted_programHalt_le
 #print axioms Subleq.runCounted_zero_go
 
+#print axioms intfmt_unsigned_e2e
+#print axioms intfmt_signed_e2e
+#print axioms intfmt_signed_e2e_load
+
 def main : IO Unit := do
   IO.println "IntFmt formal driver"
   IO.println "Authoritative theorems live in IntFmt.Decimal, Buffer, Refinement."
