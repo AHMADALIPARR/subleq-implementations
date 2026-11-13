@@ -1,0 +1,117 @@
+✖ [2/16] Building IntFmt.Buffer (351ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Buffer.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Buffer.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Buffer.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Buffer.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Buffer.setup.json --json
+error: IntFmt/Buffer.lean:33:2: unsolved goals
+case isTrue
+payload : List Nat
+cap : Nat
+h✝ : cap = 0
+⊢ 0 = cap
+error: IntFmt/Buffer.lean:77:6: No goals to be solved
+warning: IntFmt/Buffer.lean:78:2: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [List.append_assoc]
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+✖ [4/16] Building IntFmt.Decimal (406ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Decimal.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Decimal.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Decimal.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Decimal.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Decimal.setup.json --json
+error: IntFmt/Decimal.lean:29:8: failed to elaborate eliminator, expected type is not available
+error: IntFmt/Decimal.lean:30:8: No goals to be solved
+error: IntFmt/Decimal.lean:64:4: No goals to be solved
+warning: IntFmt/Decimal.lean:67:5: Variable name `h` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _h
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: IntFmt/Decimal.lean:84:8: failed to elaborate eliminator, expected type is not available
+error: IntFmt/Decimal.lean:85:8: No goals to be solved
+error: IntFmt/Decimal.lean:135:8: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  ↑(a - b)
+in the target expression
+  ↑a - ↑b = Int.ofNat (a - b)
+
+a b : Nat
+h : b ≤ a
+⊢ ↑a - ↑b = Int.ofNat (a - b)
+error: IntFmt/Decimal.lean:137:12: Unknown constant `Int.toNat_ofNat`
+error: IntFmt/Decimal.lean:133:45: unsolved goals
+a b : Nat
+h : b ≤ a
+this : ↑a - ↑b = Int.ofNat (a - b)
+⊢ (Int.ofNat (a - b)).toNat = a - b
+error: IntFmt/Decimal.lean:145:37: Type mismatch
+  Int.natAbs_of_nonneg hn
+has type
+  ↑n.natAbs = n
+but is expected to have type
+  n = ↑n.natAbs
+error: IntFmt/Decimal.lean:147:42: unsolved goals
+n : Int
+h : inInt16 n
+hn : 0 ≤ n
+e : n = ↑n.natAbs
+⊢ (↑n.natAbs).toNat = (↑(↑n.natAbs).natAbs).toNat
+error: IntFmt/Decimal.lean:182:40: Type mismatch
+  Int.natAbs_of_nonneg hge
+has type
+  ↑n.natAbs = n
+but is expected to have type
+  n = ↑n.natAbs
+error: IntFmt/Decimal.lean:184:44: unsolved goals
+n : Int
+h : inInt16 n
+hn : ¬n < 0
+hge : 0 ≤ n
+e' : n = ↑n.natAbs
+⊢ (↑n.natAbs).toNat = (↑(↑n.natAbs).natAbs).toNat
+error: IntFmt/Decimal.lean:211:34: unsolved goals
+d0 : 32768 / 10 = 3276 ∧ 32768 % 10 = 8
+d1 : 3276 / 10 = 327 ∧ 3276 % 10 = 6
+d2 : 327 / 10 = 32 ∧ 327 % 10 = 7
+d3 : 32 / 10 = 3 ∧ 32 % 10 = 2
+d4 : 3 / 10 = 0 ∧ 3 % 10 = 3
+hb : 2 ≤ 10
+⊢ digitsLSD 3276 10 = (divmodSub 3276 10).snd :: digitsLSD (divmodSub 3276 10).fst 10
+error: IntFmt/Decimal.lean:215:33: unsolved goals
+d0 : 32768 / 10 = 3276 ∧ 32768 % 10 = 8
+d1 : 3276 / 10 = 327 ∧ 3276 % 10 = 6
+d2 : 327 / 10 = 32 ∧ 327 % 10 = 7
+d3 : 32 / 10 = 3 ∧ 32 % 10 = 2
+d4 : 3 / 10 = 0 ∧ 3 % 10 = 3
+hb : 2 ≤ 10
+e0 : digitsLSD 32768 10 = 8 :: digitsLSD 3276 10
+⊢ digitsLSD 327 10 = (divmodSub 327 10).snd :: digitsLSD (divmodSub 327 10).fst 10
+error: IntFmt/Decimal.lean:219:32: unsolved goals
+d0 : 32768 / 10 = 3276 ∧ 32768 % 10 = 8
+d1 : 3276 / 10 = 327 ∧ 3276 % 10 = 6
+d2 : 327 / 10 = 32 ∧ 327 % 10 = 7
+d3 : 32 / 10 = 3 ∧ 32 % 10 = 2
+d4 : 3 / 10 = 0 ∧ 3 % 10 = 3
+hb : 2 ≤ 10
+e0 : digitsLSD 32768 10 = 8 :: digitsLSD 3276 10
+e1 : digitsLSD 3276 10 = 6 :: digitsLSD 327 10
+⊢ digitsLSD 32 10 = (divmodSub 32 10).snd :: digitsLSD (divmodSub 32 10).fst 10
+error: IntFmt/Decimal.lean:223:31: unsolved goals
+d0 : 32768 / 10 = 3276 ∧ 32768 % 10 = 8
+d1 : 3276 / 10 = 327 ∧ 3276 % 10 = 6
+d2 : 327 / 10 = 32 ∧ 327 % 10 = 7
+d3 : 32 / 10 = 3 ∧ 32 % 10 = 2
+d4 : 3 / 10 = 0 ∧ 3 % 10 = 3
+hb : 2 ≤ 10
+e0 : digitsLSD 32768 10 = 8 :: digitsLSD 3276 10
+e1 : digitsLSD 3276 10 = 6 :: digitsLSD 327 10
+e2 : digitsLSD 327 10 = 7 :: digitsLSD 32 10
+⊢ digitsLSD 3 10 = [3]
+error: IntFmt/Decimal.lean:232:2: No goals to be solved
+warning: IntFmt/Decimal.lean:228:10: This simp argument is unused:
+  d4
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Some required targets logged failures:
+- IntFmt.Buffer
+- IntFmt.Decimal
+error: build failed

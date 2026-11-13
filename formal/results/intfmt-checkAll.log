@@ -1,0 +1,5 @@
+IntFmt formal driver
+Authoritative theorems live in IntFmt.Decimal, Buffer, Refinement.
+Running exhaustive executable check over 65536 Int16 values...
+checkAll: PASS (i16toa = intToDec on every Int16)
+real 0.684 sec

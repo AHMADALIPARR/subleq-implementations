@@ -1,0 +1,167 @@
+info: intfmt: no previous manifest, creating one from scratch
+info: toolchain not updated; already up-to-date
+✖ [2/16] Building IntFmt.Decimal (471ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Decimal.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Decimal.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Decimal.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Decimal.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Decimal.setup.json --json
+error: IntFmt/Decimal.lean:32:20: Unknown constant `Nat.strongInductionOn`
+error: IntFmt/Decimal.lean:68:4: No goals to be solved
+warning: IntFmt/Decimal.lean:72:5: Variable name `h` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _h
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: IntFmt/Decimal.lean:90:20: Unknown constant `Nat.strongInductionOn`
+warning: IntFmt/Decimal.lean:113:2: `String.mk` has been deprecated: Use `String.ofList` instead
+
+Hint: Replace the deprecated name:
+  String.m̵k̵o̲f̲L̲i̲s̲t̲
+error: IntFmt/Decimal.lean:145:5: Unknown constant `Nat.cast_sub`
+error: IntFmt/Decimal.lean:153:4: Type mismatch
+  Eq.symm (Int.natAbs_of_nonneg hn)
+has type
+  n = ↑n.natAbs
+but is expected to have type
+  n.toNat = n.natAbs
+error: IntFmt/Decimal.lean:157:51: Unknown identifier `ne_of_lt`
+error: IntFmt/Decimal.lean:167:30: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  b ≥ 0
+  1 ≤ a ≤ 32768
+  a - b ≥ 1
+where
+ a := if 0 ≤ n then n else -n
+ b := ↑65536
+warning: IntFmt/Decimal.lean:155:25: This simp argument is unused:
+  Int.not_le.mpr hn'
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hn, int16Bits]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: IntFmt/Decimal.lean:188:14: This simp argument is unused:
+  Int.natAbs_of_nonneg hge
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hn]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+error: IntFmt/Decimal.lean:200:2: Tactic `decide` failed to reduce
+  @decide ("-" ++ uToDec 32768 = "-32768") (instDecidableEqString ("-" ++ uToDec 32768) "-32768")
+to `true` or `false`.
+
+After unfolding the instances `decEq`, `instDecidableEqBitVec`, `instDecidableEqFin`, `instDecidableEqList`, `instDecidableEqNat`, `instDecidableEqString`, `instDecidableEqUInt8`, `instDecidableOr`, `BitVec.decEq`, `List.hasDecEq`, `Nat.decEq`, `Nat.decLe`, `Nat.decLt`, `String.decEq`, and `UInt8.decEq`, reduction got stuck at
+  ([].append (uToDec 32768).toByteArray.data.toList).beq
+    ((((([].concat (UInt8.ofNat '3'.val.toNat)).concat (UInt8.ofNat '2'.val.toNat)).concat
+              (UInt8.ofNat '7'.val.toNat)).concat
+          (UInt8.ofNat '6'.val.toNat)).concat
+      (UInt8.ofNat '8'.val.toNat))
+✖ [3/16] Building IntFmt.Subleq (408ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Subleq.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Subleq.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Subleq.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Subleq.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Subleq.setup.json --json
+warning: IntFmt/Subleq.lean:84:24: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:84:38: Variable name `fuel` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _fuel
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: IntFmt/Subleq.lean:88:27: Variable name `s` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _s
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+error: IntFmt/Subleq.lean:131:2: Unknown identifier `IntFmt.divmodSub`
+error: IntFmt/Subleq.lean:135:2: Unknown identifier `IntFmt.divmodSub_eq`
+✖ [8/16] Building IntFmt.Buffer (517ms)
+trace: .> LEAN_PATH=/workspace/subleq-implementations/formal/lean/.lake/build/lib/lean /home/box/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lean /workspace/subleq-implementations/formal/lean/IntFmt/Buffer.lean -o /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Buffer.olean -i /workspace/subleq-implementations/formal/lean/.lake/build/lib/lean/IntFmt/Buffer.ilean -c /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Buffer.c --setup /workspace/subleq-implementations/formal/lean/.lake/build/ir/IntFmt/Buffer.setup.json --json
+error: IntFmt/Buffer.lean:50:4: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  e ≥ 0
+  d ≥ 0
+  d - e ≥ 1
+  c ≥ 0
+  a ≥ 0
+  a - c ≥ 1
+where
+ a := ↑w.cap
+ c := ↑w.pos
+ d := ↑{ cap := w.cap, data := w.data.set w.pos b, pos := w.pos + 1, required := w.required + 1, len_eq := ⋯,
+      pos_le := ⋯ }.pos
+ e := ↑{ cap := w.cap, data := w.data.set w.pos b, pos := w.pos + 1, required := w.required + 1, len_eq := ⋯,
+      pos_le := ⋯ }.cap
+error: IntFmt/Buffer.lean:109:23: No goals to be solved
+error: IntFmt/Buffer.lean:127:12: `simp` made no progress
+error: IntFmt/Buffer.lean:123:8: (kernel) declaration has metavariables 'IntFmt.snprintf_length'
+error: IntFmt/Buffer.lean:155:4: Type mismatch: After simplification, term
+  this
+ has type
+  ((Writer.empty cap).writeAll (List.take (if cap = 0 then 0 else cap - 1) payload)).data.length = cap
+but is expected to have type
+  (if ((Writer.empty cap).writeAll []).cap = 0 then
+          { cap := ((Writer.empty cap).writeAll []).cap, data := ((Writer.empty cap).writeAll []).data,
+            pos := ((Writer.empty cap).writeAll []).pos, required := payload.length, len_eq := ⋯, pos_le := ⋯ }
+        else
+          { cap := ((Writer.empty cap).writeAll []).cap,
+            data :=
+              ((Writer.empty cap).writeAll []).data.set
+                (min ((Writer.empty cap).writeAll []).pos (((Writer.empty cap).writeAll []).cap - 1)) 0,
+            pos := ((Writer.empty cap).writeAll []).pos, required := payload.length, len_eq := ⋯,
+            pos_le := ⋯ }).data.length =
+    cap
+error: IntFmt/Buffer.lean:169:8: Type mismatch: After simplification, term
+  this
+ has type
+  ({ cap := cap, data := List.replicate cap 0, pos := 0, required := 0, len_eq := ⋯, pos_le := ⋯ }.writeAll
+          (List.take (if cap = 0 then 0 else cap - 1) payload)).data.length =
+    cap
+but is expected to have type
+  (if
+            ({ cap := cap, data := List.replicate cap 0, pos := 0, required := 0, len_eq := ⋯, pos_le := ⋯ }.writeAll
+                  (List.take (cap - 1) payload)).cap =
+              0 then
+          {
+            cap :=
+              ({ cap := cap, data := List.replicate cap 0, pos := 0, required := 0, len_eq := ⋯, pos_le := ⋯ }.writeAll
+                  (List.take (cap - 1) payload)).cap,
+            data :=
+              ({ cap := cap, data := List.replicate cap 0, pos := 0, required := 0, len_eq := ⋯, pos_le := ⋯ }.writeAll
+                  (List.take (cap - 1) payload)).data,
+            pos :=
+              ({ cap := cap, data := List.replicate cap 0, pos := 0, required := 0, len_eq := ⋯, pos_le := ⋯ }.writeAll
+                  (List.take (cap - 1) payload)).pos,
+            required := payload.length, len_eq := ⋯, pos_le := ⋯ }
+        else
+          {
+            cap :=
+              ({ cap := cap, data := List.replicate cap 0, pos := 0, required := 0, len_eq := ⋯, pos_le := ⋯ }.writeAll
+                  (List.take (cap - 1) payload)).cap,
+            data :=
+              ({ cap := cap, data := List.replicate cap 0, pos := 0, required := 0, len_eq := ⋯, pos_le := ⋯ }.writeAll
+                      (List.take (cap - 1) payload)).data.set
+                (min
+                  ({ cap := cap, data := List.replicate cap 0, pos := 0, required := 0, len_eq := ⋯,
+                          pos_le := ⋯ }.writeAll
+                      (List.take (cap - 1) payload)).pos
+                  (({ cap := cap, data := List.replicate cap 0, pos := 0, required := 0, len_eq := ⋯,
+                            pos_le := ⋯ }.writeAll
+                        (List.take (cap - 1) payload)).cap -
+                    1))
+                0,
+            pos :=
+              ({ cap := cap, data := List.replicate cap 0, pos := 0, required := 0, len_eq := ⋯, pos_le := ⋯ }.writeAll
+                  (List.take (cap - 1) payload)).pos,
+            required := payload.length, len_eq := ⋯, pos_le := ⋯ }).data.length =
+    cap
+error: IntFmt/Buffer.lean:177:16: Unknown constant `List.length_eq_zero.mp`
+error: IntFmt/Buffer.lean:213:10: Unknown constant `List.getElem?_set_eq`
+error: IntFmt/Buffer.lean:236:2: `simp` made no progress
+Some required targets logged failures:
+- IntFmt.Decimal
+- IntFmt.Subleq
+- IntFmt.Buffer
+error: build failed
