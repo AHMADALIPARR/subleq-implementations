@@ -16,3 +16,9 @@ import IntFmt.ImageRun
 import IntFmt.Exec
 import IntFmt.Macros
 import IntFmt.RefinementDec
+import IntFmt.ParseFacts
+import IntFmt.DecBindDataA
+import IntFmt.DecBindDataB
+import IntFmt.DecBindDataC
+import IntFmt.Blocks
+import IntFmt.StartBlock

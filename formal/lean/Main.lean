@@ -50,6 +50,24 @@ open IntFmt
 #print axioms Subleq.step_SUB
 #print axioms Subleq.step_HALT
 
+#print axioms extract_split
+#print axioms parseDecText_append
+#print axioms parse_atA
+#print axioms image_atA
+#print axioms parse_line000
+#print axioms image_chunk000
+#print axioms k48_is_ascii_zero
+#print axioms k45_is_ascii_minus
+#print axioms formatSpec_neg_uses_minus
+#print axioms image_start_ZERO_SIGN
+#print axioms imageCell_eq_bang
+#print axioms afterBoot_get
+#print axioms start_zero_SIGN
+#print axioms start_zero_regs
+#print axioms Subleq.runN_add
+#print axioms Subleq.runCounted_programHalt_le
+#print axioms Subleq.runCounted_zero_go
+
 def main : IO Unit := do
   IO.println "IntFmt formal driver"
   IO.println "Authoritative theorems live in IntFmt.Decimal, Buffer, Refinement."
