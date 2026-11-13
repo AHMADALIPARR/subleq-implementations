@@ -1,0 +1,11 @@
+Host compiler: gcc (Debian 14.2.0-19) 14.2.0
+hyperfine 1.19.0
+GNU time 1.9 (Ubuntu noble package), installed at /usr/bin/time
+
+jserv optimized (default): gcc -O2 -std=c99 -D_DEFAULT_SOURCE -Wall -Wextra
+  -D_DEFAULT_SOURCE is required on gcc 14 for fileno under -std=c99.
+  The same binary with runtime flag -O is "jserv_plain" (optimizer off).
+howerj: gcc -std=c99 -Wall -Wextra -pedantic -O3  (upstream makefile CFLAGS)
+debugger/oracle: gcc -std=c11 -Wall -Wextra -O2 -DTINYPRINTF_OVERRIDE_LIBC=0
+checked tinyprintf audit: gcc -std=c11 -Wall -Wextra -Werror -O0 -g
+  -fsanitize=undefined,address -fno-sanitize-recover=undefined,address
