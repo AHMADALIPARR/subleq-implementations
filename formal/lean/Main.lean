@@ -168,6 +168,12 @@ open IntFmt
 #print axioms emit_ndig5_idx0_write_nul_done
 #print axioms emit_ndig1_idx1_write_nul_done
 #print axioms emit_ndig5_idx1_write_nul_done
+#print axioms after_pad_sign0_ndig1_done
+#print axioms after_pad_sign0_ndig4_done
+#print axioms have_dig_unsigned_ndig1_done
+#print axioms have_dig_unsigned_ndig4_done
+#print axioms after_pad_minus_ndig1_done
+#print axioms after_pad_minus_ndig4_done
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
