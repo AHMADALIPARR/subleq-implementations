@@ -73,6 +73,8 @@ open IntFmt
 #print axioms start_zero_regs_get
 #print axioms start_zero_regs_get_INPUT
 #print axioms start_mov_INPUT_N
+#print axioms parseDecText_intfmtDecText
+#print axioms program_identity_parsed
 #print axioms Subleq.runN_add
 #print axioms Subleq.runCounted_programHalt_le
 #print axioms Subleq.runCounted_zero_go

@@ -23,3 +23,4 @@ import IntFmt.DecBindDataC
 import IntFmt.Blocks
 import IntFmt.StartBlock
 import IntFmt.StartMov
+import IntFmt.ParseJoin

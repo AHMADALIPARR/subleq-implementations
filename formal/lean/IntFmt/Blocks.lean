@@ -156,6 +156,8 @@ The following are **not** proved in-kernel for the 2323-cell program:
   pop+emit loop (`EMIT_DIGS` / `DIG_LOOP`, pcs 1575–1905), sign
   handling at `I_PATH` (pc 93), and the NUL / LEN writes
   (`WRITE_NUL`, pc 1971).
+* Kernel parse/image identity `parseDecText intfmtDecText = intfmtImage`
+  is proved in `ParseJoin.lean` by composing the named chunk lemmas.
 * In-kernel termination: `∀ n, (runCounted (loadIntfmtDec n) 2000).kind
   = programHalt` with an explicit step count. The C-oracle bound
   (max 1266 < 2000) is still evidence, not a kernel proof.
