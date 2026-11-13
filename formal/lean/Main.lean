@@ -116,6 +116,15 @@ open IntFmt
 #print axioms ndig_three
 #print axioms ndig_two
 #print axioms ndig_one
+#print axioms have_dig_sign0
+#print axioms have_dig_sign_nz
+#print axioms pad_len_width0
+#print axioms pad_len_le_raw
+#print axioms pad_len_gt_raw
+#print axioms cap0_halt
+#print axioms cap_nz_to_sploop
+#print axioms sp_loop_pad0
+#print axioms have_dig_to_after_pad_unsigned
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
