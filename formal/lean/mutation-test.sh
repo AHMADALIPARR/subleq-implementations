@@ -5,11 +5,12 @@
 #     only (hash / regen check out of date, or a cell theorem breaks).
 #     Cases: boot target 48→49, ASCII '0' (K48=48)→47, ASCII '-' (K45=45)→44,
 #     HALT target 32768→32767.
-# (B) Semantic: alter the program AND update the hash, Image.lean,
-#     embedded .dec, DecChunks, and DecBindData so artifact binding
-#     would pass, but leave the hand-written semantic lemmas
-#     (`image_cell_K45`, `k45_is_ascii_minus`) stating the value 45.
-#     The build must still fail on those semantic theorems.
+# (B) Semantic: alter a program cell that is not pinned by any public
+#     identity lemma (cell 62 of `MOV INPUT N`, fall-through 63→64),
+#     AND update the hash, Image.lean, embedded .dec, DecChunks, and
+#     DecBindData so artifact binding would pass. Identity modules
+#     (DecLoad / Blocks / StartBlock) must still compile. The
+#     execution theorem `start_mov_INPUT_N` must fail.
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/../.." && pwd)"
@@ -40,7 +41,7 @@ restore_all() {
   cp "$backup_dir/DecBindDataA.lean" "$bindA"
   cp "$backup_dir/DecBindDataB.lean" "$bindB"
   cp "$backup_dir/DecBindDataC.lean" "$bindC"
-  rm -rf "$backup_dir" "$here/.mutation-build.log"
+  rm -rf "$backup_dir" "$here/.mutation-build.log" "$here/.mutation-id-build.log"
 }
 trap restore_all EXIT
 
@@ -126,9 +127,11 @@ fail_build "halt-target-32768-to-32767"
 cp "$backup_dir/Image.lean" "$image"
 
 # --- (B) Semantic mutation with matching updated hash ---
-echo "mutation-test: semantic case (K45 45→44 with matching hash)" | tee -a "$log"
+# Cell 62 is the fall-through of ZERO N in MOV INPUT N (value 63).
+# It is not pinned by image_cell_* / prefix16 / start_ZERO identity lemmas.
+echo "mutation-test: semantic case (MOV cell 62 63→64 with matching hash)" | tee -a "$log"
 mutdec="$(mktemp)"
-flip_dec_cell "$root/microcode/tinyprintf/intfmt.dec" "$mutdec" 9 44
+flip_dec_cell "$root/microcode/tinyprintf/intfmt.dec" "$mutdec" 62 64
 # The official file is not modified; we only point the formal copies at mutdec.
 newsha="$(sha256sum "$mutdec" | awk '{print $1}')"
 oldsha="bc8679df169f382114b779b54e97bdf21bccc94bf6341ca55374f357610f94c6"
@@ -138,7 +141,7 @@ cp "$mutdec" "$embedded"
 "$here/gen-chunks.sh" "$mutdec" "$here/IntFmt"
 "$here/gen-bind.sh" "$mutdec" "$here/IntFmt"
 # Update expected hash in the check script and the Lean constant only.
-# Do NOT change image_cell_K45 / k45_is_ascii_minus (they still say 45).
+# Do not touch StartMov.lean: start_mov_INPUT_N still reads cell 62 as 63.
 sed -i "s/$oldsha/$newsha/g" "$check" "$decload"
 # Sanity: binding check should PASS on the mutated, consistent artifact.
 if ! (cd "$here" && bash check-image.sh) >"$here/.mutation-bind-check.log" 2>&1; then
@@ -175,21 +178,35 @@ cat > "$check" << 'STUB'
 exit 0
 STUB
 chmod +x "$check"
-if (cd "$here" && lake build IntFmt.DecLoad IntFmt.Blocks) \
+# Identity modules must still compile: cell 62 is not pinned by them.
+if ! (cd "$here" && lake build IntFmt.DecLoad IntFmt.Blocks IntFmt.StartBlock) \
+    >"$here/.mutation-id-build.log" 2>&1; then
+  echo "MUTATION semantic-MOV-cell62-with-matching-hash: FAIL (identity modules broke; cell 62 should be unpinned)" | tee -a "$log"
+  grep "error:" "$here/.mutation-id-build.log" | head -20 | tee -a "$log" || true
+  rm -f "$mutdec"
+  exit 1
+fi
+echo "identity modules still compiled after cell-62 mutation" | tee -a "$log"
+# The execution theorem must fail.
+if (cd "$here" && lake build IntFmt.StartMov) \
     >"$here/.mutation-build.log" 2>&1; then
-  echo "MUTATION semantic-K45-with-matching-hash: FAIL (build unexpectedly succeeded)" | tee -a "$log"
+  echo "MUTATION semantic-MOV-cell62-with-matching-hash: FAIL (StartMov unexpectedly succeeded)" | tee -a "$log"
   rm -f "$mutdec"
   exit 1
 else
-  # Lean reports the failing `rfl` by file:line (image_cell_K45 is
-  # DecLoad.lean:152; intfmtImage_prefix16 also hard-codes cell 9 = 45).
-  if ! grep -E "image_cell_K45|k45_is_ascii_minus|DecLoad.lean:152|DecLoad.lean:13[37]" "$here/.mutation-build.log" >/dev/null; then
-    echo "MUTATION semantic-K45-with-matching-hash: FAIL (build failed, but not on the semantic K45 lemmas)" | tee -a "$log"
+  if ! grep -E "start_mov_INPUT_N|StartMov.lean" "$here/.mutation-build.log" >/dev/null; then
+    echo "MUTATION semantic-MOV-cell62-with-matching-hash: FAIL (build failed, but not on start_mov_INPUT_N)" | tee -a "$log"
     grep "error:" "$here/.mutation-build.log" | head -20 | tee -a "$log" || true
     rm -f "$mutdec"
     exit 1
   fi
-  echo "MUTATION semantic-K45-with-matching-hash: PASS (semantic theorem failed as required)" | tee -a "$log"
+  if grep -E "image_cell_K45|intfmtImage_prefix16|DecLoad.lean:152" "$here/.mutation-build.log" >/dev/null; then
+    echo "MUTATION semantic-MOV-cell62-with-matching-hash: FAIL (failure involved a hard-coded identity pin, not only the execution theorem)" | tee -a "$log"
+    grep "error:" "$here/.mutation-build.log" | head -20 | tee -a "$log" || true
+    rm -f "$mutdec"
+    exit 1
+  fi
+  echo "MUTATION semantic-MOV-cell62-with-matching-hash: PASS (execution theorem start_mov_INPUT_N failed as required)" | tee -a "$log"
   grep "error:" "$here/.mutation-build.log" | head -12 | tee -a "$log" || true
 fi
 rm -f "$mutdec"

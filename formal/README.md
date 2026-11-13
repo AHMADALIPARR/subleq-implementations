@@ -19,7 +19,7 @@ standard Lean axioms (`propext`, `Quot.sound`, and in a few theorems
 | (4) Output length | `snprintf_length` (untruncated); `snprintf_cap0` / `snprintf_cap1`; general `snprintf_nul` (`cap>0` writes a NUL at `min(len, cap-1)`) | Kernel proof |
 | (5) SUBLEQ refinement (structured) | `subleqI16toa_refines_spec`, `putAll_i16toa` | Kernel proof of the *structured* PUT sequence, unchanged. |
 | (5b) Concrete `.dec` program identity | `program_identity`, `loadImage_eq_aux`, `intfmtImage_size`, `parse_lineXXX`, `image_chunkXXX`, `parse_atA/B/C`, `image_atA/B/C`, `parseDecText_append`, `extract_split` | Kernel proof of per-line identity: each of the 146 `.dec` lines parses (`rfl`) to the corresponding image extract, plus a kernel `parseDecText_append` lemma for newline-terminated fragments. The single composite theorem `parseDecText intfmtDecText = intfmtImage` is **not** in the built library: composing all 146 chunks in one module exceeded the kernel memory budget (~13 GiB). Draft composition lives in `formal/lean/wip/` and is not part of `lake build`. SHA-256 `intfmtDecSha256` is checked by `check-image.sh`, hooked into `lake build` as the `checkArtifact` extraDep target: a change to the official or embedded `.dec`, the expected digest, `Image.lean`, or the generated chunks/bind data fails the build. |
-| (5c) Concrete `.dec` execution (block lemmas, **not** end-to-end) | `boot_jmp`, `start_zero_regs` / `start_zero_SIGN` in `StartBlock.lean` (real pc 48: four `ZERO`s clear SIGN/LEN/PAD/NDIG, exit pc 60), `step_JMP`, `step_ZERO`, `step_JLEZ`, `step_SUB`, `step_DEC`, `step_HALT`, `run_intfmtFuel_of_done`, `k48_is_ascii_zero`, `k45_is_ascii_minus`, `formatSpec_neg_uses_minus`, `runN_add`, `runCounted` / `HaltKind` | Independently proved block and macro lemmas on the assembled image, at real listing addresses. They are **not** composed into the universal theorem `∀ n : Int16, (runCounted (loadIntfmtDec n) 2000).kind = programHalt ∧ output = formatSpec n`. Gaps: `MOV`/`ADD` multi-step encodings; loop invariants for unsigned compare / repeated-subtraction divmod (`P0_LOOP`..`P3_DONE`), digit emit (`EMIT_DIGS`/`DIG_LOOP`), `I_PATH` sign handling, NUL/LEN writes; in-kernel halt-within-2000 for every `Int16` (C-oracle max 1266 is still evidence, not a kernel proof). |
+| (5c) Concrete `.dec` execution (block lemmas, **not** end-to-end) | `boot_jmp`, `start_zero_regs` / `start_zero_SIGN` in `StartBlock.lean` (real pc 48: four `ZERO`s clear SIGN/LEN/PAD/NDIG, exit pc 60), `start_mov_INPUT_N` in `StartMov.lean` (pc 60: `MOV INPUT N` leaves `N = input`, `Z = 0`, `pc = 72`), generic `runN_MOV` / `runN_ADD` / `runN_INC` in `Macros.lean`, `step_JMP`, `step_ZERO`, `step_JLEZ`, `step_SUB`, `step_DEC`, `step_HALT`, `run_intfmtFuel_of_done`, `k48_is_ascii_zero`, `k45_is_ascii_minus`, `formatSpec_neg_uses_minus`, `runN_add`, `runCounted` / `HaltKind` | Independently proved block and macro lemmas on the assembled image, at real listing addresses. They are **not** composed into the universal theorem `∀ n : Int16, (runCounted (loadIntfmtDec n) 2000).kind = programHalt ∧ output = formatSpec n`. Gaps: loop invariants for unsigned compare / repeated-subtraction divmod (`P0_LOOP`..`P3_DONE`), digit emit (`EMIT_DIGS`/`DIG_LOOP`), `I_PATH` sign handling, NUL/LEN writes; in-kernel halt-within-2000 for every `Int16` (C-oracle max 1266 is still evidence, not a kernel proof); kernel `parseDecText intfmtDecText = intfmtImage`. |
 | (6) Execution safety | `Subleq.sub_defined`, `run_fuel0_halted`, `runImage_terminates`, `image_mem_in_range`, `intfmtFuel_gt_maxMeasured` (`2000 > 1266`), `safety_applies` | Defined `UInt16` arithmetic and addressing on this exact image; `run` always terminates. That every input *halts by program HALT* within 2000 steps is still C-oracle evidence (measured max 1266). `run_intfmtFuel_of_done` connects an already-halted state to `run` at fuel 2000. |
 
 Supporting evidence (not a kernel axiom): `intfmt` executable enumerates
@@ -52,11 +52,13 @@ as `checkAll: PASS`.
   (`K48`, cell 8, `48→47`), ASCII `'-'` (`K45`, cell 9, `45→44`), or
   the HALT target (`32768→32767`) in `Image.lean` fails `lake build`
   (the extraDep hash/regen check or a cell theorem).
-* Semantics: a deliberately altered program (K45 `45→44`) with a
-  *matching updated hash* and consistently regenerated `Image.lean`,
-  chunks, and bind data still fails, because hand-written theorems
-  `image_cell_K45` / `k45_is_ascii_minus` / `formatSpec_neg_uses_minus`
-  require the minus constant to be `45`.
+* Semantics: a deliberately altered program (cell 62 of `MOV INPUT N`,
+  fall-through `63→64`) with a *matching updated hash* and consistently
+  regenerated `Image.lean`, chunks, and bind data still leaves the
+  identity modules (`DecLoad`, `Blocks`, `StartBlock`) compiling —
+  that cell is not pinned by a public `image_cell_*` lemma — but
+  `start_mov_INPUT_N` fails, because the execution theorem reads the
+  fall-through from the 16-cell extract inside its proof.
 
 Build (from `formal/lean/`):
 

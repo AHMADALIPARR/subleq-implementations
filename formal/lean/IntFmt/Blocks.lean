@@ -145,9 +145,12 @@ The following are **not** proved in-kernel for the 2323-cell program:
 * `start_zero_regs` is proved in `StartBlock.lean` (four `ZERO`s at pc 48
   clear SIGN/LEN/PAD/NDIG and exit at pc 60), using the START encodings
   `image_start_ZERO_*` and `step_ZERO`, without reducing the 2323-cell literal.
-* `runN_MOV` / `runN_ADD` / `runN_INC` at the concrete encodings
-  (`MOV` = 12 cells, `ADD`/`INC` = 9 cells). The one-instruction macros
-  (`JMP`, `ZERO`, `JLEZ`, `SUB`, `DEC`, `HALT`) are proved.
+* Concrete `MOV INPUT N` at pc 60 is proved in `StartMov.lean`
+  (`start_mov_INPUT_N`: after the four START `ZERO`s, four more
+  steps leave `N = input`, `Z = 0`, `pc = 72`). Generic
+  `runN_MOV` / `runN_ADD` / `runN_INC` are proved in `Macros.lean`.
+  The fall-through at cell 62 is read from the 16-cell extract
+  inside the execution proof, not from a public identity lemma.
 * Loop invariants for the unsigned compare / repeated-subtraction
   divmod at `P0_LOOP..P3_DONE` (pcs 189–513), the digit push / skip /
   pop+emit loop (`EMIT_DIGS` / `DIG_LOOP`, pcs 1575–1905), sign
