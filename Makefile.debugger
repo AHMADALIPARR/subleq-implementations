@@ -1,0 +1,54 @@
+# Makefile.debugger — fragment for the SUBLEQ microcode debugger.
+# Does not replace the repository Makefile. Use:
+#   make -f Makefile.debugger
+#   make -f Makefile.debugger test
+#
+# Copyright (C) Ahmad <ahmedparr93@gmail.com>
+# SPDX-License-Identifier: AGPL-3.0-only
+
+CC ?= gcc
+CFLAGS_DBG ?= -std=c11 -Wall -Wextra -O2 -g -DTINYPRINTF_OVERRIDE_LIBC=0
+SANITIZE ?= -fsanitize=undefined,address -fno-sanitize-recover=undefined,address
+INCLUDES := -I debugger
+
+DBG_SRC := debugger/subleq_dbg.c debugger/subleq_vm.c debugger/tinyprintf_checked.c
+ASM_SRC := microcode/tinyprintf/asm16.c
+ORACLE_SRC := microcode/tinyprintf/test-oracle.c debugger/subleq_vm.c debugger/tinyprintf_checked.c
+
+.PHONY: all dbg asm oracle test test-audit test-dbg test-oracle clean-debugger
+
+all: dbg asm oracle
+
+dbg: debugger/subleq_dbg
+debugger/subleq_dbg: $(DBG_SRC) debugger/subleq_vm.h debugger/tinyprintf_checked.h
+	$(CC) $(CFLAGS_DBG) $(INCLUDES) -o $@ $(DBG_SRC)
+
+asm: microcode/tinyprintf/asm16
+microcode/tinyprintf/asm16: $(ASM_SRC)
+	$(CC) $(CFLAGS_DBG) -o $@ $(ASM_SRC)
+
+oracle: microcode/tinyprintf/test-oracle
+microcode/tinyprintf/test-oracle: $(ORACLE_SRC) debugger/subleq_vm.h debugger/tinyprintf_checked.h
+	$(CC) $(CFLAGS_DBG) $(INCLUDES) -o $@ $(ORACLE_SRC)
+
+test: test-audit test-dbg test-oracle
+
+test-audit: debugger/tinyprintf_checked.c debugger/tests/audit-tinyprintf-checked.c
+	$(CC) -std=c11 -Wall -Wextra -Werror -O0 -g -DTINYPRINTF_OVERRIDE_LIBC=0 \
+	  $(SANITIZE) $(INCLUDES) -o debugger/tests/audit-tinyprintf-checked \
+	  debugger/tests/audit-tinyprintf-checked.c debugger/tinyprintf_checked.c
+	./debugger/tests/audit-tinyprintf-checked \
+	  > debugger/tests/audit-logs/audit-checked.stdout \
+	  2> debugger/tests/audit-logs/audit-checked.run
+	@echo "audit-checked: $$(tail -n 1 debugger/tests/audit-logs/audit-checked.run)"
+
+test-dbg: debugger/subleq_dbg
+	bash debugger/tests/run.sh
+
+test-oracle: microcode/tinyprintf/test-oracle microcode/tinyprintf/intfmt.dec
+	./microcode/tinyprintf/test-oracle microcode/tinyprintf/intfmt.dec \
+	  microcode/tinyprintf/oracle-counts.txt
+
+clean-debugger:
+	rm -f debugger/subleq_dbg debugger/tests/audit-tinyprintf-checked \
+	  microcode/tinyprintf/asm16 microcode/tinyprintf/test-oracle
