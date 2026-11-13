@@ -90,6 +90,12 @@ open IntFmt
 #print axioms digits_zero_Qs
 #print axioms p0_ge_body
 #print axioms p0_exit_zero
+#print axioms p0_exit_small
+#print axioms p0_to_ge_hi
+#print axioms p0_to_ge_mid
+#print axioms p0_to_ge_eq
+#print axioms p0_goto_pos
+#print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText
 #print axioms program_identity_parsed
 #print axioms Subleq.runN_add
