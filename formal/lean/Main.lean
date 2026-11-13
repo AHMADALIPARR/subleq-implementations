@@ -174,6 +174,12 @@ open IntFmt
 #print axioms have_dig_unsigned_ndig4_done
 #print axioms after_pad_minus_ndig1_done
 #print axioms after_pad_minus_ndig4_done
+#print axioms write_space_pad_idx1
+#print axioms pad_one_iter_idx1
+#print axioms pad_1_spaces_idx0
+#print axioms pad_7_spaces_idx0
+#print axioms pad_1_to_after_pad
+#print axioms pad_7_to_after_pad
 #print axioms p0_goto_pos
 #print axioms word_sub_lt
 #print axioms parseDecText_intfmtDecText

@@ -36,3 +36,4 @@ import IntFmt.EmitDigs
 import IntFmt.EmitNdig
 import IntFmt.WriteNul
 import IntFmt.HaveDigHalt
+import IntFmt.PadIter
