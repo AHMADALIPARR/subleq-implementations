@@ -1,0 +1,9 @@
+# SHA-256 of raw captured VM stdout (bytes include CR and ESC).
+# Files with ANSI/CR could not be uploaded via the text file API unchanged;
+# see the sibling *.cat-v recordings (ESC shown as ^], CR as ^M).
+# rainbow outputs from howerj, jserv_opt, and jserv_plain are byte-identical.
+
+54c72349e00a8e1b3435817f3768ce03c04223b4a331f1a595ede2d41240b59e  20208  jserv_opt_mandelbrot.out
+38e639c762ebce11b24e79319445a06b3b734bd241b23b84615db8313c3308bb     58  jserv_opt_rainbow.out
+38e639c762ebce11b24e79319445a06b3b734bd241b23b84615db8313c3308bb     58  jserv_plain_rainbow.out
+38e639c762ebce11b24e79319445a06b3b734bd241b23b84615db8313c3308bb     58  howerj_rainbow.out
