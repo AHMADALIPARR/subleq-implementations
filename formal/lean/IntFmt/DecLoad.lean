@@ -20,12 +20,14 @@ Deterministic loading procedure
    (bash/awk, no Python) from the official `.dec`. Re-running the generator
    is byte-identical (`formal/lean/check-image.sh`).
 5. Kernel theorems below record the image size, the constant cells, and
-   that the parser is correct on every token of a representative line
-   (including the unique `-32768` literal). Full kernel equality
-   `parseDecText intfmtDecText = intfmtImage` is not reduced here:
-   reducing a 7239-character `include_str` through the tokenizer in the
-   kernel is impractical, so that last step is the generator identity
-   check plus the interpreter evidence in `formal/results/intfmt-parse-eq.log`.
+   that the parser is correct on the first `.dec` line (including the
+   unique `-32768` literal). The full kernel equality
+   `parseDecText intfmtDecText = intfmtImage` is proved in `DecBind.lean`
+   by parsing each newline-terminated line and concatenating the chunks.
+   `intfmtDecText` is the concatenation of those line literals, which
+   `check-image.sh` (a `lake build` extraDep target) binds to the official
+   assembled artifact and its SHA-256. The `include_str` copy is
+   `intfmtDecTextFile`.
 6. `loadImage` (see `ImageRun.lean`) maps address `a` to cell `a` of
    `intfmtImage` (or `0` past the end). That is the memory image used by
    `runImage`.
@@ -48,8 +50,10 @@ def intfmtDecSha256 : String :=
 
 theorem intfmtDecSha256_len : intfmtDecSha256.length = 64 := rfl
 
-/-- Embedded text of the assembled artifact. -/
-def intfmtDecText : String := include_str "intfmt.dec"
+/-- Embedded file copy of the assembled artifact (for the build-time
+byte check). The kernel theorem uses `intfmtDecText`, the concatenation
+of the generated line literals in `DecChunks`. -/
+def intfmtDecTextFile : String := include_str "intfmt.dec"
 
 /-- Wrap a signed integer into a 16-bit cell (two's complement).
 Lean's `Int.emod` yields a representative in `0 .. m-1`. -/
@@ -109,9 +113,9 @@ def parseDecChars (cs : List Char) : Array UInt16 :=
 def parseDecText (s : String) : Array UInt16 :=
   parseDecChars s.toList
 
-/-- The memory image obtained by parsing the embedded `.dec` text. -/
+/-- Interpreter / file-embed parse (see also `intfmtImage_eq_parse`). -/
 def intfmtImageParsed : Array UInt16 :=
-  parseDecText intfmtDecText
+  parseDecText intfmtDecTextFile
 
 /-- The assembled program has exactly 2323 cells. -/
 theorem intfmtImage_size : intfmtImage.size = 2323 := rfl

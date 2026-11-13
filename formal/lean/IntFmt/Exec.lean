@@ -93,4 +93,124 @@ theorem runN_succ_eq (s : Machine) (n : Nat)
     runN s (n + 1) = runN (step s) n :=
   runN_succ_go s n hh hpc
 
+theorem runN_add (s : Machine) (m n : Nat) :
+    runN s (m + n) = runN (runN s m) n := by
+  induction m generalizing s with
+  | zero => simp [runN_zero]
+  | succ m ih =>
+    rw [Nat.succ_add, runN_succ, runN_succ]
+    split
+    · cases n with
+      | zero => simp [runN_zero]
+      | succ _ => simp [runN_succ]
+    · exact ih (step s)
+
+/-- How a fuel-bounded run ended. -/
+inductive HaltKind where
+  | programHalt    -- `halted` is already set, or `pc ≥ 32768` (program HALT)
+  | fuelExhausted  -- fuel ran out while the machine was still running
+  deriving DecidableEq, Repr
+
+/-- Result of a counted run: final state, exact steps taken, and why it stopped.
+`steps` is the number of `step` applications performed. Fuel exhaustion
+is distinguished from a program HALT (including jumping to `pc ≥ 32768`). -/
+structure RunResult where
+  state : Machine
+  steps : Nat
+  kind : HaltKind
+
+/-- Counted execution: `fuel = 0` on a still-running machine is
+`fuelExhausted` and does **not** force `halted = true`. If the machine
+has already taken a program HALT (or the flag is set), the kind is
+`programHalt` and `halted` is set. -/
+def runCounted (s : Machine) : Nat → RunResult
+  | 0 =>
+    if s.halted || 32768 ≤ s.pc.toNat then
+      { state := { s with halted := true }, steps := 0, kind := .programHalt }
+    else
+      { state := s, steps := 0, kind := .fuelExhausted }
+  | n + 1 =>
+    if s.halted || 32768 ≤ s.pc.toNat then
+      { state := { s with halted := true }, steps := 0, kind := .programHalt }
+    else
+      let r := runCounted (step s) n
+      { r with steps := r.steps + 1 }
+
+theorem runCounted_zero_go (s : Machine)
+    (hh : s.halted = false) (hpc : s.pc.toNat < 32768) :
+    runCounted s 0 = { state := s, steps := 0, kind := .fuelExhausted } := by
+  have : ¬ (s.halted || 32768 ≤ s.pc.toNat) := by
+    simp [hh, Nat.not_le_of_gt hpc]
+  simp [runCounted, this]
+
+theorem runCounted_zero_halt (s : Machine)
+    (h : s.halted = true ∨ 32768 ≤ s.pc.toNat) :
+    runCounted s 0 =
+      { state := { s with halted := true }, steps := 0, kind := .programHalt } := by
+  have : s.halted || 32768 ≤ s.pc.toNat := by
+    cases h with
+    | inl hh => simp [hh]
+    | inr hp => simp [hp]
+  simp [runCounted, this]
+
+theorem runCounted_succ_go (s : Machine) (n : Nat)
+    (hh : s.halted = false) (hpc : s.pc.toNat < 32768) :
+    runCounted s (n + 1) =
+      let r := runCounted (step s) n
+      { r with steps := r.steps + 1 } := by
+  have : ¬ (s.halted || 32768 ≤ s.pc.toNat) := by
+    simp [hh, Nat.not_le_of_gt hpc]
+  simp [runCounted, this]
+
+theorem runCounted_succ_halt (s : Machine) (n : Nat)
+    (h : s.halted = true ∨ 32768 ≤ s.pc.toNat) :
+    runCounted s (n + 1) =
+      { state := { s with halted := true }, steps := 0, kind := .programHalt } := by
+  have : s.halted || 32768 ≤ s.pc.toNat := by
+    cases h with
+    | inl hh => simp [hh]
+    | inr hp => simp [hp]
+  simp [runCounted, this]
+
+/-- A program-HALT result never claims fuel exhaustion. -/
+theorem runCounted_programHalt_not_exhaust (s : Machine) (fuel : Nat)
+    (h : (runCounted s fuel).kind = HaltKind.programHalt) :
+    (runCounted s fuel).kind ≠ HaltKind.fuelExhausted := by
+  intro hf
+  cases h.symm.trans hf
+
+/-- If counted execution reports a program HALT, the final state is halted
+and we took at most `fuel` steps. -/
+theorem runCounted_programHalt_le (s : Machine) (fuel : Nat)
+    (h : (runCounted s fuel).kind = HaltKind.programHalt) :
+    (runCounted s fuel).state.halted = true ∧
+    (runCounted s fuel).steps ≤ fuel := by
+  induction fuel generalizing s with
+  | zero =>
+    cases hb : (s.halted || 32768 ≤ s.pc.toNat) with
+    | false =>
+      have : (runCounted s 0).kind = HaltKind.fuelExhausted := by
+        simp [runCounted, hb]
+      exact absurd (this.symm.trans h) (by decide)
+    | true =>
+      simp [runCounted, hb]
+  | succ n ih =>
+    cases hb : (s.halted || 32768 ≤ s.pc.toNat) with
+    | true =>
+      simp [runCounted, hb]
+    | false =>
+      have hs := ih (step s)
+      have hr : runCounted s (n + 1) =
+          let r := runCounted (step s) n
+          { r with steps := r.steps + 1 } := by
+        simp [runCounted, hb]
+      have hk : (runCounted (step s) n).kind = HaltKind.programHalt := by
+        simpa [hr] using h
+      have ⟨hh, hle⟩ := hs hk
+      refine ⟨?_, ?_⟩
+      · simpa [hr] using hh
+      · have : (runCounted s (n + 1)).steps = (runCounted (step s) n).steps + 1 := by
+          simp [hr]
+        omega
+
 end IntFmt.Subleq
