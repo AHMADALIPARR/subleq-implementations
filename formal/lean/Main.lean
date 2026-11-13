@@ -31,6 +31,25 @@ open IntFmt
 #print axioms runImage_terminates
 #print axioms image_mem_in_range
 
+
+#print axioms intfmtImage_size
+#print axioms intfmtImage_prefix16_eq_parse
+#print axioms parseDec_line0
+#print axioms parse_min_cell
+#print axioms image_cell_startTarget
+#print axioms image_cell_K45
+#print axioms image_cell_haltTarget
+#print axioms loadImage_eq_aux
+#print axioms boot_jmp
+#print axioms program_identity
+#print axioms safety_applies
+#print axioms run_intfmtFuel_of_done
+#print axioms Subleq.step_JMP
+#print axioms Subleq.step_ZERO
+#print axioms Subleq.step_JLEZ
+#print axioms Subleq.step_SUB
+#print axioms Subleq.step_HALT
+
 def main : IO Unit := do
   IO.println "IntFmt formal driver"
   IO.println "Authoritative theorems live in IntFmt.Decimal, Buffer, Refinement."

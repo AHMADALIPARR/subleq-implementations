@@ -11,4 +11,8 @@ import IntFmt.Subleq
 import IntFmt.Refinement
 import IntFmt.Evidence
 import IntFmt.Image
+import IntFmt.DecLoad
 import IntFmt.ImageRun
+import IntFmt.Exec
+import IntFmt.Macros
+import IntFmt.RefinementDec
